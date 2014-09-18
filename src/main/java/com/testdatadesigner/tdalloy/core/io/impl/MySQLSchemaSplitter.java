@@ -1,0 +1,67 @@
+package com.testdatadesigner.tdalloy.core.io.impl;
+
+import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
+
+import java.io.*;
+import java.util.ArrayList;
+import java.util.List;
+
+public class MySQLSchemaSplitter implements ISchemaSplitter {
+    List<String> rawTables = new ArrayList<String>();
+    private final char SPLITTER_STR = ';';
+    private final List<String> SKIP_MARKER = new ArrayList<String>(){{
+        add("/*");
+        add("--");
+        add("DROP TABLE");
+        add("LOCK TABLE");
+        add("UNLOCK TABLE");
+        add("INSERT INTO ");
+        add("ALTER TABLE");
+    }};
+
+    @Override
+    public void prepare(InputStream schemaAll) {
+        try {
+            BufferedReader reader =
+                    new BufferedReader(
+                            new InputStreamReader(schemaAll, "UTF-8"));
+            String line = null;
+            StringBuilder buffer = new StringBuilder();
+            while ((line = reader.readLine()) != null)  {
+                // dump ファイルに含まれるコメント行その他不要行の処理。
+                boolean isSkip = false;
+                for (String marker : SKIP_MARKER) {
+                    // TODO: 正規表現に？ もしくはStreamの時点でフィルタリング？（java8）
+                    if (line.contains(marker)) {
+                        isSkip = true;
+                        break;
+                    }
+                }
+                if (isSkip) { continue; }
+                if (line.length() == 0) { continue; }
+
+                buffer.append(line);
+                // 終端の処理。
+                if (line.indexOf(SPLITTER_STR) == line.length() - 1) {
+                    rawTables.add(buffer.toString());
+                    buffer = new StringBuilder();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+
+        }
+    }
+
+    @Override
+    public void prepare(File schemaFile) throws FileNotFoundException {
+        this.prepare(new FileInputStream(schemaFile.getPath()));
+    }
+
+    @Override
+    public List<String> getRawTables() {
+        return rawTables;
+    }
+
+}
