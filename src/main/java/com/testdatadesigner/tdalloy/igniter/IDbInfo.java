@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.fuze;
+package com.testdatadesigner.tdalloy.igniter;
 
 public interface IDbInfo {
     public Object getConnection();

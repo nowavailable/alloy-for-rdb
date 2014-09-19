@@ -1,7 +1,7 @@
 package com.testdatadesigner.tdalloy.fuze.impl;
 
 
-import com.testdatadesigner.tdalloy.fuze.IDbInfo;
+import com.testdatadesigner.tdalloy.igniter.IDbInfo;
 
 public class  DbInfo implements IDbInfo {
 

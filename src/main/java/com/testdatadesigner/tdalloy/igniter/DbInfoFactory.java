@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.fuze;
+package com.testdatadesigner.tdalloy.igniter;
 
 import com.testdatadesigner.tdalloy.core.io.impl.DbInfo;
 

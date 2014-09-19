@@ -1,8 +1,8 @@
 package com.testdatadesigner.tdalloy.core.io;
 
-import com.testdatadesigner.tdalloy.fuze.Dao;
-import com.testdatadesigner.tdalloy.fuze.DbInfoFactory;
-import com.testdatadesigner.tdalloy.fuze.IDbInfo;
+import com.testdatadesigner.tdalloy.igniter.Dao;
+import com.testdatadesigner.tdalloy.igniter.DbInfoFactory;
+import com.testdatadesigner.tdalloy.igniter.IDbInfo;
 
 /**
  * ファイルI/O および DBのI/O のファサード。

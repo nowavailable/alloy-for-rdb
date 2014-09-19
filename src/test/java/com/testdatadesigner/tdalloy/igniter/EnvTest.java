@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.fuze;
+package com.testdatadesigner.tdalloy.igniter;
 
 import junit.framework.Test;
 import junit.framework.TestCase;

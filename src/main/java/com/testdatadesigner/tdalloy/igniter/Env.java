@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.fuze;
+package com.testdatadesigner.tdalloy.igniter;
 
 import java.util.Properties;
 

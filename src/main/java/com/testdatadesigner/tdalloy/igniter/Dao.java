@@ -1,6 +1,6 @@
-package com.testdatadesigner.tdalloy.fuze;
+package com.testdatadesigner.tdalloy.igniter;
 
-import com.testdatadesigner.tdalloy.fuze.IDbInfo;
+import com.testdatadesigner.tdalloy.igniter.IDbInfo;
 
 public final class Dao  {  // singleton.
     private final static Dao instance = new Dao();
