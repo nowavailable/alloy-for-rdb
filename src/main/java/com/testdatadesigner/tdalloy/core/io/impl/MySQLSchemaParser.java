@@ -10,6 +10,10 @@ import com.foundationdb.sql.parser.SQLParser;
 import com.foundationdb.sql.parser.StatementNode;
 import com.google.common.base.Joiner;
 
+/**
+ * @author tsutsumi
+ *
+ */
 public class MySQLSchemaParser {
 
     List<Object> tables;
@@ -18,15 +22,16 @@ public class MySQLSchemaParser {
 
     public void inboundParse(List<String> schemas) throws StandardException {
 
-        List<Pattern> omitPatters = new ArrayList<Pattern>(){{
-            // 3分割したgroupのうち、2番目が置換対象。1,3番目は温存。
+        List<Pattern> omitPatterns = new ArrayList<Pattern>(){{
+            add(Pattern.compile("(,)([\\s]+SPATIAL KEY [^)]+`)(\\))"));
+            add(Pattern.compile("(,)([\\s]+FULLTEXT KEY [^)]+`)(\\))"));
+            add(Pattern.compile("(,)([\\s]+KEY [^)]+`)(\\))"));
+        }};
+        // 3分割したgroupのうち、2番目が置換対象、1,3番目は温存するパターン。
+        List<Pattern> omit2ndPatters = new ArrayList<Pattern>(){{
             add(Pattern.compile("(int)(\\([\\d]+\\))(.?)"));
             add(Pattern.compile("(.?)(AUTO_INCREMENT)(.?)"));
-            add(Pattern.compile("(.?)(,[\\s]+SPATIAL KEY .+`\\))(.?)"));
-            add(Pattern.compile("(.?)(,[\\s]+FULLTEXT KEY .+`\\))(.?)"));
-            add(Pattern.compile("(.?)(,[\\s]+KEY .+`\\))(.?)"));
             add(Pattern.compile("(\\))([\\s]+ENGINE=.+)(;)$"));
-            // ↓これは最後に。順番注意。
             add(Pattern.compile("(.+)(;)(.?)$"));
         }};
 
@@ -34,9 +39,17 @@ public class MySQLSchemaParser {
         StatementNode stmt = null;
         for (String createTableStr : schemas) {
             String simplify = createTableStr;
-            for (Pattern patternAndReplace : omitPatters) {
+            for (Pattern pattern : omitPatterns) {
+                Matcher matcher = pattern.matcher(simplify);
+                while (matcher.find()) {
+                    simplify = matcher.replaceAll("");
+                }
+            }
+            for (Pattern patternAndReplace : omit2ndPatters) {
                 Matcher matcher = patternAndReplace.matcher(simplify);
-                simplify = matcher.replaceAll("$1$3");
+                while (matcher.find()) {
+                    simplify = matcher.replaceAll("$1$3");
+                }
             }
 
             // その他の置換
@@ -51,14 +64,19 @@ public class MySQLSchemaParser {
                 simplify = m_total.replaceAll("$1, " + constraintStr + ')');
                 constraints = new ArrayList<String>();
             }
-
+            System.out.println(simplify);
             parser = new SQLParser();
             stmt = parser.parseStatement(simplify);
-            //System.out.println(simplify);
-            //stmt.treePrint();
+            stmt.treePrint();
         }
     }
 
+    /**
+     * 精度とスケールの指定つきのdoubleのカラム型定義を、
+     * DECIMALとして書き換える。
+     * @param createTableStr 最適化すべきMySQLのCreate Table 文
+     * @return UNIQUE INDEX 定義が最適化された Create Table 文
+     */
     public String optimizeDoubleToDecimal(String createTableStr) {
         String decimalStr = "DECIMAL";
         String optimized = createTableStr;
@@ -71,6 +89,11 @@ public class MySQLSchemaParser {
         return optimized;
     }
 
+    /**
+     * MySQL固有書式ののUNIQUE INDEX 定義を、標準的なそれに置換して返す。
+     * @param createTableStr 最適化すべきMySQLのCreate Table 文
+     * @return UNIQUE INDEX 定義が最適化された Create Table 文
+     */
     public String optimizeUniqueConstraint(String createTableStr) {
         String optimized = createTableStr;
         Pattern pattern =
@@ -84,4 +107,5 @@ public class MySQLSchemaParser {
         }
         return optimized;
     }
+
 }
