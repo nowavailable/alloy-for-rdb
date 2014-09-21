@@ -70,8 +70,8 @@ CREATE TABLE `authors` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `authors_books` (
-  `book_id` int(11) DEFAULT NULL,
-  `author_id` int(11) DEFAULT NULL,
+  `book_id` int(11) NOT NULL,
+  `author_id` int(11) NOT NULL,
   CONSTRAINT fk_authors_books_book_id
     FOREIGN KEY (`book_id`)
     REFERENCES `books`(`id`)
@@ -141,7 +141,10 @@ CREATE TABLE `user_points` (
   `point_summary_by_level` int(11) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `fk_user_points_user_id_current_level` (`user_id`, `snapshot_level`),
-  CONSTRAINT `fk_user_points_user_id_current_level` FOREIGN KEY (`user_id`, `snapshot_level`) REFERENCES `users` (`id`, `current_level`)
+  CONSTRAINT `fk_user_points_user_id_current_level` 
+    FOREIGN KEY (`user_id`, `snapshot_level`) 
+    REFERENCES `users` (`id`, `current_level`)
+    ON DELETE RESTRICT
 ) ;
 
 --drop table authors_books   ;
