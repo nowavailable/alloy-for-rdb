@@ -12,6 +12,7 @@ CREATE TABLE `user_activities` (
   `last_logged_in` datetime DEFAULT NULL,
   `user_id` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_user_activities_user_id` (`user_id`),
   CONSTRAINT fk_user_activities_user_id
     FOREIGN KEY (`user_id`)
     REFERENCES `users`(`id`)
