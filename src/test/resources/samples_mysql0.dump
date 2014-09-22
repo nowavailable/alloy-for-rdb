@@ -61,6 +61,27 @@ CREATE TABLE `authors_books` (
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
+-- Table structure for table `bookings`
+--
+
+DROP TABLE IF EXISTS `bookings`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `bookings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `expire_datetime` datetime NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_bookings_user_id` (`user_id`),
+  KEY `fk_bookings_item_id` (`item_id`),
+  CONSTRAINT `fk_bookings_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`),
+  CONSTRAINT `fk_bookings_item_id` FOREIGN KEY (`item_id`) REFERENCES `items` (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
 -- Table structure for table `bookmarks`
 --
 
@@ -126,6 +147,21 @@ DROP TABLE IF EXISTS `diaries`;
 CREATE TABLE `diaries` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `body` text,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+/*!40101 SET character_set_client = @saved_cs_client */;
+
+--
+-- Table structure for table `items`
+--
+
+DROP TABLE IF EXISTS `items`;
+/*!40101 SET @saved_cs_client     = @@character_set_client */;
+/*!40101 SET character_set_client = utf8 */;
+CREATE TABLE `items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
@@ -205,8 +241,9 @@ CREATE TABLE `user_points` (
   `snapshot_level` int(11) NOT NULL,
   `point_summary_by_level` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_user_points_user_id_current_level` (`user_id`,`snapshot_level`)
-) ENGINE=MyISAM DEFAULT CHARSET=utf8;
+  KEY `fk_user_points_user_id_current_level` (`user_id`,`snapshot_level`),
+  CONSTRAINT `fk_user_points_user_id_current_level` FOREIGN KEY (`user_id`, `snapshot_level`) REFERENCES `users` (`id`, `current_level`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -222,7 +259,8 @@ CREATE TABLE `users` (
   `name` varchar(255) NOT NULL,
   `current_level` int(11) NOT NULL DEFAULT '0',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `uq_users_screen_name` (`screen_name`)
+  UNIQUE KEY `uq_users_screen_name` (`screen_name`),
+  KEY `id` (`id`,`current_level`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -235,4 +273,4 @@ CREATE TABLE `users` (
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2014-09-22 15:10:40
+-- Dump completed on 2014-09-22 16:22:14

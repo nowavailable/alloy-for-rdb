@@ -111,41 +111,41 @@ CREATE TABLE `charactors` (
     ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
---    CREATE TABLE `user_points` (
---      `id` int(11) NOT NULL AUTO_INCREMENT,
---      `user_id` int(11) NOT NULL,
---      `snapshot_level` int(11) NOT NULL,
---      `point_summary_by_level` int(11) NOT NULL,
---      PRIMARY KEY (`id`),
---      CONSTRAINT fk_user_points_user_id_current_level
---        FOREIGN KEY (`user_id`, `snapshot_level`)
---        REFERENCES `users`(`id`, `current_level`)
---        ON DELETE RESTRICT
---    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
---
---        CREATE TABLE `user_points` (
---          `id` int(11) NOT NULL AUTO_INCREMENT,
---          `user_id` int(11) NOT NULL,
---          `snapshot_level` int(11) NOT NULL,
---          `point_summary_by_level` int(11) NOT NULL,
---          PRIMARY KEY (`id`),
---          CONSTRAINT fk_user_points_user_id_current_level
---            FOREIGN KEY (`user_id`)
---            REFERENCES `users`(`id`)
---            ON DELETE RESTRICT
---        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE `user_points` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `snapshot_level` int(11) NOT NULL,
   `point_summary_by_level` int(11) NOT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT `fk_user_points_user_id_current_level` 
-    FOREIGN KEY (`user_id`, `snapshot_level`) 
-    REFERENCES `users` (`id`, `current_level`)
-    ON DELETE RESTRICT
-) ;
+  KEY `fk_user_points_user_id_current_level` (`user_id`,`snapshot_level`),
+  CONSTRAINT `fk_user_points_user_id_current_level` FOREIGN KEY (`user_id`, `snapshot_level`) REFERENCES `users` (`id`, `current_level`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8
+
+CREATE TABLE `items` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `code` varchar(255) NOT NULL,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+CREATE TABLE `bookings` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  `expire_datetime` datetime NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`),
+  KEY `fk_bookings_user_id` (`user_id`),
+  KEY `fk_bookings_item_id` (`item_id`),
+  CONSTRAINT `fk_bookings_user_id` 
+    FOREIGN KEY (`user_id`) 
+    REFERENCES `users` (`id`)
+    ON  DELETE RESTRICT,
+  CONSTRAINT `fk_bookings_item_id`
+    FOREIGN KEY (`item_id`) 
+    REFERENCES `items` (`id`)
+    ON  DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 
 --drop table authors_books   ;
@@ -161,3 +161,5 @@ CREATE TABLE `user_points` (
 --drop table actors;
 --drop table movies;
 --drop table user_points;
+--drop table items;
+--drop table bookings;
