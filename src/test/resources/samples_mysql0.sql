@@ -117,9 +117,10 @@ CREATE TABLE `user_points` (
   `snapshot_level` int(11) NOT NULL,
   `point_summary_by_level` int(11) NOT NULL,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uq_user_points_user_id_current_level` (`user_id`,`snapshot_level`),
   KEY `fk_user_points_user_id_current_level` (`user_id`,`snapshot_level`),
-  CONSTRAINT `fk_user_points_user_id_current_level` FOREIGN KEY (`user_id`, `snapshot_level`) REFERENCES `users` (`id`, `current_level`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8
+  CONSTRAINT `fk_user_points_user_id_current_level` FOREIGN KEY (`user_id`, `snapshot_level`) REFERENCES `users` (`id`, `current_level`) ON DELETE RESTRICT
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `items` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
