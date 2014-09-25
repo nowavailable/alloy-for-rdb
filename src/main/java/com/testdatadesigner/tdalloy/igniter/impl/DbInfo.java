@@ -1,4 +1,5 @@
-package com.testdatadesigner.tdalloy.core.io.impl;
+package com.testdatadesigner.tdalloy.igniter.impl;
+
 
 import com.testdatadesigner.tdalloy.igniter.IDbInfo;
 
