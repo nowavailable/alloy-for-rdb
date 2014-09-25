@@ -1,6 +1,6 @@
 package com.testdatadesigner.tdalloy.igniter;
 
-import com.testdatadesigner.tdalloy.core.io.impl.DbInfo;
+import com.testdatadesigner.tdalloy.igniter.impl.DbInfo;
 
 public final class DbInfoFactory {  // singleton.
     private final static DbInfoFactory instance = new DbInfoFactory();
