@@ -1,7 +1,5 @@
 package com.testdatadesigner.tdalloy.igniter;
 
-import com.testdatadesigner.tdalloy.igniter.impl.DbInfo;
-
 public final class DbInfoFactory {  // singleton.
     private final static DbInfoFactory instance = new DbInfoFactory();
     private IDbInfo dbInfo = null;
@@ -17,7 +15,7 @@ public final class DbInfoFactory {  // singleton.
         // TODO: 実装切り替えの引数
         if (someString instanceof String) {
             if (this.dbInfo == null) {
-                this.dbInfo = new DbInfo();
+                //this.dbInfo = new DbInfo();
             }
         }
         return this.dbInfo;
