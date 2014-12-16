@@ -14,12 +14,19 @@ import com.google.common.base.Joiner;
  * @author tsutsumi
  *
  */
+// TODO: インターフェイス切る。その前にパース結果のDTOを設計して、それを戻り値がフィールドにする。
 public class MySQLSchemaParser {
 
     List<Object> tables;
 
     private List<String> constraints = new ArrayList<String>();
 
+    /**
+     * MySQLのCREATE TABLE文の方言を標準的な書式に直して、fdbのパーサーを通す。
+     * TODO: そののちDTOに詰め替え。
+     * @param schemas
+     * @throws StandardException
+     */
     public void inboundParse(List<String> schemas) throws StandardException {
 
         List<Pattern> omitPatterns = new ArrayList<Pattern>(){{
