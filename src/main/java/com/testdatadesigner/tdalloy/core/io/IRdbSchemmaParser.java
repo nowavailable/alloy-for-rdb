@@ -3,7 +3,7 @@ package com.testdatadesigner.tdalloy.core.io;
 import java.util.List;
 
 import com.foundationdb.sql.StandardException;
-import com.foundationdb.sql.parser.StatementNode;
+import com.foundationdb.sql.parser.CreateTableNode;
 
 public interface IRdbSchemmaParser {
 
@@ -13,7 +13,7 @@ public interface IRdbSchemmaParser {
 	 * @return foundation-dbのStatementNode。
 	 * @throws StandardException
 	 */
-	public List<StatementNode> inboundParse(List<String> schemas)
+	public List<CreateTableNode> inboundParse(List<String> schemas)
 	        throws StandardException;
 
 }

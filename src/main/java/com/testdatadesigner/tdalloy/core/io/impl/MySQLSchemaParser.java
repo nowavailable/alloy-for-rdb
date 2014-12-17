@@ -6,6 +6,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import com.foundationdb.sql.StandardException;
+import com.foundationdb.sql.parser.CreateTableNode;
 import com.foundationdb.sql.parser.SQLParser;
 import com.foundationdb.sql.parser.StatementNode;
 import com.google.common.base.Joiner;
@@ -17,8 +18,6 @@ import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
  */
 public class MySQLSchemaParser implements IRdbSchemmaParser {
 
-    List<Object> tables;
-
 	private List<String> constraints = new ArrayList<String>();
 
 	/**
@@ -28,7 +27,7 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
 	 * @throws StandardException
 	 */
     @Override
-    public List<StatementNode> inboundParse(List<String> schemas) throws StandardException {
+    public List<CreateTableNode> inboundParse(List<String> schemas) throws StandardException {
 
         List<Pattern> omitPatterns = new ArrayList<Pattern>(){{
             add(Pattern.compile("(,)([\\s]+SPATIAL KEY [^)]+`)(\\))"));
@@ -45,7 +44,7 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
 
         SQLParser parser = null;
         StatementNode stmt = null;
-        List<StatementNode> nodeList = new ArrayList<StatementNode>();
+        List<CreateTableNode> nodeList = new ArrayList<CreateTableNode>();
         
         for (String createTableStr : schemas) {
             String simplify = createTableStr;
@@ -78,7 +77,7 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
             parser = new SQLParser();
             stmt = parser.parseStatement(simplify);
             //stmt.treePrint();
-            nodeList.add(stmt);
+            nodeList.add((CreateTableNode) stmt);
         }
         return nodeList;
     }

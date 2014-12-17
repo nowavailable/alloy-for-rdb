@@ -3,10 +3,9 @@ package com.testdatadesigner.tdalloy.core.io.impl;
 import junit.framework.TestCase;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.foundationdb.sql.parser.StatementNode;
+import com.foundationdb.sql.parser.CreateTableNode;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
 
 public class MySQLSchemaParserTest extends TestCase {
@@ -27,9 +26,10 @@ public class MySQLSchemaParserTest extends TestCase {
         List<String> results = ddlSplitter.getRawTables();
 
         IRdbSchemmaParser parser = new MySQLSchemaParser();
-        List<StatementNode> resultList = parser.inboundParse(results);
-        for (StatementNode statementNode : resultList) {
+        List<CreateTableNode> resultList = parser.inboundParse(results);
+        for (CreateTableNode statementNode : resultList) {
         	statementNode.treePrint();
+        	
         }
     }
 
