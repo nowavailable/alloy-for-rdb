@@ -20,7 +20,8 @@ public class MySQLSchemaParserTest extends TestCase {
 //          "CREATE TABLE `bookmarks` (  `id` int(11) NOT NULL AUTO_INCREMENT,  `memo` varchar(255) DEFAULT NULL,  `user_id` int(11) NOT NULL,  `url_id` int(11) NOT NULL,  PRIMARY KEY (`id`),  CONSTRAINT fk_bookmarks_user_id    FOREIGN KEY (`user_id`)    REFERENCES `users`(`id`)    ON DELETE CASCADE,  CONSTRAINT fk_bookmarks_url_id    FOREIGN KEY (`url_id`)    REFERENCES `urls`(`id`)    ON DELETE SET NULL)"
 //      );
 //  }});
-        InputStream in = this.getClass().getResourceAsStream("/ponta.dump");
+        InputStream in = this.getClass().getResourceAsStream("/structure.sql");
+        //InputStream in = this.getClass().getResourceAsStream("/sampledatas.dump");
         MySQLSchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();
