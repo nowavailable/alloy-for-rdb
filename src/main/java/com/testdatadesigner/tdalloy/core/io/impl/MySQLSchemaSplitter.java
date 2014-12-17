@@ -7,7 +7,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class MySQLSchemaSplitter implements ISchemaSplitter {
-    List<String> rawTables = new ArrayList<String>();
+    private List<String> rawTables = new ArrayList<String>();
     private final char SPLITTER_STR = ';';
     private final List<String> SKIP_MARKER = new ArrayList<String>(){{
         add("/*");
@@ -52,11 +52,6 @@ public class MySQLSchemaSplitter implements ISchemaSplitter {
         } finally {
 
         }
-    }
-
-    @Override
-    public void prepare(File schemaFile) throws FileNotFoundException {
-        this.prepare(new FileInputStream(schemaFile.getPath()));
     }
 
     @Override

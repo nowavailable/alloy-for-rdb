@@ -9,25 +9,26 @@ import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.SQLParser;
 import com.foundationdb.sql.parser.StatementNode;
 import com.google.common.base.Joiner;
+import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
 
 /**
  * @author tsutsumi
  *
  */
-// TODO: インターフェイス切る。その前にパース結果のDTOを設計して、それを戻り値がフィールドにする。
-public class MySQLSchemaParser {
+public class MySQLSchemaParser implements IRdbSchemmaParser {
 
     List<Object> tables;
 
-    private List<String> constraints = new ArrayList<String>();
+	private List<String> constraints = new ArrayList<String>();
 
-    /**
-     * MySQLのCREATE TABLE文の方言を標準的な書式に直して、fdbのパーサーを通す。
-     * TODO: そののちDTOに詰め替え。
-     * @param schemas
-     * @throws StandardException
-     */
-    public void inboundParse(List<String> schemas) throws StandardException {
+	/**
+	 * MySQLのCREATE TABLE文の方言を標準的な書式に直して、fdbのパーサーを通す。
+	 * @param schemas
+	 * @return fdbのStatementNode。
+	 * @throws StandardException
+	 */
+    @Override
+    public List<StatementNode> inboundParse(List<String> schemas) throws StandardException {
 
         List<Pattern> omitPatterns = new ArrayList<Pattern>(){{
             add(Pattern.compile("(,)([\\s]+SPATIAL KEY [^)]+`)(\\))"));
@@ -44,6 +45,8 @@ public class MySQLSchemaParser {
 
         SQLParser parser = null;
         StatementNode stmt = null;
+        List<StatementNode> nodeList = new ArrayList<StatementNode>();
+        
         for (String createTableStr : schemas) {
             String simplify = createTableStr;
             for (Pattern pattern : omitPatterns) {
@@ -71,11 +74,13 @@ public class MySQLSchemaParser {
                 simplify = m_total.replaceAll("$1, " + constraintStr + ')');
                 constraints = new ArrayList<String>();
             }
-            System.out.println(simplify);
+            //System.out.println(simplify);
             parser = new SQLParser();
             stmt = parser.parseStatement(simplify);
-            stmt.treePrint();
+            //stmt.treePrint();
+            nodeList.add(stmt);
         }
+        return nodeList;
     }
 
     /**

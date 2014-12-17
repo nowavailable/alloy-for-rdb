@@ -14,6 +14,7 @@ public class MySQLSchemaSplitterTest extends TestCase {
     }
 
     public void testPrepare() throws Exception {
+        //File ddlFile = new File("src/test/resources/structure.sql");
         InputStream in = this.getClass().getResourceAsStream("/structure.sql");
         MySQLSchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);
@@ -26,13 +27,6 @@ public class MySQLSchemaSplitterTest extends TestCase {
         ddlSplitter.prepare(in);
         results = ddlSplitter.getRawTables();
 
-        validation(results);
-    }
-
-    public void testPrepareFromFile() throws Exception {
-        MySQLSchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-        ddlSplitter.prepare(new File("src/test/resources/structure.sql"));
-        List<String> results = ddlSplitter.getRawTables();
         validation(results);
     }
 
