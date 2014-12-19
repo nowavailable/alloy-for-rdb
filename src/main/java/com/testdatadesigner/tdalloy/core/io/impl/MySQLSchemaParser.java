@@ -14,38 +14,44 @@ import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
 
 /**
  * @author tsutsumi
- *
+ * 
  */
 public class MySQLSchemaParser implements IRdbSchemmaParser {
 
-	private List<String> constraints = new ArrayList<String>();
+    private List<String> constraints = new ArrayList<String>();
 
-	/**
-	 * MySQLのCREATE TABLE文の方言を標準的な書式に直して、fdbのパーサーを通す。
-	 * @param schemas
-	 * @return fdbのStatementNode。
-	 * @throws StandardException
-	 */
+    /**
+     * MySQLのCREATE TABLE文の方言を標準的な書式に直して、fdbのパーサーを通す。
+     * 
+     * @param schemas
+     * @return fdbのStatementNode。
+     * @throws StandardException
+     */
     @Override
-    public List<CreateTableNode> inboundParse(List<String> schemas) throws StandardException {
+    public List<CreateTableNode> inboundParse(List<String> schemas)
+            throws StandardException {
 
-        List<Pattern> omitPatterns = new ArrayList<Pattern>(){{
-            add(Pattern.compile("(,)([\\s]+SPATIAL KEY [^)]+`)(\\))"));
-            add(Pattern.compile("(,)([\\s]+FULLTEXT KEY [^)]+`)(\\))"));
-            add(Pattern.compile("(,)([\\s]+KEY [^)]+`)(\\))"));
-        }};
+        List<Pattern> omitPatterns = new ArrayList<Pattern>() {
+            {
+                add(Pattern.compile("(,)([\\s]+SPATIAL KEY [^)]+`)(\\))"));
+                add(Pattern.compile("(,)([\\s]+FULLTEXT KEY [^)]+`)(\\))"));
+                add(Pattern.compile("(,)([\\s]+KEY [^)]+`)(\\))"));
+            }
+        };
         // 3分割したgroupのうち、2番目が置換対象、1,3番目は温存するパターン。
-        List<Pattern> omit2ndPatters = new ArrayList<Pattern>(){{
-            add(Pattern.compile("(int)(\\([\\d]+\\))(.?)"));
-            add(Pattern.compile("(.?)(AUTO_INCREMENT)(.?)"));
-            add(Pattern.compile("(\\))([\\s]+ENGINE=.+)(;)$"));
-            add(Pattern.compile("(.+)(;)(.?)$"));
-        }};
+        List<Pattern> omit2ndPatters = new ArrayList<Pattern>() {
+            {
+                add(Pattern.compile("(int)(\\([\\d]+\\))(.?)"));
+                add(Pattern.compile("(.?)(AUTO_INCREMENT)(.?)"));
+                add(Pattern.compile("(\\))([\\s]+ENGINE=.+)(;)$"));
+                add(Pattern.compile("(.+)(;)(.?)$"));
+            }
+        };
 
         SQLParser parser = null;
         StatementNode stmt = null;
         List<CreateTableNode> nodeList = new ArrayList<CreateTableNode>();
-        
+
         for (String createTableStr : schemas) {
             String simplify = createTableStr;
             for (Pattern pattern : omitPatterns) {
@@ -73,26 +79,27 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
                 simplify = m_total.replaceAll("$1, " + constraintStr + ')');
                 constraints = new ArrayList<String>();
             }
-            //System.out.println(simplify);
+            // System.out.println(simplify);
             parser = new SQLParser();
             stmt = parser.parseStatement(simplify);
-            //stmt.treePrint();
+            // stmt.treePrint();
             nodeList.add((CreateTableNode) stmt);
         }
         return nodeList;
     }
 
     /**
-     * 精度とスケールの指定つきのdoubleのカラム型定義を、
-     * DECIMALとして書き換える。
-     * @param createTableStr 最適化すべきMySQLのCreate Table 文
+     * 精度とスケールの指定つきのdoubleのカラム型定義を、 DECIMALとして書き換える。
+     * 
+     * @param createTableStr
+     *            最適化すべきMySQLのCreate Table 文
      * @return UNIQUE INDEX 定義が最適化された Create Table 文
      */
     public String optimizeDoubleToDecimal(String createTableStr) {
         String decimalStr = "DECIMAL";
         String optimized = createTableStr;
-        Pattern pattern =
-                Pattern.compile("([\\s]+)(double)(\\([\\d]+,[\\d]+\\)[\\s]+)");
+        Pattern pattern = Pattern
+                .compile("([\\s]+)(double)(\\([\\d]+,[\\d]+\\)[\\s]+)");
         Matcher matcher = pattern.matcher(createTableStr);
         while (matcher.find()) {
             optimized = matcher.replaceAll("$1" + decimalStr + "$3");
@@ -102,18 +109,19 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
 
     /**
      * MySQL固有書式ののUNIQUE INDEX 定義を、標準的なそれに置換して返す。
-     * @param createTableStr 最適化すべきMySQLのCreate Table 文
+     * 
+     * @param createTableStr
+     *            最適化すべきMySQLのCreate Table 文
      * @return UNIQUE INDEX 定義が最適化された Create Table 文
      */
     public String optimizeUniqueConstraint(String createTableStr) {
         String optimized = createTableStr;
-        Pattern pattern =
-                Pattern.compile("(.?)(,[\\s]+UNIQUE KEY( `\\w+`)( (\\([^)]+`)\\)))");
+        Pattern pattern = Pattern
+                .compile("(.?)(,[\\s]+UNIQUE KEY( `\\w+`)( (\\([^)]+`)\\)))");
         Matcher matcher = pattern.matcher(createTableStr);
         while (matcher.find()) {
-            this.constraints.add(
-                "CONSTRAINT " + matcher.group(3) + " UNIQUE " + matcher.group(4)
-            );
+            this.constraints.add("CONSTRAINT " + matcher.group(3) + " UNIQUE "
+                    + matcher.group(4));
             optimized = matcher.replaceAll("$1");
         }
         return optimized;

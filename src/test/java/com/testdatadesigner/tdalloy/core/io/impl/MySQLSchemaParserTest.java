@@ -3,10 +3,22 @@ package com.testdatadesigner.tdalloy.core.io.impl;
 import junit.framework.TestCase;
 
 import java.io.InputStream;
+import java.util.ArrayList;
 import java.util.List;
 
+import com.foundationdb.sql.parser.ColumnDefinitionNode;
+import com.foundationdb.sql.parser.ConstraintDefinitionNode;
+import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 import com.foundationdb.sql.parser.CreateTableNode;
+import com.foundationdb.sql.parser.FKConstraintDefinitionNode;
+import com.foundationdb.sql.parser.ResultColumn;
+import com.foundationdb.sql.parser.TableElementNode;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
+import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
+import com.testdatadesigner.tdalloy.core.types.Alloyable;
+import com.testdatadesigner.tdalloy.core.types.Relation;
+import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.types.Sig;
 
 public class MySQLSchemaParserTest extends TestCase {
 
@@ -20,24 +32,25 @@ public class MySQLSchemaParserTest extends TestCase {
 //          "CREATE TABLE `bookmarks` (  `id` int(11) NOT NULL AUTO_INCREMENT,  `memo` varchar(255) DEFAULT NULL,  `user_id` int(11) NOT NULL,  `url_id` int(11) NOT NULL,  PRIMARY KEY (`id`),  CONSTRAINT fk_bookmarks_user_id    FOREIGN KEY (`user_id`)    REFERENCES `users`(`id`)    ON DELETE CASCADE,  CONSTRAINT fk_bookmarks_url_id    FOREIGN KEY (`url_id`)    REFERENCES `urls`(`id`)    ON DELETE SET NULL)"
 //      );
 //  }});
-        InputStream in = this.getClass().getResourceAsStream("/structure.sql");
-        //InputStream in = this.getClass().getResourceAsStream("/sampledatas.dump");
-        MySQLSchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+
+        //InputStream in = this.getClass().getResourceAsStream("/structure.sql");
+        ////InputStream in = this.getClass().getResourceAsStream("/sampledatas.dump");
+        InputStream in = this.getClass().getResourceAsStream("/wanda_developmant.referance.sql");
+        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();
 
         IRdbSchemmaParser parser = new MySQLSchemaParser();
         List<CreateTableNode> resultList = parser.inboundParse(results);
-        for (CreateTableNode statementNode : resultList) {
-        	statementNode.treePrint();
-        	
+        for (CreateTableNode tableNode : resultList) {
+            tableNode.treePrint();
         }
     }
 
     public void testInboundParseSample() throws Exception {
         //InputStream in = this.getClass().getResourceAsStream("/samples_mysql0.dump");
         InputStream in = this.getClass().getResourceAsStream("/samples_mysql0.sql");
-        MySQLSchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();
         IRdbSchemmaParser parser = new MySQLSchemaParser();
