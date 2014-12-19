@@ -2,7 +2,6 @@ package com.testdatadesigner.tdalloy.core.io.impl;
 
 import junit.framework.TestCase;
 
-import java.io.File;
 import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Matcher;
