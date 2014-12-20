@@ -8,9 +8,64 @@ import java.util.regex.Pattern;
 import com.testdatadesigner.tdalloy.util.Inflector;
 
 public class RulesForAlloyable {
+    
+    static Pattern foreignKeyPattern = Pattern.compile("^(.+)(_id)$");
+    static Pattern patternsForPolymophic = Pattern.compile("^(.+)(_type)$");
+    
+    public static List<List<String>> inferencedRelations(List<String> columnNames) {
+        final List<String> matchedPolymophic = new ArrayList<String>();
+        List<String> candidate = new ArrayList<String>();
+        for (String columnName : columnNames) {
+            Matcher idMatcher = patternsForPolymophic.matcher(columnName);
+            if (idMatcher.find()) {
+                candidate.add(idMatcher.group(1));
+            }
+        }
+        for (String columnName : columnNames) {
+            for (String keyStr : candidate) {
+                Pattern pattern = Pattern.compile("^(" + keyStr + ")(_id)$");
+                Matcher matcher = pattern.matcher(columnName);
+                if (matcher.find()) {
+                    matchedPolymophic.add(keyStr);
+                }
+            }
+        }
+
+        final List<String> matchedForeignKey = new ArrayList<String>();
+        for (String columnName : columnNames) {
+            Matcher matcher = foreignKeyPattern.matcher(columnName);
+            if (matcher.find()) {
+                if (matchedPolymophic.contains(matcher.group(1))) {
+                    continue;
+                }
+                matchedForeignKey.add(columnName);
+            }
+        }
+        return new ArrayList<List<String>>(){{
+            this.add(matchedPolymophic);
+            this.add(matchedForeignKey);
+        }};
+    }
+
     public static String generateTableSigName(String originalTableName) {
         Inflector inflector = Inflector.getInstance();
         return inflector.upperCamelCase(inflector.singularize(originalTableName));
+    }
+
+    public static String generateTableSigNameFromFKey(String originalColumnName)
+            throws IllegalAccessException {
+        Inflector inflector = Inflector.getInstance();
+        return inflector
+                .upperCamelCase(inflector.singularize(generateTableNameFromFKey(originalColumnName)));
+    }
+
+    public static String generateTableNameFromFKey(String originalColumnName)
+            throws IllegalAccessException {
+        Matcher matcher = foreignKeyPattern.matcher(originalColumnName);
+        if (!matcher.find()) {
+            throw new IllegalAccessException("this is not foreign key.");
+        }
+        return matcher.group(1);
     }
     
     public static String generateColmnSigName(String originalColumnName,
@@ -23,7 +78,7 @@ public class RulesForAlloyable {
     public static String generateForeignKeyName(String originalColumnName,
             String originalTableName) {
         String optimized = originalColumnName;
-        Pattern pattern = Pattern.compile("^(.+)(_id)$");
+        Pattern pattern = foreignKeyPattern;
         Matcher matcher = pattern.matcher(originalColumnName);
         while (matcher.find()) {
             optimized = matcher.replaceAll("$1");
@@ -72,13 +127,4 @@ public class RulesForAlloyable {
         return sigs;
     }
     
-    public static List<Relation> inferenceForeignKey() {
-        List<Relation> relations = new ArrayList<Relation>();
-        return relations;
-    }
-
-    public static List<Relation> inferencePolymophics() {
-        List<Relation> relations = new ArrayList<Relation>();
-        return relations;
-    }
 }
