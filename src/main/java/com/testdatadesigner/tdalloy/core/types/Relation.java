@@ -6,7 +6,8 @@ public class Relation implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public String name;
-    public enum tipify {
+    public Tipify type;
+    public static enum Tipify {
         VALUE,                      // カラム値である
         VALUE_REVERSED,             // カラム値の側から候補キーを見た関係
         RELATION,                   // テーブルリレーション
@@ -17,7 +18,9 @@ public class Relation implements Serializable {
         // TODO: 状態sig用。
         //ON_STATE,
     }
+    public Sig referTo;
     public Sig owner;           // alloy定義上の親sig
     public String originOwner;  // dbスキーマ上の親（テーブル名）
     public String originPropertyName;
+    public Boolean ignore = Boolean.FALSE;
 }

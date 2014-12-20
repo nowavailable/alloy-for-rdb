@@ -7,15 +7,31 @@ public class Sig implements Serializable {
 
     public String name;
     public Integer seq;
-    public enum tipify {
+    public Tipify type;
+    public static enum Tipify {
         ENTITY,                     // テーブル相当
-        PROPERTY_FACTOR,            // 属性値としてモデリングされたenum
-        PROPERTY_PROTOTYPE,         // 属性値としてモデリングされたenumの列挙子
+        PROPERTY_FACTOR,            // 属性値としてモデリングされたenumの列挙子
+        PROPERTY_PROTOTYPE,         // 属性値としてモデリングされたenum
         POLYMOPHIC_TYPE_ABSTRACT,   // ポリモーフィック関連のtypeの抽象化されたsig
         POLYMOPHIC_IMPLIMENT,       // ポリモーフィック関連のtypeの抽象化されたsigの継承先
         // TODO: 状態sig用。
         //STATE,
     }
-    public Boolean isAbstruct;
-    public String originPropertyName;
+    public Boolean isAbstruct = false;
+    public String originPropertyName = "";
+    public Boolean ignore = Boolean.FALSE;
+    
+    private Sig parent;
+
+    public Sig getParent() {
+        return this.parent;
+    }
+
+    public void setParent(Sig parent) {
+        if (this.type.equals(Tipify.ENTITY)) {
+            throw new RuntimeException("No need parent.");
+        }
+        this.parent = parent;
+    }
+    
 }
