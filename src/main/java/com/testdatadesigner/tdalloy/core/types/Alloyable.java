@@ -55,7 +55,7 @@ public class Alloyable implements Serializable {
     private List<String> foreignKeys = new ArrayList<String>();
     static final String INTERNAL_SEPERATOR = "_#_";
 
-    public Alloyable buildTableSigs(List<CreateTableNode> parsedDDLList) {
+    public Alloyable buildFromTable(List<CreateTableNode> parsedDDLList) {
         for (CreateTableNode tableNode : parsedDDLList) {
             Sig sig = new Sig(Sig.Tipify.ENTITY);
             sig.originPropertyName = tableNode.getFullName();
@@ -99,7 +99,7 @@ public class Alloyable implements Serializable {
      * @return this
      * @throws IllegalAccessException
      */
-    public Alloyable buildInferencedRelations(
+    public Alloyable buildByInference(
             List<CreateTableNode> parsedDDLList) throws IllegalAccessException {
         for (CreateTableNode tableNode : parsedDDLList) {
             List<String> columnNames = new ArrayList<String>();
@@ -212,7 +212,7 @@ public class Alloyable implements Serializable {
      * @param parsedDDLList
      * @return this
      */
-    public Alloyable buildForeignKeyRelations(
+    public Alloyable buildFromForeignKey(
             List<CreateTableNode> parsedDDLList) {
         for (CreateTableNode tableNode : parsedDDLList) {
             for (TableElementNode tableElement : tableNode
@@ -263,7 +263,7 @@ public class Alloyable implements Serializable {
         return this;
     }
 
-    public Alloyable buildColumnSigs(List<CreateTableNode> parsedDDLList) {
+    public Alloyable buildFromColumn(List<CreateTableNode> parsedDDLList) {
         for (CreateTableNode tableNode : parsedDDLList) {
             for (TableElementNode tableElement : tableNode
                     .getTableElementList()) {

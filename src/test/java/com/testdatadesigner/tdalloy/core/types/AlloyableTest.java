@@ -37,10 +37,10 @@ public class AlloyableTest extends TestCase {
 
     public void testBuildAll() throws Exception {
         // 期待値
-        this.currentAlloyable = this.currentAlloyable.buildTableSigs(this.resultList);
-        this.currentAlloyable = this.currentAlloyable.buildInferencedRelations(this.resultList);
-        this.currentAlloyable = this.currentAlloyable.buildForeignKeyRelations(this.resultList);
-        this.currentAlloyable = this.currentAlloyable.buildColumnSigs(this.resultList);
+        this.currentAlloyable = this.currentAlloyable.buildFromTable(this.resultList);
+        this.currentAlloyable = this.currentAlloyable.buildByInference(this.resultList);
+        this.currentAlloyable = this.currentAlloyable.buildFromForeignKey(this.resultList);
+        this.currentAlloyable = this.currentAlloyable.buildFromColumn(this.resultList);
         for (Sig result : this.currentAlloyable.sigs) {
             System.out.println(result.name);
         }
