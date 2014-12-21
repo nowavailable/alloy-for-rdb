@@ -18,7 +18,7 @@ import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
  */
 public class MySQLSchemaParser implements IRdbSchemmaParser {
 
-    private List<String> constraints = new ArrayList<String>();
+    private List<String> constraints = new ArrayList<>();
 
     /**
      * MySQLのCREATE TABLE文の方言を標準的な書式に直して、fdbのパーサーを通す。
@@ -50,7 +50,7 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
 
         SQLParser parser = null;
         StatementNode stmt = null;
-        List<CreateTableNode> nodeList = new ArrayList<CreateTableNode>();
+        List<CreateTableNode> nodeList = new ArrayList<>();
 
         for (String createTableStr : schemas) {
             String simplify = createTableStr;
@@ -77,7 +77,7 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
                 Pattern p_total = Pattern.compile("^(.+)(\\))$");
                 Matcher m_total = p_total.matcher(simplify);
                 simplify = m_total.replaceAll("$1, " + constraintStr + ')');
-                constraints = new ArrayList<String>();
+                constraints = new ArrayList<>();
             }
             // System.out.println(simplify);
             parser = new SQLParser();

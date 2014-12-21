@@ -17,8 +17,8 @@ public class RulesForAlloyable {
     static Pattern patternsForPolymophic = Pattern.compile("^(.+)(" + POLYMOPHIC_SUFFIX + ")$");
     
     public static List<List<String>> inferencedRelations(List<String> columnNames) {
-        final List<String> matchedPolymophic = new ArrayList<String>();
-        List<String> candidate = new ArrayList<String>();
+        final List<String> matchedPolymophic = new ArrayList<>();
+        List<String> candidate = new ArrayList<>();
         for (String columnName : columnNames) {
             Matcher idMatcher = patternsForPolymophic.matcher(columnName);
             if (idMatcher.find()) {
@@ -35,7 +35,7 @@ public class RulesForAlloyable {
             }
         }
 
-        final List<String> matchedForeignKey = new ArrayList<String>();
+        final List<String> matchedForeignKey = new ArrayList<>();
         for (String columnName : columnNames) {
             Matcher matcher = foreignKeyPattern.matcher(columnName);
             if (matcher.find()) {
@@ -115,7 +115,7 @@ public class RulesForAlloyable {
                         + inflector.upperCamelCase(originalColumnName) + "LOW"));
             }
         };
-        List<Sig> sigs = new ArrayList<Sig>();
+        List<Sig> sigs = new ArrayList<>();
         for (String factor : factors) {
             Sig sig = new Sig(Sig.Tipify.PROPERTY_FACTOR);
             sig.originPropertyName = originalColumnName;
