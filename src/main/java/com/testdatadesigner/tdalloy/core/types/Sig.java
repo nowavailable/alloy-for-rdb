@@ -14,6 +14,7 @@ public class Sig implements Serializable {
         PROPERTY_PROTOTYPE,         // 属性値としてモデリングされたenum
         POLYMOPHIC_TYPE_ABSTRACT,   // ポリモーフィック関連のtypeの抽象化されたsig
         POLYMOPHIC_IMPLIMENT,       // ポリモーフィック関連のtypeの抽象化されたsigの継承先
+        BOOLEAN_FACTOR,
         // TODO: 状態sig用。
         //STATE,
     }
@@ -22,6 +23,15 @@ public class Sig implements Serializable {
     public Boolean ignore = Boolean.FALSE;
     
     private Sig parent;
+
+
+    public Sig() {
+        super();
+    }
+    public Sig(Tipify type) {
+        super();
+        this.type = type;
+    }
 
     public Sig getParent() {
         return this.parent;

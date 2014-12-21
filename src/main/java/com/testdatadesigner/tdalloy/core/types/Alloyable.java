@@ -19,6 +19,8 @@ public class Alloyable implements Serializable {
     public List<Fact> facts = new ArrayList<Fact>();
     public Boolean isRailsOriented = Boolean.FALSE;
 
+    // TODO: 自動で生成出来ない部分についての情報フィールド
+
     public String toJson() {
         return null;
     }
@@ -55,11 +57,10 @@ public class Alloyable implements Serializable {
 
     public Alloyable buildTableSigs(List<CreateTableNode> parsedDDLList) {
         for (CreateTableNode tableNode : parsedDDLList) {
-            Sig sig = new Sig();
+            Sig sig = new Sig(Sig.Tipify.ENTITY);
             sig.originPropertyName = tableNode.getFullName();
-            sig.name = RulesForAlloyable.generateTableSigName(tableNode
+            sig.name = RulesForAlloyable.tableSigName(tableNode
                     .getFullName());
-            sig.type = com.testdatadesigner.tdalloy.core.types.Sig.Tipify.ENTITY;
             this.sigs.add(sig);
 
             for (TableElementNode tableElement : tableNode
@@ -98,7 +99,7 @@ public class Alloyable implements Serializable {
      * @return this
      * @throws IllegalAccessException
      */
-    public Alloyable buildinferencedRelations(
+    public Alloyable buildInferencedRelations(
             List<CreateTableNode> parsedDDLList) throws IllegalAccessException {
         for (CreateTableNode tableNode : parsedDDLList) {
             List<String> columnNames = new ArrayList<String>();
@@ -114,21 +115,47 @@ public class Alloyable implements Serializable {
             List<String> polymophicSet = inferenced.get(0);
             List<String> foreignKeySet = inferenced.get(1);
             if (!polymophicSet.isEmpty()) {
+                this.isRailsOriented = Boolean.TRUE;
                 for (String keyStr : polymophicSet) {
+                    // スキップ定義
                     skipElementListForColumn.add(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + keyStr + "_id");
+                            + INTERNAL_SEPERATOR + keyStr + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
                     skipElementListForColumn.add(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + keyStr + "_type");
+                            + INTERNAL_SEPERATOR + keyStr + RulesForAlloyable.POLYMOPHIC_SUFFIX);
                     polymophicColumns.add(tableNode.getFullName()
                             + INTERNAL_SEPERATOR + keyStr);
 
                     // 1/9
-                    
+                    Relation valueRelation = new Relation(Relation.Tipify.VALUE);
+                    valueRelation.originPropertyName = keyStr;
+                    valueRelation.name = RulesForAlloyable
+                            .colmnRelationName(keyStr + RulesForAlloyable.POLYMOPHIC_SUFFIX, tableNode.getFullName());
+                    valueRelation.originOwner = tableNode.getFullName();
+                    valueRelation.owner = searchSig(RulesForAlloyable
+                            .tableSigName(valueRelation.originOwner));
+                    // NOTICE: valueRelation.refTo PR_xxxs_xxxxType は、抽象sigの継承先なので、この時点では分からない。
+                    this.relations.add(valueRelation);
+
                     // 2/9
                     // 3/9
                     // 4/9
+                    Sig columnSig = new Sig(Sig.Tipify.POLYMOPHIC_TYPE_ABSTRACT);
+                    columnSig.originPropertyName = keyStr + RulesForAlloyable.POLYMOPHIC_SUFFIX;
+                    columnSig.name = RulesForAlloyable.colmnSigName(
+                            columnSig.originPropertyName, tableNode.getFullName());
+                    columnSig.isAbstruct = Boolean.TRUE;
+                    columnSig.setParent(searchSig(RulesForAlloyable
+                            .tableSigName(tableNode.getFullName())));
+                    this.sigs.add(columnSig);
                     
                     // 5/9
+                    Relation valueReversedRelation = new Relation(Relation.Tipify.VALUE_REVERSED);
+                    valueReversedRelation.name = "refTo_" + RulesForAlloyable
+                            .tableSigName(tableNode.getFullName());
+                    valueReversedRelation.refTo = searchSig(RulesForAlloyable
+                            .tableSigName(tableNode.getFullName()));
+                    // NOTICE: originPropertyName, originOwner, owner はこの時点では分からない。
+                    this.relations.add(valueReversedRelation);
                     
                     // 6/9
                     // 7/9
@@ -138,40 +165,40 @@ public class Alloyable implements Serializable {
             }
 
             if (!foreignKeySet.isEmpty()) {
+                this.isRailsOriented = Boolean.TRUE;
                 for (String keyStr : foreignKeySet) {
+                    // スキップ定義
                     skipElementListForColumn.add(tableNode.getFullName()
                             + INTERNAL_SEPERATOR + keyStr);
                     foreignKeys.add(tableNode.getFullName()
                             + INTERNAL_SEPERATOR + keyStr);
 
                     // 外部キー保持側
-                    Relation relation = new Relation();
-                    relation.type = com.testdatadesigner.tdalloy.core.types.Relation.Tipify.RELATION;
+                    Relation relation = new Relation(Relation.Tipify.RELATION);
                     relation.originPropertyName = keyStr;
-                    relation.name = RulesForAlloyable.generateForeignKeyName(
+                    relation.name = RulesForAlloyable.foreignKeyName(
                             relation.originPropertyName,
                             tableNode.getFullName());
                     relation.originOwner = tableNode.getFullName();
                     relation.owner = searchSig(RulesForAlloyable
-                            .generateTableSigName(relation.originOwner));
-                    relation.referTo = searchSig(RulesForAlloyable
-                            .generateTableSigNameFromFKey(relation.originPropertyName));
+                            .tableSigName(relation.originOwner));
+                    relation.refTo = searchSig(RulesForAlloyable
+                            .tableSigNameFromFKey(relation.originPropertyName));
 
                     this.relations.add(relation);
 
                     // 参照される側
-                    Relation relationReversed = new Relation();
-                    relationReversed.type = com.testdatadesigner.tdalloy.core.types.Relation.Tipify.RELATION_REVERSED;
+                    Relation relationReversed = new Relation(Relation.Tipify.RELATION_REVERSED);
                     relationReversed.originOwner = RulesForAlloyable
-                            .generateTableNameFromFKey(keyStr);
+                            .tableNameFromFKey(keyStr);
                     relationReversed.owner = searchSig(RulesForAlloyable
-                            .generateTableSigName(relationReversed.originOwner));
+                            .tableSigName(relationReversed.originOwner));
                     relationReversed.name = RulesForAlloyable
-                            .generateForeignKeyNameReversed(
+                            .foreignKeyNameReversed(
                                     relationReversed.originOwner,
                                     tableNode.getFullName());
-                    relationReversed.referTo = searchSig(RulesForAlloyable
-                            .generateTableSigName(tableNode.getFullName()));
+                    relationReversed.refTo = searchSig(RulesForAlloyable
+                            .tableSigName(tableNode.getFullName()));
 
                     this.relations.add(relationReversed);
                 }
@@ -196,47 +223,41 @@ public class Alloyable implements Serializable {
                     FKConstraintDefinitionNode constraint = (FKConstraintDefinitionNode) tableElement;
 
                     // 外部キー保持側
-                    Relation relation = new Relation();
-                    relation.type = com.testdatadesigner.tdalloy.core.types.Relation.Tipify.RELATION;
+                    Relation relation = new Relation(Relation.Tipify.RELATION);
                     relation.originPropertyName = ((ResultColumn) constraint
                             .getColumnList().get(0)).getName();
-                    relation.name = RulesForAlloyable.generateForeignKeyName(
+                    relation.name = RulesForAlloyable.foreignKeyName(
                             relation.originPropertyName,
                             tableNode.getFullName());
                     relation.originOwner = tableNode.getFullName();
                     relation.owner = searchSig(RulesForAlloyable
-                            .generateTableSigName(relation.originOwner));
-                    relation.referTo = searchSig(RulesForAlloyable
-                            .generateTableSigName(constraint.getRefTableName()
+                            .tableSigName(relation.originOwner));
+                    relation.refTo = searchSig(RulesForAlloyable
+                            .tableSigName(constraint.getRefTableName()
                                     .getFullTableName()));
 
                     this.relations.add(relation);
 
                     // 参照される側
-                    Relation relationReversed = new Relation();
-                    relationReversed.type = com.testdatadesigner.tdalloy.core.types.Relation.Tipify.RELATION_REVERSED;
+                    Relation relationReversed = new Relation(Relation.Tipify.RELATION_REVERSED);
                     relationReversed.originOwner = constraint.getRefTableName()
                             .getFullTableName();
                     relationReversed.owner = searchSig(RulesForAlloyable
-                            .generateTableSigName(relationReversed.originOwner));
+                            .tableSigName(relationReversed.originOwner));
                     relationReversed.name = RulesForAlloyable
-                            .generateForeignKeyNameReversed(
+                            .foreignKeyNameReversed(
                                     relationReversed.originOwner,
                                     tableNode.getFullName());
-                    relationReversed.referTo = searchSig(RulesForAlloyable
-                            .generateTableSigName(tableNode.getFullName()));
+                    relationReversed.refTo = searchSig(RulesForAlloyable
+                            .tableSigName(tableNode.getFullName()));
 
                     this.relations.add(relationReversed);
 
-                    // スキップ
+                    // スキップ定義
                     foreignKeys.add(tableNode.getFullName()
                             + INTERNAL_SEPERATOR
                             + relation.originPropertyName);
                 }
-
-                // booleanフィールド
-
-                // その他の属性
             }
         }
         return this;
@@ -247,7 +268,6 @@ public class Alloyable implements Serializable {
             for (TableElementNode tableElement : tableNode
                     .getTableElementList()) {
                 if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
-                    Sig sigColomn = new Sig();
                     ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
                     // スキップ
                     if (skipElementListForColumn.contains(tableNode
@@ -259,24 +279,35 @@ public class Alloyable implements Serializable {
 
                     // Booleanフィールドはsigとしては扱わないのでスキップ
                     if (column.getType().getSQLstring().equals("TINYINT")) {
+                        Relation relation = new Relation(Relation.Tipify.VALUE);
+                        relation.originOwner = tableNode.getFullName();
+                        relation.owner = searchSig(RulesForAlloyable
+                                .tableSigName(relation.originOwner));
+                        relation.name = RulesForAlloyable
+                                .colmnRelationName(column.getName(),
+                                        relation.originOwner);
+                        relation.refTo = new Sig(Sig.Tipify.BOOLEAN_FACTOR);
+                        this.relations.add(relation);
                         continue;
                     }
 
+                    Sig sigColomn = new Sig(Sig.Tipify.PROPERTY_PROTOTYPE);
                     sigColomn.originPropertyName = column.getName();
-                    sigColomn.name = RulesForAlloyable.generateColmnSigName(
+                    sigColomn.name = RulesForAlloyable.colmnSigName(
                             column.getName(), tableNode.getFullName());
-                    sigColomn.type = com.testdatadesigner.tdalloy.core.types.Sig.Tipify.PROPERTY_PROTOTYPE;
                     sigColomn.isAbstruct = Boolean.TRUE;
                     sigColomn.setParent(searchSig(RulesForAlloyable
-                            .generateTableSigName(tableNode.getFullName())));
+                            .tableSigName(tableNode.getFullName())));
                     this.sigs.add(sigColomn);
 
                     List<Sig> propertyFactorSigs = RulesForAlloyable
-                            .generateDefaultPropertyFactor(column.getName(),
+                            .defaultPropertyFactor(column.getName(),
                                     tableNode.getFullName());
                     for (Sig propertyFactorSig : propertyFactorSigs) {
                         this.sigs.add(propertyFactorSig);
                     }
+                    
+                    new Relation(Relation.Tipify.VALUE);
                 }
             }
         }
