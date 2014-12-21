@@ -12,6 +12,7 @@ public class RulesForAlloyable {
 
     public static final String FOREIGN_KEY_SUFFIX = "_id";
     public static final String POLYMOPHIC_SUFFIX = "_type";
+    public static final String COUPLER = "_";
     static Pattern foreignKeyPattern = Pattern.compile("^(.+)(" + FOREIGN_KEY_SUFFIX + ")$");
     static Pattern patternsForPolymophic = Pattern.compile("^(.+)(" + POLYMOPHIC_SUFFIX + ")$");
     
@@ -71,14 +72,14 @@ public class RulesForAlloyable {
     public static String colmnSigName(String originalColumnName,
             String originalTableName) {
         Inflector inflector = Inflector.getInstance();
-        return "PR_" + originalTableName + "_"
+        return inflector.upperCamelCase(originalTableName) + COUPLER
                 + inflector.upperCamelCase(originalColumnName);
     }
 
     public static String colmnRelationName(String originalColumnName,
             String originalTableName) {
         Inflector inflector = Inflector.getInstance();
-        return originalTableName + "_"
+        return originalTableName + COUPLER
                 + inflector.upperCamelCase(originalColumnName);
     }
     
@@ -90,14 +91,14 @@ public class RulesForAlloyable {
         while (matcher.find()) {
             optimized = matcher.replaceAll("$1");
         }
-        return originalTableName + "_"
+        return originalTableName + COUPLER
                 + tableSigName(optimized);
     }
 
     public static String foreignKeyNameReversed(String refTableName,
             String originalTableName) {
         Inflector inflector = Inflector.getInstance();
-        return refTableName + "_"
+        return refTableName + COUPLER
                 + inflector.upperCamelCase(originalTableName);
     }
 
@@ -107,10 +108,10 @@ public class RulesForAlloyable {
             {
                 Inflector inflector = Inflector.getInstance();
                 this.add(new String(originalTableName
-                        + "_"
+                        + COUPLER
                         + inflector.upperCamelCase(originalColumnName) + "HIGH"));
                 this.add(new String(originalTableName
-                        + "_"
+                        + COUPLER
                         + inflector.upperCamelCase(originalColumnName) + "LOW"));
             }
         };
