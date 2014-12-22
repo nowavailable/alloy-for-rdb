@@ -15,6 +15,7 @@ public class RulesForAlloyable {
     public static final String COUPLER = "_";
     static Pattern foreignKeyPattern = Pattern.compile("^(.+)(" + FOREIGN_KEY_SUFFIX + ")$");
     static Pattern patternsForPolymophic = Pattern.compile("^(.+)(" + POLYMOPHIC_SUFFIX + ")$");
+    public static final String COLMN_SIG_PREFIX = "";
     
     public static List<List<String>> inferencedRelations(List<String> columnNames) {
         final List<String> matchedPolymophic = new ArrayList<>();
@@ -48,6 +49,11 @@ public class RulesForAlloyable {
         return Arrays.asList(matchedPolymophic, matchedForeignKey);
     }
 
+    public static String singularize(String originalTableName) {
+        Inflector inflector = Inflector.getInstance();
+        return inflector.underscore(inflector.singularize(originalTableName));
+    }
+
     public static String tableSigName(String originalTableName) {
         Inflector inflector = Inflector.getInstance();
         return inflector.upperCamelCase(inflector.singularize(originalTableName));
@@ -72,8 +78,13 @@ public class RulesForAlloyable {
     public static String colmnSigName(String originalColumnName,
             String originalTableName) {
         Inflector inflector = Inflector.getInstance();
-        return inflector.upperCamelCase(originalTableName) + COUPLER
+        return COLMN_SIG_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
                 + inflector.upperCamelCase(originalColumnName);
+    }
+
+    public static String implimentedPolymophicSigName(String keystr,
+            String ownerTableName) {
+        return tableSigName(keystr) + tableSigName(ownerTableName);
     }
 
     public static String colmnRelationName(String originalColumnName,
@@ -98,6 +109,7 @@ public class RulesForAlloyable {
     public static String foreignKeyNameReversed(String refTableName,
             String originalTableName) {
         Inflector inflector = Inflector.getInstance();
+    	// NOTICE: defaultは複数形。OneToManyのOne側と見做して。
         return refTableName + COUPLER
                 + inflector.upperCamelCase(originalTableName);
     }

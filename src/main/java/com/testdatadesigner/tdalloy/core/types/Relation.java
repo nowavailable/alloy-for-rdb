@@ -20,8 +20,8 @@ public class Relation implements Serializable {
     }
     public Sig refTo;
     public Sig owner;
-    public String originOwner;  // dbスキーマ上の親（テーブル名）
-    public String originPropertyName;
+//    public String originOwner;  // dbスキーマ上の親（テーブル名）
+//    public String originPropertyName;
     public Boolean ignore = Boolean.FALSE;
 
 

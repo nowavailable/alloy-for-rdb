@@ -1,6 +1,7 @@
 package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class Sig implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -37,11 +38,12 @@ public class Sig implements Serializable {
         return this.parent;
     }
 
-    public void setParent(Sig parent) {
-        if (this.type.equals(Tipify.ENTITY)) {
-            throw new RuntimeException("No need parent.");
-        }
-        this.parent = parent;
-    }
+	public void setParent(Sig parent) throws IllegalAccessException {
+		if (!Arrays.asList(Tipify.ENTITY, Tipify.PROPERTY_PROTOTYPE,
+		        Tipify.POLYMOPHIC_TYPE_ABSTRACT).contains(parent.type)) {
+			throw new IllegalAccessException("No need parent.");
+		}
+		this.parent = parent;
+	}
     
 }

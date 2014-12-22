@@ -9,6 +9,7 @@ public class MultipleRelation<T extends Sig> extends Relation {
     private static final long serialVersionUID = 1L;
 
     public List<T> refToTypes = new ArrayList<>();
+    public List<T> reverseOfrefToTypes = new ArrayList<>();
 
     public MultipleRelation(Tipify type) {
         super(type);
