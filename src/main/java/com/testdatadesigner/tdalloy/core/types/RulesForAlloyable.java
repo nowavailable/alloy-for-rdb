@@ -54,6 +54,11 @@ public class RulesForAlloyable {
         return inflector.underscore(inflector.singularize(originalTableName));
     }
 
+    public static String reverse(String sigName) {
+        Inflector inflector = Inflector.getInstance();
+        return inflector.underscore(inflector.pluralize(sigName));
+    }
+
     public static String tableSigName(String originalTableName) {
         Inflector inflector = Inflector.getInstance();
         return inflector.upperCamelCase(inflector.singularize(originalTableName));
