@@ -1,6 +1,7 @@
 package com.testdatadesigner.tdalloy.core.io.impl;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -31,22 +32,17 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
     public List<CreateTableNode> inboundParse(List<String> schemas)
             throws StandardException {
 
-        List<Pattern> omitPatterns = new ArrayList<Pattern>() {
-            {
-                add(Pattern.compile("(,)([\\s]+SPATIAL KEY [^)]+`)(\\))"));
-                add(Pattern.compile("(,)([\\s]+FULLTEXT KEY [^)]+`)(\\))"));
-                add(Pattern.compile("(,)([\\s]+KEY [^)]+`)(\\))"));
-            }
-        };
+        List<Pattern> omitPatterns = Arrays.asList(
+                Pattern.compile("(,)([\\s]+SPATIAL KEY [^)]+`)(\\))"),
+                Pattern.compile("(,)([\\s]+FULLTEXT KEY [^)]+`)(\\))"),
+                Pattern.compile("(,)([\\s]+KEY [^)]+`)(\\))")
+                );
         // 3分割したgroupのうち、2番目が置換対象、1,3番目は温存するパターン。
-        List<Pattern> omit2ndPatters = new ArrayList<Pattern>() {
-            {
-                add(Pattern.compile("(int)(\\([\\d]+\\))(.?)"));
-                add(Pattern.compile("(.?)(AUTO_INCREMENT)(.?)"));
-                add(Pattern.compile("(\\))([\\s]+ENGINE=.+)(;)$"));
-                add(Pattern.compile("(.+)(;)(.?)$"));
-            }
-        };
+        List<Pattern> omit2ndPatters = Arrays.asList(
+                Pattern.compile("(int)(\\([\\d]+\\))(.?)"),
+                Pattern.compile("(.?)(AUTO_INCREMENT)(.?)"),
+                Pattern.compile("(\\))([\\s]+ENGINE=.+)(;)$"),
+                Pattern.compile("(.+)(;)(.?)$"));
 
         SQLParser parser = null;
         StatementNode stmt = null;

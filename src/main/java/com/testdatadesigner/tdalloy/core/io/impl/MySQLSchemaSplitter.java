@@ -4,22 +4,21 @@ import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 public class MySQLSchemaSplitter implements ISchemaSplitter {
     private List<String> rawTables = new ArrayList<String>();
     private final char SPLITTER_STR = ';';
-    private final List<String> SKIP_MARKER = new ArrayList<String>() {
-        {
-            add("/*");
-            add("--");
-            add("DROP TABLE");
-            add("LOCK TABLE");
-            add("UNLOCK TABLE");
-            add("INSERT INTO ");
-            add("ALTER TABLE");
-        }
-    };
+    private final List<String> SKIP_MARKER = Arrays.asList(
+            "/*", 
+            "--",
+            "DROP TABLE", 
+            "LOCK TABLE", 
+            "UNLOCK TABLE", 
+            "INSERT INTO ",
+            "ALTER TABLE"
+            );
 
     @Override
     public void prepare(InputStream schemaAll) throws IOException {
