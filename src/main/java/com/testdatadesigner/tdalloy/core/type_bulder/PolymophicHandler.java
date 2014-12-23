@@ -17,20 +17,20 @@ public class PolymophicHandler {
     public List<DummySig> buildDummies(Supplier<Integer> getNamingSeq, String ownerTableName) {
         // ダミー作成
         DummySig refToDummySig_1 = new DummySig(
-                Sig.Tipify.POLYMOPHIC_IMPLIMENT, getNamingSeq.get());
+                Sig.Tipify.ENTITY, getNamingSeq.get());
         DummySig refToDummySig_2 = new DummySig(
-                Sig.Tipify.POLYMOPHIC_IMPLIMENT, getNamingSeq.get());
+                Sig.Tipify.ENTITY, getNamingSeq.get());
         return Arrays.asList(refToDummySig_1, refToDummySig_2);
     }
     
     public List<Sig> buildSig(Function<String, Sig> sigSearchByName,
-            Supplier<Integer> getNamingSeq, List<DummySig> dummySigs,
-            String keyStr, String ownerTableName) throws IllegalAccessException {
+            List<DummySig> twoDummySigs, String polymophicStr,
+            String ownerTableName) throws IllegalAccessException {
         List<Sig> list = new ArrayList<>();
         // 4/9
         Sig polymophicSig = new Sig(
                 Sig.Tipify.POLYMOPHIC_TYPE_ABSTRACT);
-        polymophicSig.originPropertyName = keyStr
+        polymophicSig.originPropertyName = polymophicStr
                 + RulesForAlloyable.POLYMOPHIC_SUFFIX;
         polymophicSig.name = RulesForAlloyable.colmnSigName(
                 polymophicSig.originPropertyName,
@@ -43,32 +43,32 @@ public class PolymophicHandler {
         // 6/9
         // 8/9
         DummySig polymImpleSig_1 = new DummySig(
-                Sig.Tipify.POLYMOPHIC_IMPLIMENT, getNamingSeq.get());
+                Sig.Tipify.POLYMOPHIC_IMPLIMENT, twoDummySigs.get(0).namingSeq);
         polymImpleSig_1.setParent(polymophicSig);
         polymImpleSig_1.name = RulesForAlloyable
-                .implimentedPolymophicSigName(keyStr,
-                        dummySigs.get(0).originPropertyName);
+                .implimentedPolymophicSigName(polymophicStr,
+                        twoDummySigs.get(0).originPropertyName);
         list.add(polymImpleSig_1);
         DummySig polymImpleSig_2 = new DummySig(
-                Sig.Tipify.POLYMOPHIC_IMPLIMENT, getNamingSeq.get());
+                Sig.Tipify.POLYMOPHIC_IMPLIMENT, twoDummySigs.get(1).namingSeq);
         polymImpleSig_2.setParent(polymophicSig);
         polymImpleSig_2.name = RulesForAlloyable
-                .implimentedPolymophicSigName(keyStr,
-                        dummySigs.get(1).originPropertyName);
+                .implimentedPolymophicSigName(polymophicStr,
+                        twoDummySigs.get(1).originPropertyName);
         list.add(polymImpleSig_2);
 
         return list;
 	}
     
     public List<Relation> buildRelation(Function<String, Sig> sigSearchByName,
-            List<DummySig> dummyRefToSigs,
-            String keyStr, String ownerTableName) {
+            List<DummySig> dummyRefToSigs, String polymophicStr,
+            String ownerTableName) {
         List<Relation> list = new ArrayList<>();
         // 1/9
         MultipleRelation<DummySig> valueRelation = new MultipleRelation<>(
                 Relation.Tipify.VALUE);
         valueRelation.name = RulesForAlloyable.colmnRelationName(
-                keyStr + RulesForAlloyable.POLYMOPHIC_SUFFIX,
+                polymophicStr + RulesForAlloyable.POLYMOPHIC_SUFFIX,
                 ownerTableName);
         valueRelation.owner = sigSearchByName.apply(RulesForAlloyable
                 .tableSigName(ownerTableName));

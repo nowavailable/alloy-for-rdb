@@ -40,24 +40,25 @@ public class AlloyableTest extends TestCase {
         this.currentAlloyable = this.currentAlloyable.buildByInference(this.resultList);
         this.currentAlloyable = this.currentAlloyable.buildFromForeignKey(this.resultList);
         this.currentAlloyable = this.currentAlloyable.buildFromColumn(this.resultList);
+        String seperator = "\t";
         for (Sig result : this.currentAlloyable.sigs) {
             System.out.println(result.name
-                    + "  "
+                    + seperator
                     + result.type.toString()
-                    + "  "
+                    + seperator
                     + result.originPropertyName
-                    + "  "
+                    + seperator
                     + result.isAbstruct.toString()
-                    + "  "
+                    + seperator
                     + (result.getParent() == null ? "-"
                             : result.getParent().name));
         }
         System.out.println("-------------------------");
         for (Relation result : this.currentAlloyable.relations) {
             System.out.println(result.name 
-                    + "  " + result.type.toString()
-                    + "  " + (result.owner == null ? "-" : result.owner.name)
-                    + "  " + (result.refTo == null ? "-" : result.refTo.name));
+                    + seperator + result.type.toString()
+                    + seperator + (result.owner == null ? "-" : result.owner.name)
+                    + seperator + (result.refTo == null ? "-" : result.refTo.name));
             if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
                 ((MultipleRelation<Sig>)result).refToTypes.forEach(rel -> {
                     System.out.println("                         refTo: " + rel.name); 

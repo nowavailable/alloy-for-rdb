@@ -33,11 +33,6 @@ public class Alloyable implements Serializable {
         return null;
     }
 
-    private Sig searchSig(String name) {
-        return this.sigs.stream().filter(s -> s.name.equals(name))
-                .collect(Collectors.toList()).get(0);
-    }
-
     // -- 振る舞い系メソッド。いずれMix-inの形に?
     // --------------------------------------------------------------
     public void fixPolymophic() {
@@ -59,10 +54,13 @@ public class Alloyable implements Serializable {
     private PolymophicHandler polymRelHandler = new PolymophicHandler();
 
     private List<String> skipElementListForColumn = new ArrayList<>();
-    private List<String> polymophicColumns = new ArrayList<>();
     private List<String> foreignKeys = new ArrayList<>();
     private Integer dummyNamingSeq = new Integer(-1);
     static final String INTERNAL_SEPERATOR = "_#_";
+
+    Function<String, Sig> sigSearchByName = name -> this.sigs
+            .stream().filter(s -> s.name.equals(name))
+            .collect(Collectors.toList()).get(0);
 
     public Alloyable buildFromTable(List<CreateTableNode> parsedDDLList) {
         for (CreateTableNode tableNode : parsedDDLList) {
@@ -129,36 +127,24 @@ public class Alloyable implements Serializable {
 
             if (!polymophicSet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
-                for (String keyStr : polymophicSet) {
+                for (String polymophicStr : polymophicSet) {
                     // スキップ定義
                     skipElementListForColumn.add(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + keyStr
+                            + INTERNAL_SEPERATOR + polymophicStr
                             + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
                     skipElementListForColumn.add(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + keyStr
+                            + INTERNAL_SEPERATOR + polymophicStr
                             + RulesForAlloyable.POLYMOPHIC_SUFFIX);
-                    polymophicColumns.add(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + keyStr);
 
-                    List<DummySig> dummyRefToSigs = polymRelHandler.buildDummies(
+                    List<DummySig> twoDummySigs = polymRelHandler.buildDummies(
                             getNamingSeq, tableNode.getFullName());
-                            
-                    Function<String, Sig> sigSearchByName = name -> this.sigs
-                            .stream().filter(s -> s.name.equals(name))
-                            .collect(Collectors.toList()).get(0);
                     List<Sig> builtSigs = polymRelHandler.buildSig(
-                            sigSearchByName, getNamingSeq, dummyRefToSigs, keyStr,
+                            sigSearchByName, twoDummySigs, polymophicStr,
                             tableNode.getFullName());
-
                     builtSigs.forEach(s -> this.sigs.add(s));
-
-                    sigSearchByName = name -> this.sigs.stream()
-                            .filter(s -> s.name.equals(name))
-                            .collect(Collectors.toList()).get(0);
                     List<Relation> builtRelations = polymRelHandler
-                            .buildRelation(sigSearchByName, dummyRefToSigs, keyStr,
+                            .buildRelation(sigSearchByName, twoDummySigs, polymophicStr,
                                     tableNode.getFullName());
-
                     builtRelations.forEach(s -> this.relations.add(s));
                 }
             }
@@ -172,9 +158,6 @@ public class Alloyable implements Serializable {
                     foreignKeys.add(tableNode.getFullName()
                             + INTERNAL_SEPERATOR + keyStr);
 
-                    Function<String, Sig> sigSearchByName = name -> this.sigs
-                            .stream().filter(s -> s.name.equals(name))
-                            .collect(Collectors.toList()).get(0);
                     List<Relation> relations = relationHander.build(
                             sigSearchByName, tableNode.getFullName(), keyStr,
                             String.valueOf(""));
@@ -208,10 +191,6 @@ public class Alloyable implements Serializable {
                                     + ((ResultColumn) constraint
                                             .getColumnList().get(0)).getName());
 
-                    Function<String, Sig> sigSearchByName = name -> this.sigs
-                            .stream().filter(s -> s.name.equals(name))
-                            .collect(Collectors.toList()).get(0);
-
                     List<Relation> relations = relationHander.build(
                             sigSearchByName, tableNode.getFullName(),
                             ((ResultColumn) constraint.getColumnList().get(0))
@@ -241,29 +220,18 @@ public class Alloyable implements Serializable {
 
                     // Booleanフィールドはsigとしては扱わないのでスキップ
                     if (column.getType().getSQLstring().equals("TINYINT")) {
-                        Function<String, Sig> sigSearchByName = name -> this.sigs
-                                .stream().filter(s -> s.name.equals(name))
-                                .collect(Collectors.toList()).get(0);
                         this.relations.add(booleanColumnHandler.build(
                                 sigSearchByName, tableNode.getFullName(),
                                 column.getName()));
                         continue;
                     }
 
-                    Function<String, Sig> sigSearchByName = name -> this.sigs
-                            .stream().filter(s -> s.name.equals(name))
-                            .collect(Collectors.toList()).get(0);
                     this.sigs.add(columnHandler.buildSig(sigSearchByName,
                             tableNode.getFullName(), column.getName()));
-
                     List<Sig> propertyFactorSigs = columnHandler
                             .buildFactorSigs(tableNode.getFullName(),
                                     column.getName());
                     propertyFactorSigs.forEach(sig -> this.sigs.add(sig));
-
-                    sigSearchByName = name -> this.sigs
-                            .stream().filter(s -> s.name.equals(name))
-                            .collect(Collectors.toList()).get(0);
                     this.relations.add(columnHandler.buildRelation(
                             sigSearchByName, tableNode.getFullName(),
                             column.getName(), propertyFactorSigs));
