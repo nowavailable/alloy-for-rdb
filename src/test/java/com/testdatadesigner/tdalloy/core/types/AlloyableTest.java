@@ -20,7 +20,7 @@ public class AlloyableTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        InputStream in = this.getClass().getResourceAsStream("/wanda_developmant.referance.sql");
+        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();
@@ -36,16 +36,36 @@ public class AlloyableTest extends TestCase {
     }
 
     public void testBuildAll() throws Exception {
-        // 期待値
         this.currentAlloyable = this.currentAlloyable.buildFromTable(this.resultList);
         this.currentAlloyable = this.currentAlloyable.buildByInference(this.resultList);
         this.currentAlloyable = this.currentAlloyable.buildFromForeignKey(this.resultList);
         this.currentAlloyable = this.currentAlloyable.buildFromColumn(this.resultList);
         for (Sig result : this.currentAlloyable.sigs) {
-            System.out.println(result.name);
+            System.out.println(result.name
+                    + "  "
+                    + result.type.toString()
+                    + "  "
+                    + result.originPropertyName
+                    + "  "
+                    + result.isAbstruct.toString()
+                    + "  "
+                    + (result.getParent() == null ? "-"
+                            : result.getParent().name));
         }
+        System.out.println("-------------------------");
         for (Relation result : this.currentAlloyable.relations) {
-            System.out.println(result.name);
+            System.out.println(result.name 
+                    + "  " + result.type.toString()
+                    + "  " + (result.owner == null ? "-" : result.owner.name)
+                    + "  " + (result.refTo == null ? "-" : result.refTo.name));
+            if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
+                ((MultipleRelation<Sig>)result).refToTypes.forEach(rel -> {
+                    System.out.println("                         refTo: " + rel.name); 
+                });
+                ((MultipleRelation<Sig>)result).reverseOfrefToTypes.forEach(rel -> {
+                    System.out.println("                       parent: " + rel.name); 
+                });
+            }
         }
     }
 
