@@ -2,9 +2,9 @@ package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
+import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.foundationdb.sql.parser.ColumnDefinitionNode;
@@ -61,7 +61,7 @@ public class Alloyable implements Serializable {
     private List<String> skipElementListForColumn = new ArrayList<>();
     private List<String> polymophicColumns = new ArrayList<>();
     private List<String> foreignKeys = new ArrayList<>();
-    private Integer dummyNamingSeq = new Integer(0);
+    private Integer dummyNamingSeq = new Integer(-1);
     static final String INTERNAL_SEPERATOR = "_#_";
 
     public Alloyable buildFromTable(List<CreateTableNode> parsedDDLList) {
@@ -107,6 +107,12 @@ public class Alloyable implements Serializable {
      */
     public Alloyable buildByInference(List<CreateTableNode> parsedDDLList)
             throws IllegalAccessException {
+
+        Supplier<Integer> getNamingSeq = () -> {
+            this.dummyNamingSeq++;
+            return this.dummyNamingSeq;
+        };
+        
         for (CreateTableNode tableNode : parsedDDLList) {
             List<String> columnNames = new ArrayList<>();
             for (TableElementNode tableElement : tableNode
@@ -120,6 +126,7 @@ public class Alloyable implements Serializable {
                     .inferencedRelations(columnNames);
             List<String> polymophicSet = inferenced.get(0);
             List<String> foreignKeySet = inferenced.get(1);
+
             if (!polymophicSet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
                 for (String keyStr : polymophicSet) {
@@ -133,109 +140,26 @@ public class Alloyable implements Serializable {
                     polymophicColumns.add(tableNode.getFullName()
                             + INTERNAL_SEPERATOR + keyStr);
 
-                    // ダミー作成
-                    DummySig refToDummySig_1 = new DummySig(
-                            Sig.Tipify.POLYMOPHIC_IMPLIMENT, dummyNamingSeq);
-                    dummyNamingSeq++;
-                    DummySig refToDummySig_2 = new DummySig(
-                            Sig.Tipify.POLYMOPHIC_IMPLIMENT, dummyNamingSeq);
-                    dummyNamingSeq++;
-
-                    // 1/9
-                    MultipleRelation<DummySig> valueRelation = new MultipleRelation<>(
-                            Relation.Tipify.VALUE);
-                    // valueRelation.originPropertyName = keyStr;
-                    // valueRelation.originOwner = tableNode.getFullName();
-                    valueRelation.name = RulesForAlloyable.colmnRelationName(
-                            keyStr + RulesForAlloyable.POLYMOPHIC_SUFFIX,
+                    List<DummySig> dummyRefToSigs = polymRelHandler.buildDummies(
+                            getNamingSeq, tableNode.getFullName());
+                            
+                    Function<String, Sig> sigSearchByName = name -> this.sigs
+                            .stream().filter(s -> s.name.equals(name))
+                            .collect(Collectors.toList()).get(0);
+                    List<Sig> builtSigs = polymRelHandler.buildSig(
+                            sigSearchByName, getNamingSeq, dummyRefToSigs, keyStr,
                             tableNode.getFullName());
-                    valueRelation.owner = searchSig(RulesForAlloyable
-                            .tableSigName(tableNode.getFullName()));
-                    valueRelation.refToTypes = Arrays.asList(refToDummySig_1,
-                            refToDummySig_2);
-                    this.relations.add(valueRelation);
 
-                    // 2/9
-                    // 3/9
-                    Relation relForDummy1 = new Relation(
-                            Relation.Tipify.RELATION_REVERSED);
-                    relForDummy1.name = RulesForAlloyable
-                            .foreignKeyNameReversed(tableNode.getFullName(),
-                                    refToDummySig_1.name);
-                    relForDummy1.owner = refToDummySig_1;
-                    relForDummy1.refTo = valueRelation.owner;
-                    this.relations.add(relForDummy1);
-                    Relation relForDummy2 = new Relation(
-                            Relation.Tipify.RELATION_REVERSED);
-                    relForDummy2.name = RulesForAlloyable
-                            .foreignKeyNameReversed(tableNode.getFullName(),
-                                    refToDummySig_2.name);
-                    relForDummy2.owner = refToDummySig_2;
-                    relForDummy2.refTo = valueRelation.owner;
-                    this.relations.add(relForDummy2);
+                    builtSigs.forEach(s -> this.sigs.add(s));
 
-                    // 4/9
-                    Sig polymophicSig = new Sig(
-                            Sig.Tipify.POLYMOPHIC_TYPE_ABSTRACT);
-                    polymophicSig.originPropertyName = keyStr
-                            + RulesForAlloyable.POLYMOPHIC_SUFFIX;
-                    polymophicSig.name = RulesForAlloyable.colmnSigName(
-                            polymophicSig.originPropertyName,
-                            tableNode.getFullName());
-                    polymophicSig.setParent(searchSig(RulesForAlloyable
-                            .tableSigName(tableNode.getFullName())));
-                    polymophicSig.isAbstruct = Boolean.TRUE;
-                    this.sigs.add(polymophicSig);
+                    sigSearchByName = name -> this.sigs.stream()
+                            .filter(s -> s.name.equals(name))
+                            .collect(Collectors.toList()).get(0);
+                    List<Relation> builtRelations = polymRelHandler
+                            .buildRelation(sigSearchByName, dummyRefToSigs, keyStr,
+                                    tableNode.getFullName());
 
-                    // 5/9
-                    MultipleRelation<DummySig> polymRelationReversed = new MultipleRelation<>(
-                            Relation.Tipify.ABSTRUCT_RELATION);
-                    polymRelationReversed.name = "refTo_"
-                            + RulesForAlloyable.tableSigName(tableNode
-                                    .getFullName());
-                    polymRelationReversed.refTo = searchSig(RulesForAlloyable
-                            .tableSigName(tableNode.getFullName()));
-
-                    // 6/9
-                    // 8/9
-                    DummySig polymImpleSig_1 = new DummySig(
-                            Sig.Tipify.POLYMOPHIC_IMPLIMENT, dummyNamingSeq);
-                    dummyNamingSeq++;
-                    polymImpleSig_1.setParent(polymophicSig);
-                    polymImpleSig_1.name = RulesForAlloyable
-                            .implimentedPolymophicSigName(keyStr,
-                                    refToDummySig_1.originPropertyName);
-                    this.sigs.add(polymImpleSig_1);
-                    DummySig polymImpleSig_2 = new DummySig(
-                            Sig.Tipify.POLYMOPHIC_IMPLIMENT, dummyNamingSeq);
-                    dummyNamingSeq++;
-                    polymImpleSig_2.setParent(polymophicSig);
-                    polymImpleSig_2.name = RulesForAlloyable
-                            .implimentedPolymophicSigName(keyStr,
-                                    refToDummySig_2.originPropertyName);
-                    this.sigs.add(polymImpleSig_2);
-
-                    // 5/9 の続き。
-                    polymRelationReversed.reverseOfrefToTypes = Arrays.asList(
-                            polymImpleSig_1, polymImpleSig_2);
-                    this.relations.add(polymRelationReversed);
-
-                    // 7/9
-                    // 9/9
-                    Relation polymImpleRel_1 = new Relation(
-                            Relation.Tipify.ABSTRUCT_RELATION_REVERSED);
-                    polymImpleRel_1.name = RulesForAlloyable
-                            .singularize(refToDummySig_1.name);
-                    polymImpleRel_1.refTo = refToDummySig_1;
-                    polymImpleRel_1.owner = polymImpleSig_1;
-                    this.relations.add(polymImpleRel_1);
-                    Relation polymImpleRel_2 = new Relation(
-                            Relation.Tipify.ABSTRUCT_RELATION_REVERSED);
-                    polymImpleRel_2.name = RulesForAlloyable
-                            .singularize(refToDummySig_2.name);
-                    polymImpleRel_2.refTo = refToDummySig_2;
-                    polymImpleRel_2.owner = polymImpleSig_2;
-                    this.relations.add(polymImpleRel_2);
+                    builtRelations.forEach(s -> this.relations.add(s));
                 }
             }
 
