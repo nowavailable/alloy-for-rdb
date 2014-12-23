@@ -14,7 +14,7 @@ public class MySQLSchemaSplitterTest extends TestCase {
 
     public void testPrepare() throws Exception {
         //File ddlFile = new File("src/test/resources/structure.sql");
-        InputStream in = this.getClass().getResourceAsStream("/structure.sql");
+        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
         MySQLSchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();

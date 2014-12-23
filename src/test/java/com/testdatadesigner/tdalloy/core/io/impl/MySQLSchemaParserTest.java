@@ -33,9 +33,10 @@ public class MySQLSchemaParserTest extends TestCase {
 //      );
 //  }});
 
-        //InputStream in = this.getClass().getResourceAsStream("/structure.sql");
-        ////InputStream in = this.getClass().getResourceAsStream("/sampledatas.dump");
-        InputStream in = this.getClass().getResourceAsStream("/wanda_developmant.referance.sql");
+        ////InputStream in = this.getClass().getResourceAsStream("/structure.sql");
+        //////InputStream in = this.getClass().getResourceAsStream("/sampledatas.dump");
+        //InputStream in = this.getClass().getResourceAsStream("/wanda_developmant.referance.sql");
+        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();
@@ -48,8 +49,9 @@ public class MySQLSchemaParserTest extends TestCase {
     }
 
     public void testInboundParseSample() throws Exception {
-        //InputStream in = this.getClass().getResourceAsStream("/samples_mysql0.dump");
-        InputStream in = this.getClass().getResourceAsStream("/samples_mysql0.sql");
+        ////InputStream in = this.getClass().getResourceAsStream("/samples_mysql0.dump");
+        //InputStream in = this.getClass().getResourceAsStream("/samples_mysql0.sql");
+        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();
