@@ -58,37 +58,28 @@ public class Alloyable implements Serializable {
     private Integer dummyNamingSeq = new Integer(-1);
     static final String INTERNAL_SEPERATOR = "_#_";
 
-    Function<String, Sig> sigSearchByName = name -> this.sigs
-            .stream().filter(s -> s.name.equals(name))
-            .collect(Collectors.toList()).get(0);
+    Function<String, Sig> sigSearchByName = name -> this.sigs.stream()
+            .filter(s -> s.name.equals(name)).collect(Collectors.toList()).get(0);
 
     public Alloyable buildFromTable(List<CreateTableNode> parsedDDLList) {
         for (CreateTableNode tableNode : parsedDDLList) {
 
             this.sigs.add(tableHandler.build(tableNode));
 
-            for (TableElementNode tableElement : tableNode
-                    .getTableElementList()) {
+            for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 // 外部キーはスキップ対象に。
-                if (tableElement.getClass().equals(
-                        FKConstraintDefinitionNode.class)) {
-                    FKConstraintDefinitionNode constraint = (FKConstraintDefinitionNode) tableElement;
-                    skipElementListForColumn
-                            .add(tableNode.getFullName()
-                                    + INTERNAL_SEPERATOR
-                                    + ((ResultColumn) constraint
-                                            .getColumnList().get(0)).getName());
+                if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
+                    FKConstraintDefinitionNode constraint =
+                            (FKConstraintDefinitionNode) tableElement;
+                    skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
+                            + ((ResultColumn) constraint.getColumnList().get(0)).getName());
                 }
                 // プライマリキーはスキップ対象に
-                if (tableElement.getClass().equals(
-                        ConstraintDefinitionNode.class)) {
+                if (tableElement.getClass().equals(ConstraintDefinitionNode.class)) {
                     ConstraintDefinitionNode constraint = (ConstraintDefinitionNode) tableElement;
-                    if (constraint.getConstraintType().equals(
-                            ConstraintType.PRIMARY_KEY)) {
-                        skipElementListForColumn.add(tableNode.getFullName()
-                                + INTERNAL_SEPERATOR
-                                + ((ResultColumn) constraint.getColumnList()
-                                        .get(0)).getName());
+                    if (constraint.getConstraintType().equals(ConstraintType.PRIMARY_KEY)) {
+                        skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
+                                + ((ResultColumn) constraint.getColumnList().get(0)).getName());
                     }
                 }
             }
@@ -110,18 +101,16 @@ public class Alloyable implements Serializable {
             this.dummyNamingSeq++;
             return this.dummyNamingSeq;
         };
-        
+
         for (CreateTableNode tableNode : parsedDDLList) {
             List<String> columnNames = new ArrayList<>();
-            for (TableElementNode tableElement : tableNode
-                    .getTableElementList()) {
+            for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
                     ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
                     columnNames.add(column.getName());
                 }
             }
-            List<List<String>> inferenced = RulesForAlloyable
-                    .inferencedRelations(columnNames);
+            List<List<String>> inferenced = RulesForAlloyable.inferencedRelations(columnNames);
             List<String> polymophicSet = inferenced.get(0);
             List<String> foreignKeySet = inferenced.get(1);
 
@@ -129,22 +118,20 @@ public class Alloyable implements Serializable {
                 this.isRailsOriented = Boolean.TRUE;
                 for (String polymophicStr : polymophicSet) {
                     // スキップ定義
-                    skipElementListForColumn.add(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + polymophicStr
-                            + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
-                    skipElementListForColumn.add(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + polymophicStr
-                            + RulesForAlloyable.POLYMOPHIC_SUFFIX);
+                    skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
+                            + polymophicStr + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
+                    skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
+                            + polymophicStr + RulesForAlloyable.POLYMOPHIC_SUFFIX);
 
-                    List<DummySig> twoDummySigs = polymRelHandler.buildDummies(
-                            getNamingSeq, tableNode.getFullName());
-                    List<Sig> builtSigs = polymRelHandler.buildSig(
-                            sigSearchByName, twoDummySigs, polymophicStr,
-                            tableNode.getFullName());
-                    builtSigs.forEach(s -> this.sigs.add(s));
-                    List<Relation> builtRelations = polymRelHandler
-                            .buildRelation(sigSearchByName, twoDummySigs, polymophicStr,
+                    List<DummySig> twoDummySigs =
+                            polymRelHandler.buildDummies(getNamingSeq, tableNode.getFullName());
+                    List<Sig> builtSigs =
+                            polymRelHandler.buildSig(sigSearchByName, twoDummySigs, polymophicStr,
                                     tableNode.getFullName());
+                    builtSigs.forEach(s -> this.sigs.add(s));
+                    List<Relation> builtRelations =
+                            polymRelHandler.buildRelation(sigSearchByName, twoDummySigs,
+                                    polymophicStr, tableNode.getFullName());
                     builtRelations.forEach(s -> this.relations.add(s));
                 }
             }
@@ -153,14 +140,13 @@ public class Alloyable implements Serializable {
                 this.isRailsOriented = Boolean.TRUE;
                 for (String keyStr : foreignKeySet) {
                     // スキップ定義
-                    skipElementListForColumn.add(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + keyStr);
-                    foreignKeys.add(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + keyStr);
+                    skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
+                            + keyStr);
+                    foreignKeys.add(tableNode.getFullName() + INTERNAL_SEPERATOR + keyStr);
 
-                    List<Relation> relations = relationHander.build(
-                            sigSearchByName, tableNode.getFullName(), keyStr,
-                            String.valueOf(""));
+                    List<Relation> relations =
+                            relationHander.build(sigSearchByName, tableNode.getFullName(), keyStr,
+                                    String.valueOf(""));
                     relations.forEach(rel -> this.relations.add(rel));
                 }
             }
@@ -178,24 +164,19 @@ public class Alloyable implements Serializable {
     public Alloyable buildFromForeignKey(List<CreateTableNode> parsedDDLList)
             throws IllegalAccessException {
         for (CreateTableNode tableNode : parsedDDLList) {
-            for (TableElementNode tableElement : tableNode
-                    .getTableElementList()) {
+            for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 // 外部キー
-                if (tableElement.getClass().equals(
-                        FKConstraintDefinitionNode.class)) {
-                    FKConstraintDefinitionNode constraint = (FKConstraintDefinitionNode) tableElement;
+                if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
+                    FKConstraintDefinitionNode constraint =
+                            (FKConstraintDefinitionNode) tableElement;
                     // スキップ定義
-                    foreignKeys
-                            .add(tableNode.getFullName()
-                                    + INTERNAL_SEPERATOR
-                                    + ((ResultColumn) constraint
-                                            .getColumnList().get(0)).getName());
+                    foreignKeys.add(tableNode.getFullName() + INTERNAL_SEPERATOR
+                            + ((ResultColumn) constraint.getColumnList().get(0)).getName());
 
-                    List<Relation> relations = relationHander.build(
-                            sigSearchByName, tableNode.getFullName(),
-                            ((ResultColumn) constraint.getColumnList().get(0))
-                                    .getName(), constraint.getRefTableName()
-                                    .getFullTableName());
+                    List<Relation> relations =
+                            relationHander.build(sigSearchByName, tableNode.getFullName(),
+                                    ((ResultColumn) constraint.getColumnList().get(0)).getName(),
+                                    constraint.getRefTableName().getFullTableName());
                     relations.forEach(rel -> this.relations.add(rel));
                 }
             }
@@ -206,35 +187,30 @@ public class Alloyable implements Serializable {
     public Alloyable buildFromColumn(List<CreateTableNode> parsedDDLList)
             throws IllegalAccessException {
         for (CreateTableNode tableNode : parsedDDLList) {
-            for (TableElementNode tableElement : tableNode
-                    .getTableElementList()) {
+            for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
                     ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
                     // スキップ
-                    if (skipElementListForColumn.contains(tableNode
-                            .getFullName()
-                            + INTERNAL_SEPERATOR
-                            + column.getName())) {
+                    if (skipElementListForColumn.contains(tableNode.getFullName()
+                            + INTERNAL_SEPERATOR + column.getName())) {
                         continue;
                     }
 
                     // Booleanフィールドはsigとしては扱わないのでスキップ
                     if (column.getType().getSQLstring().equals("TINYINT")) {
-                        this.relations.add(booleanColumnHandler.build(
-                                sigSearchByName, tableNode.getFullName(),
-                                column.getName()));
+                        this.relations.add(booleanColumnHandler.build(sigSearchByName,
+                                tableNode.getFullName(), column.getName()));
                         continue;
                     }
 
-                    this.sigs.add(columnHandler.buildSig(sigSearchByName,
-                            tableNode.getFullName(), column.getName()));
-                    List<Sig> propertyFactorSigs = columnHandler
-                            .buildFactorSigs(tableNode.getFullName(),
-                                    column.getName());
+                    this.sigs.add(columnHandler.buildSig(sigSearchByName, tableNode.getFullName(),
+                            column.getName()));
+                    List<Sig> propertyFactorSigs =
+                            columnHandler
+                                    .buildFactorSigs(tableNode.getFullName(), column.getName());
                     propertyFactorSigs.forEach(sig -> this.sigs.add(sig));
-                    this.relations.add(columnHandler.buildRelation(
-                            sigSearchByName, tableNode.getFullName(),
-                            column.getName(), propertyFactorSigs));
+                    this.relations.add(columnHandler.buildRelation(sigSearchByName,
+                            tableNode.getFullName(), column.getName(), propertyFactorSigs));
                 }
             }
         }

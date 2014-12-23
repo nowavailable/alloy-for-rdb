@@ -12,15 +12,12 @@ import com.testdatadesigner.tdalloy.util.Inflector;
 
 public class DefaultColumnHandler {
 
-    public Sig buildSig(Function<String, Sig> sigSearchByName,
-            String ownerTableName, String columnName)
-            throws IllegalAccessException {
+    public Sig buildSig(Function<String, Sig> sigSearchByName, String ownerTableName,
+            String columnName) throws IllegalAccessException {
         Sig colomnSig = new Sig(Sig.Tipify.PROPERTY_PROTOTYPE);
         colomnSig.originPropertyName = columnName;
-        colomnSig.name = RulesForAlloyable.colmnSigName(columnName,
-                ownerTableName);
-        colomnSig.setParent(sigSearchByName.apply(RulesForAlloyable
-                .tableSigName(ownerTableName)));
+        colomnSig.name = RulesForAlloyable.colmnSigName(columnName, ownerTableName);
+        colomnSig.setParent(sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName)));
         colomnSig.isAbstruct = Boolean.TRUE;
         return colomnSig;
     }
@@ -29,11 +26,9 @@ public class DefaultColumnHandler {
         List<String> factors = new ArrayList<String>() {
             {
                 Inflector inflector = Inflector.getInstance();
-                this.add(new String(ownerTableName
-                        + RulesForAlloyable.COUPLER
+                this.add(new String(ownerTableName + RulesForAlloyable.COUPLER
                         + inflector.upperCamelCase(columnName) + "HIGH"));
-                this.add(new String(ownerTableName
-                        + RulesForAlloyable.COUPLER
+                this.add(new String(ownerTableName + RulesForAlloyable.COUPLER
                         + inflector.upperCamelCase(columnName) + "LOW"));
             }
         };
@@ -47,15 +42,11 @@ public class DefaultColumnHandler {
         return sigs;
     }
 
-    public Relation buildRelation(Function<String, Sig> sigSearchByName,
-            String ownerTableName, String columnName,
-            List<Sig> propertyFactorSigs) {
-        MultipleRelation<Sig> colomnRel = new MultipleRelation<>(
-                Relation.Tipify.VALUE);
-        colomnRel.name = RulesForAlloyable.colmnRelationName(columnName,
-                ownerTableName);
-        colomnRel.owner = sigSearchByName.apply(RulesForAlloyable
-                .tableSigName(ownerTableName));
+    public Relation buildRelation(Function<String, Sig> sigSearchByName, String ownerTableName,
+            String columnName, List<Sig> propertyFactorSigs) {
+        MultipleRelation<Sig> colomnRel = new MultipleRelation<>(Relation.Tipify.VALUE);
+        colomnRel.name = RulesForAlloyable.colmnRelationName(columnName, ownerTableName);
+        colomnRel.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
         colomnRel.refToTypes.addAll(propertyFactorSigs);
         return colomnRel;
     }

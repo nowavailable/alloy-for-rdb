@@ -8,15 +8,12 @@ import com.testdatadesigner.tdalloy.core.types.Sig;
 
 public class BooleanColumnHandler {
 
-    public Relation build(Function<String, Sig> sigSearchByName, String ownerTableName, String columnName) {
+    public Relation build(Function<String, Sig> sigSearchByName, String ownerTableName,
+            String columnName) {
         Relation relation = new Relation(Relation.Tipify.VALUE);
-        // relation.originOwner = tableNode.getFullName();
-        relation.owner = sigSearchByName.apply(RulesForAlloyable
-                .tableSigName(ownerTableName));
-        relation.name = RulesForAlloyable.colmnRelationName(
-                columnName, ownerTableName);
+        relation.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
+        relation.name = RulesForAlloyable.colmnRelationName(columnName, ownerTableName);
         Sig boolenValue = new Sig(Sig.Tipify.BOOLEAN_FACTOR);
-        //boolenValue.name = Sig.Tipify.BOOLEAN_FACTOR.toString();
         boolenValue.name = "(boolean)";
         relation.refTo = boolenValue;
         return relation;

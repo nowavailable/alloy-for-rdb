@@ -18,19 +18,20 @@ public class Relation implements Serializable {
         // TODO: 状態sig用。
         //ON_STATE,
     }
+
     public Sig refTo;
     public Sig owner;
-//    public String originOwner;  // dbスキーマ上の親（テーブル名）
-//    public String originPropertyName;
+    // public String originOwner; // dbスキーマ上の親（テーブル名）
+    // public String originPropertyName;
     public Boolean ignore = Boolean.FALSE;
 
 
     public Relation() {
         super();
     }
+
     public Relation(Tipify type) {
         super();
         this.type = type;
     }
-
 }

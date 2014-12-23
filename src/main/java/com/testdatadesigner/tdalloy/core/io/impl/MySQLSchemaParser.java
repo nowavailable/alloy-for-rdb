@@ -87,15 +87,13 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
     /**
      * 精度とスケールの指定つきのdoubleのカラム型定義を、 DECIMALとして書き換える。
      * 
-     * @param createTableStr
-     *            最適化すべきMySQLのCreate Table 文
+     * @param createTableStr 最適化すべきMySQLのCreate Table 文
      * @return UNIQUE INDEX 定義が最適化された Create Table 文
      */
     public String optimizeDoubleToDecimal(String createTableStr) {
         String decimalStr = "DECIMAL";
         String optimized = createTableStr;
-        Pattern pattern = Pattern
-                .compile("([\\s]+)(double)(\\([\\d]+,[\\d]+\\)[\\s]+)");
+        Pattern pattern = Pattern.compile("([\\s]+)(double)(\\([\\d]+,[\\d]+\\)[\\s]+)");
         Matcher matcher = pattern.matcher(createTableStr);
         while (matcher.find()) {
             optimized = matcher.replaceAll("$1" + decimalStr + "$3");
@@ -106,21 +104,17 @@ public class MySQLSchemaParser implements IRdbSchemmaParser {
     /**
      * MySQL固有書式ののUNIQUE INDEX 定義を、標準的なそれに置換して返す。
      * 
-     * @param createTableStr
-     *            最適化すべきMySQLのCreate Table 文
+     * @param createTableStr 最適化すべきMySQLのCreate Table 文
      * @return UNIQUE INDEX 定義が最適化された Create Table 文
      */
     public String optimizeUniqueConstraint(String createTableStr) {
         String optimized = createTableStr;
-        Pattern pattern = Pattern
-                .compile("(.?)(,[\\s]+UNIQUE KEY( `\\w+`)( (\\([^)]+`)\\)))");
+        Pattern pattern = Pattern.compile("(.?)(,[\\s]+UNIQUE KEY( `\\w+`)( (\\([^)]+`)\\)))");
         Matcher matcher = pattern.matcher(createTableStr);
         while (matcher.find()) {
-            this.constraints.add("CONSTRAINT " + matcher.group(3) + " UNIQUE "
-                    + matcher.group(4));
+            this.constraints.add("CONSTRAINT " + matcher.group(3) + " UNIQUE " + matcher.group(4));
             optimized = matcher.replaceAll("$1");
         }
         return optimized;
     }
-
 }

@@ -22,8 +22,7 @@ public class MySQLSchemaSplitter implements ISchemaSplitter {
 
     @Override
     public void prepare(InputStream schemaAll) throws IOException {
-        BufferedReader reader = new BufferedReader(new InputStreamReader(
-                schemaAll, "UTF-8"));
+        BufferedReader reader = new BufferedReader(new InputStreamReader(schemaAll, "UTF-8"));
         String line = null;
         StringBuilder buffer = new StringBuilder();
         while ((line = reader.readLine()) != null) {

@@ -6,10 +6,10 @@ import com.testdatadesigner.tdalloy.core.types.Sig;
 
 public class TableHandler {
 
-	public Sig build(CreateTableNode tableNode) {
+    public Sig build(CreateTableNode tableNode) {
         Sig sig = new Sig(Sig.Tipify.ENTITY);
         sig.originPropertyName = tableNode.getFullName();
         sig.name = RulesForAlloyable.tableSigName(tableNode.getFullName());
         return sig;
-	}
+    }
 }
