@@ -119,28 +119,28 @@ public class RulesForAlloyable {
                 + inflector.upperCamelCase(originalTableName);
     }
 
-    public static List<Sig> defaultPropertyFactor(
-            final String originalColumnName, final String originalTableName) {
-        List<String> factors = new ArrayList<String>() {
-            {
-                Inflector inflector = Inflector.getInstance();
-                this.add(new String(originalTableName
-                        + COUPLER
-                        + inflector.upperCamelCase(originalColumnName) + "HIGH"));
-                this.add(new String(originalTableName
-                        + COUPLER
-                        + inflector.upperCamelCase(originalColumnName) + "LOW"));
-            }
-        };
-        List<Sig> sigs = new ArrayList<>();
-        for (String factor : factors) {
-            Sig sig = new Sig(Sig.Tipify.PROPERTY_FACTOR);
-            sig.originPropertyName = originalColumnName;
-            sig.name = factor;
-            sig.isAbstruct = Boolean.TRUE;
-            sigs.add(sig);
-        }
-        return sigs;
-    }
+//    public static List<Sig> defaultPropertyFactor(
+//            final String originalColumnName, final String originalTableName) {
+//        List<String> factors = new ArrayList<String>() {
+//            {
+//                Inflector inflector = Inflector.getInstance();
+//                this.add(new String(originalTableName
+//                        + COUPLER
+//                        + inflector.upperCamelCase(originalColumnName) + "HIGH"));
+//                this.add(new String(originalTableName
+//                        + COUPLER
+//                        + inflector.upperCamelCase(originalColumnName) + "LOW"));
+//            }
+//        };
+//        List<Sig> sigs = new ArrayList<>();
+//        for (String factor : factors) {
+//            Sig sig = new Sig(Sig.Tipify.PROPERTY_FACTOR);
+//            sig.originPropertyName = originalColumnName;
+//            sig.name = factor;
+//            sig.isAbstruct = Boolean.TRUE;
+//            sigs.add(sig);
+//        }
+//        return sigs;
+//    }
     
 }
