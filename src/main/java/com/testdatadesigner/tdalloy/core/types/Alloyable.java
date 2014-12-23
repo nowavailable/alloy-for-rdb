@@ -255,37 +255,6 @@ public class Alloyable implements Serializable {
                             sigSearchByName, tableNode.getFullName(), keyStr,
                             String.valueOf(""));
                     relations.forEach(rel -> this.relations.add(rel));
-
-                    // // 外部キー保持側
-                    // Relation relation = new
-                    // Relation(Relation.Tipify.RELATION);
-                    // // relation.originPropertyName = keyStr;
-                    // // relation.originOwner = tableNode.getFullName();
-                    // relation.name = RulesForAlloyable.foreignKeyName(keyStr,
-                    // tableNode.getFullName());
-                    // relation.owner = searchSig(RulesForAlloyable
-                    // .tableSigName(tableNode.getFullName()));
-                    // relation.refTo = searchSig(RulesForAlloyable
-                    // .tableSigNameFromFKey(keyStr));
-                    //
-                    // this.relations.add(relation);
-                    //
-                    // // 参照される側
-                    // Relation relationReversed = new Relation(
-                    // Relation.Tipify.RELATION_REVERSED);
-                    // // relationReversed.originOwner =
-                    // // RulesForAlloyable.tableNameFromFKey(keyStr);
-                    // relationReversed.owner = searchSig(RulesForAlloyable
-                    // .tableSigName(RulesForAlloyable
-                    // .tableNameFromFKey(keyStr)));
-                    // relationReversed.name = RulesForAlloyable
-                    // .foreignKeyNameReversed(
-                    // RulesForAlloyable.tableNameFromFKey(keyStr),
-                    // tableNode.getFullName());
-                    // relationReversed.refTo = searchSig(RulesForAlloyable
-                    // .tableSigName(tableNode.getFullName()));
-                    //
-                    // this.relations.add(relationReversed);
                 }
             }
         }
@@ -308,41 +277,6 @@ public class Alloyable implements Serializable {
                 if (tableElement.getClass().equals(
                         FKConstraintDefinitionNode.class)) {
                     FKConstraintDefinitionNode constraint = (FKConstraintDefinitionNode) tableElement;
-
-                    // // 外部キー保持側
-                    // Relation relation = new
-                    // Relation(Relation.Tipify.RELATION);
-                    // // relation.originPropertyName = ((ResultColumn)
-                    // // constraint.getColumnList().get(0)).getName();
-                    // // relation.originOwner = tableNode.getFullName();
-                    // relation.name = RulesForAlloyable.foreignKeyName(
-                    // ((ResultColumn) constraint.getColumnList().get(0))
-                    // .getName(), tableNode.getFullName());
-                    // relation.owner = searchSig(RulesForAlloyable
-                    // .tableSigName(tableNode.getFullName()));
-                    // relation.refTo = searchSig(RulesForAlloyable
-                    // .tableSigName(constraint.getRefTableName()
-                    // .getFullTableName()));
-                    //
-                    // this.relations.add(relation);
-                    //
-                    // // 参照される側
-                    // Relation relationReversed = new Relation(
-                    // Relation.Tipify.RELATION_REVERSED);
-                    // // relationReversed.originOwner =
-                    // // constraint.getRefTableName().getFullTableName();
-                    // relationReversed.owner = searchSig(RulesForAlloyable
-                    // .tableSigName(constraint.getRefTableName()
-                    // .getFullTableName()));
-                    // relationReversed.name = RulesForAlloyable
-                    // .foreignKeyNameReversed(constraint
-                    // .getRefTableName().getFullTableName(),
-                    // tableNode.getFullName());
-                    // relationReversed.refTo = searchSig(RulesForAlloyable
-                    // .tableSigName(tableNode.getFullName()));
-                    //
-                    // this.relations.add(relationReversed);
-
                     // スキップ定義
                     foreignKeys
                             .add(tableNode.getFullName()
@@ -389,59 +323,26 @@ public class Alloyable implements Serializable {
                         this.relations.add(booleanColumnHandler.build(
                                 sigSearchByName, tableNode.getFullName(),
                                 column.getName()));
-                        // Relation relation = new
-                        // Relation(Relation.Tipify.VALUE);
-                        // // relation.originOwner = tableNode.getFullName();
-                        // relation.owner = searchSig(RulesForAlloyable
-                        // .tableSigName(tableNode.getFullName()));
-                        // relation.name = RulesForAlloyable.colmnRelationName(
-                        // column.getName(), tableNode.getFullName());
-                        // relation.refTo = new Sig(Sig.Tipify.BOOLEAN_FACTOR);
-                        // this.relations.add(relation);
                         continue;
                     }
 
                     Function<String, Sig> sigSearchByName = name -> this.sigs
                             .stream().filter(s -> s.name.equals(name))
                             .collect(Collectors.toList()).get(0);
-
-                    Sig colomnSig = columnHandler.buildSig(sigSearchByName,
-                            tableNode.getFullName(), column.getName());
-                    
-                    this.sigs.add(colomnSig);
+                    this.sigs.add(columnHandler.buildSig(sigSearchByName,
+                            tableNode.getFullName(), column.getName()));
 
                     List<Sig> propertyFactorSigs = columnHandler
                             .buildFactorSigs(tableNode.getFullName(),
                                     column.getName());
-                    
                     propertyFactorSigs.forEach(sig -> this.sigs.add(sig));
-                    
-                    this.relations.add(columnHandler.buildRelation(colomnSig,
-                            propertyFactorSigs));
 
-                    // Sig colomnSig = new Sig(Sig.Tipify.PROPERTY_PROTOTYPE);
-                    // colomnSig.originPropertyName = column.getName();
-                    // colomnSig.name = RulesForAlloyable.colmnSigName(
-                    // column.getName(), tableNode.getFullName());
-                    // colomnSig.setParent(searchSig(RulesForAlloyable
-                    // .tableSigName(tableNode.getFullName())));
-                    // this.sigs.add(colomnSig);
-                    //
-                    // List<Sig> propertyFactorSigs = RulesForAlloyable
-                    // .defaultPropertyFactor(column.getName(),
-                    // tableNode.getFullName());
-                    // for (Sig propertyFactorSig : propertyFactorSigs) {
-                    // this.sigs.add(propertyFactorSig);
-                    // }
-                    //
-                    // MultipleRelation<Sig> colomnRel = new MultipleRelation<>(
-                    // Relation.Tipify.VALUE);
-                    // colomnRel.name = RulesForAlloyable.colmnRelationName(
-                    // colomnSig.name,
-                    // colomnSig.getParent().originPropertyName);
-                    // colomnRel.owner = colomnSig;
-                    // colomnRel.refToTypes.addAll(propertyFactorSigs);
-                    // this.relations.add(colomnRel);
+                    sigSearchByName = name -> this.sigs
+                            .stream().filter(s -> s.name.equals(name))
+                            .collect(Collectors.toList()).get(0);
+                    this.relations.add(columnHandler.buildRelation(
+                            sigSearchByName, tableNode.getFullName(),
+                            column.getName(), propertyFactorSigs));
                 }
             }
         }

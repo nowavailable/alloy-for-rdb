@@ -21,6 +21,7 @@ public class DefaultColumnHandler {
                 ownerTableName);
         colomnSig.setParent(sigSearchByName.apply(RulesForAlloyable
                 .tableSigName(ownerTableName)));
+        colomnSig.isAbstruct = Boolean.TRUE;
         return colomnSig;
     }
 
@@ -41,18 +42,20 @@ public class DefaultColumnHandler {
             Sig sig = new Sig(Sig.Tipify.PROPERTY_FACTOR);
             sig.originPropertyName = columnName;
             sig.name = factor;
-            sig.isAbstruct = Boolean.TRUE;
             sigs.add(sig);
         }
         return sigs;
     }
 
-    public Relation buildRelation(Sig colomnSig, List<Sig> propertyFactorSigs) {
+    public Relation buildRelation(Function<String, Sig> sigSearchByName,
+            String ownerTableName, String columnName,
+            List<Sig> propertyFactorSigs) {
         MultipleRelation<Sig> colomnRel = new MultipleRelation<>(
                 Relation.Tipify.VALUE);
-        colomnRel.name = RulesForAlloyable.colmnRelationName(colomnSig.name,
-                colomnSig.getParent().originPropertyName);
-        colomnRel.owner = colomnSig;
+        colomnRel.name = RulesForAlloyable.colmnRelationName(columnName,
+                ownerTableName);
+        colomnRel.owner = sigSearchByName.apply(RulesForAlloyable
+                .tableSigName(ownerTableName));
         colomnRel.refToTypes.addAll(propertyFactorSigs);
         return colomnRel;
     }

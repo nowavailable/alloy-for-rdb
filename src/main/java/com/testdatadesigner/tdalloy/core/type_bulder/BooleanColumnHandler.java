@@ -15,7 +15,10 @@ public class BooleanColumnHandler {
                 .tableSigName(ownerTableName));
         relation.name = RulesForAlloyable.colmnRelationName(
                 columnName, ownerTableName);
-        relation.refTo = new Sig(Sig.Tipify.BOOLEAN_FACTOR);
+        Sig boolenValue = new Sig(Sig.Tipify.BOOLEAN_FACTOR);
+        //boolenValue.name = Sig.Tipify.BOOLEAN_FACTOR.toString();
+        boolenValue.name = "(boolean)";
+        relation.refTo = boolenValue;
         return relation;
     }
 }
