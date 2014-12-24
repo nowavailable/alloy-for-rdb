@@ -36,11 +36,9 @@ public class AlloyableTest extends TestCase {
     }
 
     public void testBuildAll() throws Exception {
-        this.currentAlloyable = this.currentAlloyable.buildFromTable(this.resultList);
-        this.currentAlloyable = this.currentAlloyable.buildByInference(this.resultList);
-        this.currentAlloyable = this.currentAlloyable.buildFromForeignKey(this.resultList);
-        this.currentAlloyable = this.currentAlloyable.buildFromColumn(this.resultList);
-        String seperator = "\t";
+        this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
+        String seperator = "  ";
+        // String seperator = "\t";
         for (Sig result : this.currentAlloyable.sigs) {
             System.out.println(result.name
                     + seperator
@@ -60,11 +58,11 @@ public class AlloyableTest extends TestCase {
                     + seperator + (result.owner == null ? "-" : result.owner.name)
                     + seperator + (result.refTo == null ? "-" : result.refTo.name));
             if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
-                ((MultipleRelation<Sig>)result).refToTypes.forEach(rel -> {
-                    System.out.println("                         refTo: " + rel.name); 
+                ((MultipleRelation<Sig>) result).refToTypes.forEach(rel -> {
+                    System.out.println("                         refTo: " + rel.name);
                 });
-                ((MultipleRelation<Sig>)result).reverseOfrefToTypes.forEach(rel -> {
-                    System.out.println("                       parent: " + rel.name); 
+                ((MultipleRelation<Sig>) result).reverseOfrefToTypes.forEach(rel -> {
+                    System.out.println("                       parent: " + rel.name);
                 });
             }
         }

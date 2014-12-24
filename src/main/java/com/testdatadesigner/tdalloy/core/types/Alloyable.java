@@ -27,26 +27,6 @@ public class Alloyable implements Serializable {
     public List<Fact> facts = new ArrayList<>();
     public Boolean isRailsOriented = Boolean.FALSE;
 
-    // TODO: 自動で生成出来ない部分についての情報フィールド
-
-    public String toJson() {
-        return null;
-    }
-
-    // -- 振る舞い系メソッド。いずれMix-inの形に?
-    // --------------------------------------------------------------
-    public void fixPolymophic() {
-
-    }
-
-    public void fixOneToOne() {
-
-    }
-
-    public void omitColumns() {
-
-    }
-
     private TableHandler tableHandler = new TableHandler();
     private RelationHandler relationHander = new RelationHandler();
     private DefaultColumnHandler columnHandler = new DefaultColumnHandler();
@@ -54,14 +34,34 @@ public class Alloyable implements Serializable {
     private PolymophicHandler polymRelHandler = new PolymophicHandler();
 
     private List<String> skipElementListForColumn = new ArrayList<>();
-    private List<String> foreignKeys = new ArrayList<>();
     private Integer dummyNamingSeq = new Integer(-1);
     static final String INTERNAL_SEPERATOR = "_#_";
 
+    /*
+     * TODO: 自動で生成出来ない部分についての情報フィールド
+     */
     Function<String, Sig> sigSearchByName = name -> this.sigs.stream()
             .filter(s -> s.name.equals(name)).collect(Collectors.toList()).get(0);
 
-    public Alloyable buildFromTable(List<CreateTableNode> parsedDDLList) {
+    private void addToSkip(String tableName, String keyStr) {
+        skipElementListForColumn.add(tableName + INTERNAL_SEPERATOR + keyStr);
+    }
+
+    /**
+     * テーブルの処理。
+     * Constraintsに定義されている外部キーによる関連の処理
+     * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。
+     * カラムの処理。
+     * という順。
+     * 
+     * @param parsedDDLList
+     * @return this
+     * @throws IllegalAccessException
+     */
+    public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList) throws IllegalAccessException {
+        /*
+         * テーブルの処理。
+         */
         for (CreateTableNode tableNode : parsedDDLList) {
 
             this.sigs.add(tableHandler.build(tableNode));
@@ -71,37 +71,47 @@ public class Alloyable implements Serializable {
                 if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
                     FKConstraintDefinitionNode constraint =
                             (FKConstraintDefinitionNode) tableElement;
-                    skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
-                            + ((ResultColumn) constraint.getColumnList().get(0)).getName());
+                    addToSkip(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList()
+                            .get(0)).getName());
                 }
                 // プライマリキーはスキップ対象に
                 if (tableElement.getClass().equals(ConstraintDefinitionNode.class)) {
                     ConstraintDefinitionNode constraint = (ConstraintDefinitionNode) tableElement;
                     if (constraint.getConstraintType().equals(ConstraintType.PRIMARY_KEY)) {
-                        skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
-                                + ((ResultColumn) constraint.getColumnList().get(0)).getName());
+                        addToSkip(tableNode.getFullName(), ((ResultColumn) constraint
+                                .getColumnList().get(0)).getName());
                     }
                 }
             }
         }
-        return this;
-    }
-
-    /**
-     * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論
-     * 
-     * @param parsedDDLList
-     * @return this
-     * @throws IllegalAccessException
-     */
-    public Alloyable buildByInference(List<CreateTableNode> parsedDDLList)
-            throws IllegalAccessException {
+        /*
+         * Constraintsに定義されている外部キーによる関連の処理
+         */
+        for (CreateTableNode tableNode : parsedDDLList) {
+            for (TableElementNode tableElement : tableNode.getTableElementList()) {
+                if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
+                    FKConstraintDefinitionNode constraint =
+                            (FKConstraintDefinitionNode) tableElement;
+                    List<Relation> relations =
+                            relationHander.build(sigSearchByName, tableNode.getFullName(),
+                                    ((ResultColumn) constraint.getColumnList().get(0)).getName(),
+                                    constraint.getRefTableName().getFullTableName());
+                    relations.forEach(rel -> this.relations.add(rel));
+                    // スキップ定義
+                    addToSkip(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList()
+                            .get(0)).getName());
+                }
+            }
+        }
 
         Supplier<Integer> getNamingSeq = () -> {
             this.dummyNamingSeq++;
             return this.dummyNamingSeq;
         };
 
+        /*
+         * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。
+         */
         for (CreateTableNode tableNode : parsedDDLList) {
             List<String> columnNames = new ArrayList<>();
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
@@ -114,15 +124,10 @@ public class Alloyable implements Serializable {
             List<String> polymophicSet = inferenced.get(0);
             List<String> foreignKeySet = inferenced.get(1);
 
+            // ポリモーフィック
             if (!polymophicSet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
                 for (String polymophicStr : polymophicSet) {
-                    // スキップ定義
-                    skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
-                            + polymophicStr + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
-                    skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
-                            + polymophicStr + RulesForAlloyable.POLYMOPHIC_SUFFIX);
-
                     List<DummySig> twoDummySigs =
                             polymRelHandler.buildDummies(getNamingSeq, tableNode.getFullName());
                     List<Sig> builtSigs =
@@ -133,59 +138,35 @@ public class Alloyable implements Serializable {
                             polymRelHandler.buildRelation(sigSearchByName, twoDummySigs,
                                     polymophicStr, tableNode.getFullName());
                     builtRelations.forEach(s -> this.relations.add(s));
+                    // スキップ定義
+                    addToSkip(tableNode.getFullName(), polymophicStr
+                            + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
+                    addToSkip(tableNode.getFullName(), polymophicStr
+                            + RulesForAlloyable.POLYMOPHIC_SUFFIX);
                 }
             }
-
+            // 外部キー
             if (!foreignKeySet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
                 for (String keyStr : foreignKeySet) {
-                    // スキップ定義
-                    skipElementListForColumn.add(tableNode.getFullName() + INTERNAL_SEPERATOR
-                            + keyStr);
-                    foreignKeys.add(tableNode.getFullName() + INTERNAL_SEPERATOR + keyStr);
-
+                    // スキップ
+                    if (skipElementListForColumn.contains(tableNode.getFullName()
+                            + INTERNAL_SEPERATOR + keyStr)) {
+                        continue;
+                    }
                     List<Relation> relations =
                             relationHander.build(sigSearchByName, tableNode.getFullName(), keyStr,
                                     String.valueOf(""));
                     relations.forEach(rel -> this.relations.add(rel));
-                }
-            }
-        }
-        return this;
-    }
-
-    /**
-     * Constraintsに定義されている外部キーによる関連
-     * 
-     * @param parsedDDLList
-     * @return this
-     * @throws IllegalAccessException
-     */
-    public Alloyable buildFromForeignKey(List<CreateTableNode> parsedDDLList)
-            throws IllegalAccessException {
-        for (CreateTableNode tableNode : parsedDDLList) {
-            for (TableElementNode tableElement : tableNode.getTableElementList()) {
-                // 外部キー
-                if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
-                    FKConstraintDefinitionNode constraint =
-                            (FKConstraintDefinitionNode) tableElement;
                     // スキップ定義
-                    foreignKeys.add(tableNode.getFullName() + INTERNAL_SEPERATOR
-                            + ((ResultColumn) constraint.getColumnList().get(0)).getName());
-
-                    List<Relation> relations =
-                            relationHander.build(sigSearchByName, tableNode.getFullName(),
-                                    ((ResultColumn) constraint.getColumnList().get(0)).getName(),
-                                    constraint.getRefTableName().getFullTableName());
-                    relations.forEach(rel -> this.relations.add(rel));
+                    addToSkip(tableNode.getFullName(), keyStr);
                 }
             }
         }
-        return this;
-    }
 
-    public Alloyable buildFromColumn(List<CreateTableNode> parsedDDLList)
-            throws IllegalAccessException {
+        /*
+         * カラムの処理。
+         */
         for (CreateTableNode tableNode : parsedDDLList) {
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
@@ -195,7 +176,6 @@ public class Alloyable implements Serializable {
                             + INTERNAL_SEPERATOR + column.getName())) {
                         continue;
                     }
-
                     // Booleanフィールドはsigとしては扱わないのでスキップ
                     if (column.getType().getSQLstring().equals("TINYINT")) {
                         this.relations.add(booleanColumnHandler.build(sigSearchByName,
@@ -216,4 +196,21 @@ public class Alloyable implements Serializable {
         }
         return this;
     }
+
+    public void fixPolymophic() {
+        // ダミーSigを実在Sigにマージ
+    }
+
+    public void fixOneToOne() {
+
+    }
+
+    public void omitColumns() {
+
+    }
+
+    public String toJson() {
+        return null;
+    }
+
 }

@@ -17,6 +17,11 @@ public class RulesForAlloyable {
     static Pattern patternsForPolymophic = Pattern.compile("^(.+)(" + POLYMOPHIC_SUFFIX + ")$");
     public static final String COLMN_SIG_PREFIX = "";
 
+    /**
+     * カラム名から、外部キーと、ポリモーフィック関連用カラム群を推測する。
+     * @param columnNames
+     * @return 1番目がポリモーフィック関連用カラム群、2番目が外部キーカラム群
+     */
     public static List<List<String>> inferencedRelations(List<String> columnNames) {
         final List<String> matchedPolymophic = new ArrayList<>();
         List<String> candidate = new ArrayList<>();
@@ -76,7 +81,7 @@ public class RulesForAlloyable {
         if (!matcher.find()) {
             throw new IllegalAccessException("this is not foreign key.");
         }
-        return matcher.group(1);
+        return reverse(matcher.group(1));
     }
 
     public static String colmnSigName(String originalColumnName, String originalTableName) {

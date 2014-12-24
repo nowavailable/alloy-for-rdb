@@ -575,7 +575,7 @@ public class Inflector {
         inflect.addSingularize("(matr)ices$", "$1ix");
         inflect.addSingularize("(quiz)zes$", "$1");
 
-        inflect.addIrregular("person", "people");
+//        inflect.addIrregular("person", "people");
         inflect.addIrregular("man", "men");
         inflect.addIrregular("child", "children");
         inflect.addIrregular("sex", "sexes");
