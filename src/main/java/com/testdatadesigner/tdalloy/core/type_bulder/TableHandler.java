@@ -1,15 +1,14 @@
 package com.testdatadesigner.tdalloy.core.type_bulder;
 
-import com.foundationdb.sql.parser.CreateTableNode;
 import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.types.Sig;
 
 public class TableHandler {
 
-    public Sig build(CreateTableNode tableNode) {
+    public Sig build(String tableName) {
         Sig sig = new Sig(Sig.Tipify.ENTITY);
-        sig.originPropertyName = tableNode.getFullName();
-        sig.name = RulesForAlloyable.tableSigName(tableNode.getFullName());
+        sig.originPropertyName = tableName;
+        sig.name = RulesForAlloyable.tableSigName(tableName);
         return sig;
     }
 }

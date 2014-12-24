@@ -62,7 +62,7 @@ public class Alloyable implements Serializable {
          */
         for (CreateTableNode tableNode : parsedDDLList) {
 
-            this.sigs.add(tableHandler.build(tableNode));
+            this.sigs.add(tableHandler.build(tableNode.getFullName()));
 
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 // 外部キーはスキップ対象に。
