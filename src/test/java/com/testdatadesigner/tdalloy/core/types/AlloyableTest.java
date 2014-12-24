@@ -4,6 +4,7 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import com.foundationdb.sql.parser.CreateTableNode;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
@@ -69,7 +70,8 @@ public class AlloyableTest extends TestCase {
         }
         System.out.println("-------------------------");
         for (Fact result : this.currentAlloyable.facts) {
-            System.out.println(result.value);
+            System.out.println(result.value + seperator
+                    + result.owners.stream().map(r -> r.name).collect(Collectors.joining(",")));
         }
     }
 

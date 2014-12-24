@@ -1,9 +1,11 @@
 package com.testdatadesigner.tdalloy.core.type_bulder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.stream.Collectors;
 
 import com.testdatadesigner.tdalloy.core.types.DummySig;
 import com.testdatadesigner.tdalloy.core.types.Fact;
@@ -103,20 +105,54 @@ public class PolymophicHandler {
                 polymImpleRel_1, polymImpleRel_2);
     }
     
-//    public List<Fact> buildFact(List<Relation> relations) {
-//        Fact factForColumn = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);
-//        String leftStrForColumn = new String();
-//        String rightStrForColumn = new String();
-//        for (Relation relation : relations) {
-//            if (relation.type.equals(Relation.Tipify.ABSTRUCT_RELATION)) {
-//                rightStrForColumn = relation.name;
-//            }
-//            if (relation.type.equals(Relation.Tipify.VALUE)) {
-//                leftStrForColumn = relation.name;
-//            }
-//        }
-//        factForColumn.value = leftStrForColumn + " = ~" + rightStrForColumn;
-//        
-//        return Arrays.asList(factForColumn);
-//    }
+    public List<Fact> buildFact(List<Relation> relations, List<? extends Sig> refToSigs) {
+
+        List<Fact> factList = new ArrayList<>();
+        Relation rootOwnerRel = null;
+
+        Fact factForColumn = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);
+        String leftStrForColumn = new String();
+        String rightStrForColumn = new String();
+        for (Relation relation : relations) {
+            if (relation.type.equals(Relation.Tipify.ABSTRUCT_RELATION)) {
+                rightStrForColumn = relation.name;
+                factForColumn.owners.add(relation);
+            }
+            if (relation.type.equals(Relation.Tipify.VALUE)) {
+                leftStrForColumn = relation.name;
+                factForColumn.owners.add(relation);
+                
+                rootOwnerRel = relation;
+            }
+        }
+        factForColumn.value = leftStrForColumn + " = ~" + rightStrForColumn;
+        factList.add(factForColumn);
+        
+        List<Relation> workList = new ArrayList<>();
+        relations.forEach(rel -> {
+            if (rel.type.equals(Relation.Tipify.RELATION_REVERSED)
+                    | rel.type.equals(Relation.Tipify.ABSTRUCT_RELATION_REVERSED)) {
+                workList.add(rel);
+            }
+        });
+        
+        for (Sig refToSig : refToSigs) {
+            Fact factForPolymophic = new Fact(Fact.Tipify.RELATION_POLYMOPHIC);
+            String leftStr =
+                    workList.stream()
+                            .filter(rel -> rel.type.equals(Relation.Tipify.RELATION_REVERSED)
+                                    && rel.owner.equals(refToSig)).collect(Collectors.toList())
+                            .get(0).name;
+            String rightStr =
+                    workList.stream()
+                            .filter(rel -> rel.type.equals(Relation.Tipify.ABSTRUCT_RELATION_REVERSED)
+                                    && rel.refTo.equals(refToSig)).collect(Collectors.toList())
+                            .get(0).name;
+            factForPolymophic.value = leftStr + " = ~(" + leftStrForColumn + "." + rightStr + ")";
+            factForPolymophic.owners.add(rootOwnerRel);
+            
+            factList.add(factForPolymophic);
+        }
+        return factList;
+    }
 }

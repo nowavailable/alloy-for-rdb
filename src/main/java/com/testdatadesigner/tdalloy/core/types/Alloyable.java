@@ -137,7 +137,7 @@ public class Alloyable implements Serializable {
                             polymRelHandler.buildRelation(sigSearchByName, twoDummySigs,
                                     polymophicStr, tableNode.getFullName());
                     this.relations.addAll(builtRelations);
-                    // this.facts.addAll(polymRelHandler.buildFact(builtRelations));
+                    this.facts.addAll(polymRelHandler.buildFact(builtRelations, twoDummySigs));
                     // スキップ定義
                     addToSkip(tableNode.getFullName(), polymophicStr
                             + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
