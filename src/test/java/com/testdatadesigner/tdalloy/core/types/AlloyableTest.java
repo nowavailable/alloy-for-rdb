@@ -60,10 +60,10 @@ public class AlloyableTest extends TestCase {
                     + seperator + (result.owner == null ? "-" : result.owner.name)
                     + seperator + (result.refTo == null ? "-" : result.refTo.name));
             if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
-                ((MultipleRelation<Sig>) result).refToTypes.forEach(rel -> {
+                ((MultipleRelation) result).refToTypes.forEach(rel -> {
                     System.out.println("                         refTo: " + rel.name);
                 });
-                ((MultipleRelation<Sig>) result).reverseOfrefToTypes.forEach(rel -> {
+                ((MultipleRelation) result).reverseOfrefToTypes.forEach(rel -> {
                     System.out.println("                       parent: " + rel.name);
                 });
             }

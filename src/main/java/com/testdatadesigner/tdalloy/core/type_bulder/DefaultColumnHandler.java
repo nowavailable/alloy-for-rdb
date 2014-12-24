@@ -44,10 +44,10 @@ public class DefaultColumnHandler {
 
     public Relation buildRelation(Function<String, Sig> sigSearchByName, String ownerTableName,
             String columnName, List<Sig> propertyFactorSigs) {
-        MultipleRelation<Sig> colomnRel = new MultipleRelation<>(Relation.Tipify.VALUE);
+        MultipleRelation colomnRel = new MultipleRelation(Relation.Tipify.VALUE);
         colomnRel.name = RulesForAlloyable.colmnRelationName(columnName, ownerTableName);
         colomnRel.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
-        colomnRel.refToTypes.addAll(propertyFactorSigs);
+        colomnRel.refToTypes = propertyFactorSigs;
         return colomnRel;
     }
 }
