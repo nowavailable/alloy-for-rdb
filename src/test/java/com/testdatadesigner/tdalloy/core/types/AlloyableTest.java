@@ -2,6 +2,7 @@ package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 
 import com.foundationdb.sql.parser.CreateTableNode;
@@ -65,6 +66,10 @@ public class AlloyableTest extends TestCase {
                     System.out.println("                       parent: " + rel.name);
                 });
             }
+        }
+        System.out.println("-------------------------");
+        for (Fact result : this.currentAlloyable.facts) {
+            System.out.println(result.value);
         }
     }
 

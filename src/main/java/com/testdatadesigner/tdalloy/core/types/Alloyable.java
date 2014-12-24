@@ -48,17 +48,15 @@ public class Alloyable implements Serializable {
     }
 
     /**
-     * テーブルの処理。
-     * Constraintsに定義されている外部キーによる関連の処理
-     * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。
-     * カラムの処理。
+     * テーブルの処理。 Constraintsに定義されている外部キーによる関連の処理 ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。 カラムの処理。
      * という順。
      * 
      * @param parsedDDLList
      * @return this
      * @throws IllegalAccessException
      */
-    public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList) throws IllegalAccessException {
+    public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList)
+            throws IllegalAccessException {
         /*
          * テーブルの処理。
          */
@@ -96,7 +94,8 @@ public class Alloyable implements Serializable {
                             relationHander.build(sigSearchByName, tableNode.getFullName(),
                                     ((ResultColumn) constraint.getColumnList().get(0)).getName(),
                                     constraint.getRefTableName().getFullTableName());
-                    relations.forEach(rel -> this.relations.add(rel));
+                    this.relations.addAll(relations);
+                    this.facts.add(relationHander.buildFact(relations));
                     // スキップ定義
                     addToSkip(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList()
                             .get(0)).getName());
@@ -133,11 +132,12 @@ public class Alloyable implements Serializable {
                     List<Sig> builtSigs =
                             polymRelHandler.buildSig(sigSearchByName, twoDummySigs, polymophicStr,
                                     tableNode.getFullName());
-                    builtSigs.forEach(s -> this.sigs.add(s));
+                    this.sigs.addAll(builtSigs);
                     List<Relation> builtRelations =
                             polymRelHandler.buildRelation(sigSearchByName, twoDummySigs,
                                     polymophicStr, tableNode.getFullName());
-                    builtRelations.forEach(s -> this.relations.add(s));
+                    this.relations.addAll(builtRelations);
+                    // this.facts.addAll(polymRelHandler.buildFact(builtRelations));
                     // スキップ定義
                     addToSkip(tableNode.getFullName(), polymophicStr
                             + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
@@ -157,7 +157,8 @@ public class Alloyable implements Serializable {
                     List<Relation> relations =
                             relationHander.build(sigSearchByName, tableNode.getFullName(), keyStr,
                                     String.valueOf(""));
-                    relations.forEach(rel -> this.relations.add(rel));
+                    this.relations.addAll(relations);
+                    this.facts.add(relationHander.buildFact(relations));
                     // スキップ定義
                     addToSkip(tableNode.getFullName(), keyStr);
                 }

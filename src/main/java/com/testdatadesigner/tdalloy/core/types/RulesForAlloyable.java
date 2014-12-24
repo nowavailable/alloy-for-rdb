@@ -89,6 +89,11 @@ public class RulesForAlloyable {
         return COLMN_SIG_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
                 + inflector.upperCamelCase(originalColumnName);
     }
+    
+    public static String polymophicImplSigName(String polymophicStr, String refToSigName) {
+        Inflector inflector = Inflector.getInstance();
+        return inflector.upperCamelCase(polymophicStr) + refToSigName;
+    }
 
     public static String implimentedPolymophicSigName(String keystr, String ownerTableName) {
         return tableSigName(keystr) + tableSigName(ownerTableName);
