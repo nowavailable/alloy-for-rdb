@@ -24,6 +24,8 @@ public class Sig implements Serializable {
     public Boolean isAbstruct = false;
     public String originPropertyName = "";
     public String originTypeName = "";  // カラムの型を格納 TODO: テーブルはどうする？ Table or View ?
+    public Boolean polymophicProspected = Boolean.FALSE;
+    
     public Boolean ignore = Boolean.FALSE;
 
     private Sig parent;

@@ -53,6 +53,12 @@ public class RulesForAlloyable {
         }
         return Arrays.asList(matchedPolymophic, matchedForeignKey);
     }
+    
+    public static Boolean isInferencedPolymophic(String originalColumnName, List<String> list) {
+        return list.stream().anyMatch(
+                str -> str.equals(originalColumnName.replaceAll(FOREIGN_KEY_SUFFIX + "$", "")
+                        .replaceAll(POLYMOPHIC_SUFFIX + "$", "")));
+    }
 
     public static String singularize(String originalTableName) {
         Inflector inflector = Inflector.getInstance();

@@ -104,40 +104,6 @@ public class PolymophicHandler {
                             refToSig.name));
             relList.add(polymImpleRel);
         }
-//        // 2/9
-//        // 3/9
-//        Relation relForDummy1 = new Relation(Relation.Tipify.RELATION_REVERSED);
-//        relForDummy1.name =
-//                RulesForAlloyable
-//                        .foreignKeyNameReversed(refToSigs.get(0).originPropertyName, ownerTableName);
-//        relForDummy1.owner = refToSigs.get(0);
-//        relForDummy1.refTo = valueRelation.owner;
-//
-//        Relation relForDummy2 = new Relation(Relation.Tipify.RELATION_REVERSED);
-//        relForDummy2.name =
-//                RulesForAlloyable
-//                        .foreignKeyNameReversed(refToSigs.get(1).originPropertyName, ownerTableName);
-//        relForDummy2.owner = refToSigs.get(1);
-//        relForDummy2.refTo = valueRelation.owner;
-//
-//
-//        // 7/9
-//        // 9/9
-//        Relation polymImpleRel_1 = new Relation(Relation.Tipify.ABSTRUCT_RELATION_REVERSED);
-//        polymImpleRel_1.name = RulesForAlloyable.singularize(v.get(0).name);
-//        polymImpleRel_1.refTo = refToSigs.get(0);
-//        polymImpleRel_1.owner =
-//                sigSearchByName.apply(RulesForAlloyable.polymophicImplSigName(polymophicStr,
-//                        refToSigs.get(0).name));
-//        Relation polymImpleRel_2 = new Relation(Relation.Tipify.ABSTRUCT_RELATION_REVERSED);
-//        polymImpleRel_2.name = RulesForAlloyable.singularize(refToSigs.get(1).name);
-//        polymImpleRel_2.refTo = refToSigs.get(1);
-//        polymImpleRel_2.owner =
-//                sigSearchByName.apply(RulesForAlloyable.polymophicImplSigName(polymophicStr,
-//                        refToSigs.get(1).name));
-//
-//        return Arrays.asList(valueRelation, relForDummy1, relForDummy2, polymRelationReversed,
-//                polymImpleRel_1, polymImpleRel_2);
         return relList;
     }
     

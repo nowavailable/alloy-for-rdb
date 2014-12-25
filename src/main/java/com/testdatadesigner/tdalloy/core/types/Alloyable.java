@@ -2,6 +2,7 @@ package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
@@ -14,6 +15,7 @@ import com.foundationdb.sql.parser.FKConstraintDefinitionNode;
 import com.foundationdb.sql.parser.ResultColumn;
 import com.foundationdb.sql.parser.TableElementNode;
 import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
+import com.sun.javafx.collections.MappingChange.Map;
 import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.DefaultColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.PolymophicHandler;
@@ -34,12 +36,14 @@ public class Alloyable implements Serializable {
     private PolymophicHandler polymRelHandler = new PolymophicHandler();
 
     private List<String> skipElementListForColumn = new ArrayList<>();
+    HashMap<String, List<String>> allInferencedPolymophicSet = new HashMap<String, List<String>>();
     private Integer dummyNamingSeq = new Integer(-1);
     static final String INTERNAL_SEPERATOR = "_#_";
 
     /*
      * TODO: 自動で生成出来ない部分についての情報フィールド
      */
+
     Function<String, Sig> sigSearchByName = name -> this.sigs.stream()
             .filter(s -> s.name.equals(name)).collect(Collectors.toList()).get(0);
 
@@ -120,24 +124,26 @@ public class Alloyable implements Serializable {
                 }
             }
             List<List<String>> inferenced = RulesForAlloyable.inferencedRelations(columnNames);
-            List<String> polymophicSet = inferenced.get(0);
-            List<String> foreignKeySet = inferenced.get(1);
+            List<String> inferencedPolymophicSet = inferenced.get(0);
+            List<String> inferencedForeignKeySet = inferenced.get(1);
+            allInferencedPolymophicSet.put(tableNode.getFullName(), inferencedPolymophicSet);
 
             // ポリモーフィック
-            if (!polymophicSet.isEmpty()) {
+            if (!inferencedPolymophicSet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
-                for (String polymophicStr : polymophicSet) {
-                    List<DummySig> twoDummySigs =
-                            polymRelHandler.buildDummies(getNamingSeq, tableNode.getFullName());
-                    List<Sig> builtSigs =
-                            polymRelHandler.buildSig(sigSearchByName, twoDummySigs, polymophicStr,
-                                    tableNode.getFullName());
-                    this.sigs.addAll(builtSigs);
-                    List<Relation> builtRelations =
-                            polymRelHandler.buildRelation(sigSearchByName, twoDummySigs,
-                                    polymophicStr, tableNode.getFullName());
-                    this.relations.addAll(builtRelations);
-                    this.facts.addAll(polymRelHandler.buildFact(builtRelations, twoDummySigs));
+                for (String polymophicStr : inferencedPolymophicSet) {
+//                    List<DummySig> twoDummySigs =
+//                            polymRelHandler.buildDummies(getNamingSeq, tableNode.getFullName());
+//                    List<Sig> builtSigs =
+//                            polymRelHandler.buildSig(sigSearchByName, twoDummySigs, polymophicStr,
+//                                    tableNode.getFullName());
+//                    this.sigs.addAll(builtSigs);
+//                    List<Relation> builtRelations =
+//                            polymRelHandler.buildRelation(sigSearchByName, twoDummySigs,
+//                                    polymophicStr, tableNode.getFullName());
+//                    this.relations.addAll(builtRelations);
+//                    this.facts.addAll(polymRelHandler.buildFact(builtRelations, twoDummySigs));
+//                    
                     // スキップ定義
                     addToSkip(tableNode.getFullName(), polymophicStr
                             + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
@@ -146,9 +152,9 @@ public class Alloyable implements Serializable {
                 }
             }
             // 外部キー
-            if (!foreignKeySet.isEmpty()) {
+            if (!inferencedForeignKeySet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
-                for (String keyStr : foreignKeySet) {
+                for (String keyStr : inferencedForeignKeySet) {
                     // スキップ
                     if (skipElementListForColumn.contains(tableNode.getFullName()
                             + INTERNAL_SEPERATOR + keyStr)) {
@@ -175,6 +181,17 @@ public class Alloyable implements Serializable {
                     // スキップ
                     if (skipElementListForColumn.contains(tableNode.getFullName()
                             + INTERNAL_SEPERATOR + column.getName())) {
+
+                        if (RulesForAlloyable.isInferencedPolymophic(column.getName(),
+                                allInferencedPolymophicSet.get(tableNode.getFullName()))) {
+                            Sig polymColumnSig =
+                                    columnHandler.buildSig(sigSearchByName,
+                                            tableNode.getFullName(), column.getName());
+                            polymColumnSig.originTypeName = column.getType().getTypeName();
+                            polymColumnSig.polymophicProspected = Boolean.TRUE;
+                            this.sigs.add(polymColumnSig);
+                        }
+
                         continue;
                     }
                     // Booleanフィールドはsigとしては扱わないのでスキップ
