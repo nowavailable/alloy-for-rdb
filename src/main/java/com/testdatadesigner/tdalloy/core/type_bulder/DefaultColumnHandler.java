@@ -18,10 +18,16 @@ public class DefaultColumnHandler {
         colomnSig.originPropertyName = columnName;
         colomnSig.name = RulesForAlloyable.colmnSigName(columnName, ownerTableName);
         colomnSig.setParent(sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName)));
-        colomnSig.isAbstruct = Boolean.TRUE;
         return colomnSig;
     }
 
+    public Sig buildSigPolymophicProspected(Function<String, Sig> sigSearchByName, String ownerTableName,
+            String columnName) throws IllegalAccessException {
+        Sig colomnSig = buildSig(sigSearchByName, ownerTableName, columnName);
+        colomnSig.type = Sig.Tipify.PROPERTY_PROTOTYPE_POLIMOPHIC_PROSPECTED;
+        return colomnSig;
+    }
+    
     public List<Sig> buildFactorSigs(String ownerTableName, String columnName) {
         List<String> factors = new ArrayList<String>() {
             {

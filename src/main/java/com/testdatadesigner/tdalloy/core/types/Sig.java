@@ -14,6 +14,7 @@ public class Sig implements Serializable {
         ENTITY, // テーブル相当
         PROPERTY_FACTOR, // 属性値としてモデリングされたenumの列挙子
         PROPERTY_PROTOTYPE, // 属性値としてモデリングされたenum
+        PROPERTY_PROTOTYPE_POLIMOPHIC_PROSPECTED, 
         POLYMOPHIC_TYPE_ABSTRACT, // ポリモーフィック関連のtypeの抽象化されたsig
         POLYMOPHIC_IMPLIMENT, // ポリモーフィック関連のtypeの抽象化されたsigの継承先
         BOOLEAN_FACTOR,
@@ -24,7 +25,6 @@ public class Sig implements Serializable {
     public Boolean isAbstruct = false;
     public String originPropertyName = "";
     public String originTypeName = "";  // カラムの型を格納 TODO: テーブルはどうする？ Table or View ?
-    public Boolean polymophicProspected = Boolean.FALSE;
     
     public Boolean ignore = Boolean.FALSE;
 

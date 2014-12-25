@@ -184,10 +184,9 @@ public class Alloyable implements Serializable {
                         if (RulesForAlloyable.isInferencedPolymophic(column.getName(),
                                 allInferencedPolymophicSet.get(tableNode.getFullName()))) {
                             Sig polymColumnSig =
-                                    columnHandler.buildSig(sigSearchByName,
+                                    columnHandler.buildSigPolymophicProspected(sigSearchByName,
                                             tableNode.getFullName(), column.getName());
                             polymColumnSig.originTypeName = column.getType().getTypeName();
-                            polymColumnSig.polymophicProspected = Boolean.TRUE;
                             this.sigs.add(polymColumnSig);
                         }
 
