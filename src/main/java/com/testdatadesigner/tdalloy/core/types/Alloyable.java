@@ -184,8 +184,10 @@ public class Alloyable implements Serializable {
                         continue;
                     }
 
-                    this.sigs.add(columnHandler.buildSig(sigSearchByName, tableNode.getFullName(),
-                            column.getName()));
+                    Sig columnSig = columnHandler.buildSig(sigSearchByName, tableNode.getFullName(),
+                            column.getName());
+                    columnSig.originTypeName = column.getType().getTypeName();
+                    this.sigs.add(columnSig);
                     List<Sig> propertyFactorSigs =
                             columnHandler
                                     .buildFactorSigs(tableNode.getFullName(), column.getName());

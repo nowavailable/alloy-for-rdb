@@ -50,7 +50,10 @@ public class AlloyableTest extends TestCase {
                     + result.isAbstruct.toString()
                     + seperator
                     + (result.getParent() == null ? "-"
-                            : result.getParent().name));
+                            : result.getParent().name)
+                    + seperator
+                    + (result.originTypeName.isEmpty() ? "-"
+                            : result.originTypeName));
         }
         System.out.println("-------------------------");
         for (Relation result : this.currentAlloyable.relations) {
