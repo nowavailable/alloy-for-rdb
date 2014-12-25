@@ -1,10 +1,11 @@
-package com.testdatadesigner.tdalloy.client.types;
+package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
-import com.testdatadesigner.tdalloy.core.types.DtoForPrepare.Column;
+import com.testdatadesigner.tdalloy.client.types.DtoForPrepare;
+import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Column;
 
 public class Parameterized implements Serializable {
     private static final long serialVersionUID = 1L;

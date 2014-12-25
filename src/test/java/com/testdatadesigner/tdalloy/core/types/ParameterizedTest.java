@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.client.types;
+package com.testdatadesigner.tdalloy.core.types;
 
 import junit.framework.TestCase;
 
