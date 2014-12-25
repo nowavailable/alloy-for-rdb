@@ -15,7 +15,6 @@ import com.foundationdb.sql.parser.FKConstraintDefinitionNode;
 import com.foundationdb.sql.parser.ResultColumn;
 import com.foundationdb.sql.parser.TableElementNode;
 import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
-import com.sun.javafx.collections.MappingChange.Map;
 import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.DefaultColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.PolymophicHandler;
