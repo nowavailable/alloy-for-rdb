@@ -1,26 +1,54 @@
 package com.testdatadesigner.tdalloy.client.types;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.foundationdb.sql.parser.CreateTableNode;
 import com.google.gson.Gson;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Column;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Relation;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Table;
+import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
+import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
+import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
+import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
+import com.testdatadesigner.tdalloy.core.types.Alloyable;
 
 import junit.framework.TestCase;
 
 public class DtoForPrepareTest extends TestCase {
 
+    List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
+    Alloyable currentAlloyable;
+
     protected void setUp() throws Exception {
         super.setUp();
+        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
+        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+        ddlSplitter.prepare(in);
+        List<String> results = ddlSplitter.getRawTables();
+
+        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        this.resultList = parser.inboundParse(results);
+        
+        this.currentAlloyable = new Alloyable();
+        this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
     }
 
     protected void tearDown() throws Exception {
         super.tearDown();
+    }
+    
+    public void testAlloyableToDTO() {
+
+        DtoForPrepare dto = new DtoForPrepare();
+        dto.buiildFromAlloyable(this.currentAlloyable);
+        String json = new Gson().toJson(dto);
+        System.out.println(json);
     }
     
     public void testToJson() {
@@ -87,6 +115,5 @@ public class DtoForPrepareTest extends TestCase {
 
         String json = new Gson().toJson(dto);
         System.out.println(json);
-        
     }
 }

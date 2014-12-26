@@ -1,11 +1,17 @@
 package com.testdatadesigner.tdalloy.client.types;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import com.testdatadesigner.tdalloy.core.types.Alloyable;
+import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
+import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.types.Sig;
 
 /**
- * JSONに変換して、クライアントの、初期設定ビューにGETさせる、 初期設定ビューからPOSTさせる プレースホルダーオブジェクト。
+ * クライアントの、初期設定ビューにGETさせる and 初期設定ビューからPOSTさせる 用の<br/>
+ * プレースホルダーオブジェクト。JSONフォーマットで送受信する。
  * 
  * @author tsutsumi
  *
@@ -20,7 +26,7 @@ public class DtoForPrepare {
 
     public class Table {
         public String name;
-        public List<Column> columns;
+        public List<Column> columns = new ArrayList<>();
         public Boolean ignore = Boolean.FALSE;
     }
 
@@ -46,5 +52,70 @@ public class DtoForPrepare {
 
     public Relation constructRelation() {
         return new Relation();
+    }
+
+    /**
+     * DDL読み込み直後の、初期状態Alloyableオブジェクトの内容を、<br/>
+     * 対クライアント送信用のDTOとしてビルドする。
+     * 
+     * @param alloyable
+     */
+    public void buiildFromAlloyable(Alloyable alloyable) {
+        List<Sig> tables =
+                alloyable.sigs.stream().filter(sig -> sig.type.equals(Sig.Tipify.ENTITY))
+                        .collect(Collectors.toList());
+        tables.forEach(sig -> {
+            Table table = this.constructTable();
+            table.name = sig.originPropertyName;
+            // カラム
+            List<Sig> columns =
+                    alloyable.sigs
+                            .stream()
+                            .filter(s -> s.getParent() != null && s.getParent().equals(sig)
+                                    && (s.type.equals(Sig.Tipify.PROPERTY_PROTOTYPE)))
+                            .collect(Collectors.toList());
+            columns.forEach(col -> {
+                Column column = this.constructColumn();
+                column.name = col.originPropertyName;
+                table.columns.add(column);
+            });
+            List<Sig> columnsPolym =
+                    alloyable.sigs
+                            .stream()
+                            .filter(s -> s.getParent() != null
+                                    && s.getParent().equals(sig)
+                                    && (s.type
+                                            .equals(Sig.Tipify.PROPERTY_PROTOTYPE_POLIMOPHIC_PROSPECTED)))
+                            .collect(Collectors.toList());
+            // ポリモーフィック（初期の未決状態）
+            columnsPolym.forEach(col -> {
+                Column column = this.constructColumn();
+                column.name = col.originPropertyName;
+                column.relation = this.constructRelation();
+                column.relation.type = RelationType.POLYMOPHIC;
+                table.columns.add(column);
+            });
+            // 外部キー
+            List<? extends com.testdatadesigner.tdalloy.core.types.Relation> relsConcrete =
+                    alloyable.relations
+                            .stream()
+                            .filter(rel -> rel.owner.equals(sig)
+                                    && rel.type
+                                            .equals(com.testdatadesigner.tdalloy.core.types.Relation.Tipify.RELATION)
+                                    && !rel.getClass().equals(MultipleRelation.class))
+                            .collect(Collectors.toList());
+            relsConcrete.forEach(rel -> {
+                Column column = this.constructColumn();
+                column.name =
+                        RulesForAlloyable.singularize(rel.refTo.originPropertyName)
+                                + RulesForAlloyable.FOREIGN_KEY_SUFFIX;
+                column.relation = this.constructRelation();
+                column.relation.type = RelationType.MANY_TO_ONE;
+                column.relation.refTo.add(rel.refTo.originPropertyName);
+                table.columns.add(column);
+            });
+
+            this.tables.add(table);
+        });
     }
 }
