@@ -61,25 +61,25 @@ public class DtoForPrepare {
      * @param alloyable
      */
     public void buiildFromAlloyable(Alloyable alloyable) {
-        List<Sig> tables =
+        List<Sig> tableSigs =
                 alloyable.sigs.stream().filter(sig -> sig.type.equals(Sig.Tipify.ENTITY))
                         .collect(Collectors.toList());
-        tables.forEach(sig -> {
+        tableSigs.forEach(sig -> {
             Table table = this.constructTable();
             table.name = sig.originPropertyName;
             // カラム
-            List<Sig> columns =
+            List<Sig> columnSigs =
                     alloyable.sigs
                             .stream()
                             .filter(s -> s.getParent() != null && s.getParent().equals(sig)
                                     && (s.type.equals(Sig.Tipify.PROPERTY_PROTOTYPE)))
                             .collect(Collectors.toList());
-            columns.forEach(col -> {
+            columnSigs.forEach(col -> {
                 Column column = this.constructColumn();
                 column.name = col.originPropertyName;
                 table.columns.add(column);
             });
-            List<Sig> columnsPolym =
+            List<Sig> polymColumnSigs =
                     alloyable.sigs
                             .stream()
                             .filter(s -> s.getParent() != null
@@ -88,7 +88,7 @@ public class DtoForPrepare {
                                             .equals(Sig.Tipify.PROPERTY_PROTOTYPE_POLIMOPHIC_PROSPECTED)))
                             .collect(Collectors.toList());
             // ポリモーフィック（初期の未決状態）
-            columnsPolym.forEach(col -> {
+            polymColumnSigs.forEach(col -> {
                 Column column = this.constructColumn();
                 column.name = col.originPropertyName;
                 column.relation = this.constructRelation();
