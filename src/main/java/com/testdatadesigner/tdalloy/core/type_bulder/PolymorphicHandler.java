@@ -14,7 +14,7 @@ import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.types.Sig;
 
-public class PolymophicHandler {
+public class PolymorphicHandler {
 
     public List<DummySig> buildDummies(Supplier<Integer> getNamingSeq, String ownerTableName) {
         // ダミー作成
@@ -24,17 +24,17 @@ public class PolymophicHandler {
     }
 
     public List<Sig> buildSig(Function<String, Sig> sigSearchByName, List<? extends Sig> refToSigs,
-            String polymophicStr, String ownerTableName) throws IllegalAccessException {
+            String polymorphicStr, String ownerTableName) throws IllegalAccessException {
         List<Sig> sigList = new ArrayList<>();
         // 4/9
-        Sig polymophiSig = new Sig(Sig.Tipify.POLYMOPHIC_TYPE_ABSTRACT);
-        polymophiSig.originPropertyName = polymophicStr + RulesForAlloyable.POLYMOPHIC_SUFFIX;
-        polymophiSig.name =
-                RulesForAlloyable.colmnSigName(polymophiSig.originPropertyName, ownerTableName);
-        polymophiSig.setParent(sigSearchByName.apply(RulesForAlloyable
+        Sig polymorphicSig = new Sig(Sig.Tipify.POLYMORPHIC_TYPE_ABSTRACT);
+        polymorphicSig.originPropertyName = polymorphicStr + RulesForAlloyable.POLYMORPHIC_SUFFIX;
+        polymorphicSig.name =
+                RulesForAlloyable.colmnSigName(polymorphicSig.originPropertyName, ownerTableName);
+        polymorphicSig.setParent(sigSearchByName.apply(RulesForAlloyable
                 .tableSigName(ownerTableName)));
-        polymophiSig.isAbstruct = Boolean.TRUE;
-        sigList.add(polymophiSig);
+        polymorphicSig.isAbstruct = Boolean.TRUE;
+        sigList.add(polymorphicSig);
 
         // 6/9
         // 8/9
@@ -42,9 +42,9 @@ public class PolymophicHandler {
             for (Sig dummySig : refToSigs) {
                 DummySig polymImpleSig =
                         new DummySig(Sig.Tipify.POLYMOPHIC_IMPLIMENT, ((DummySig)dummySig).namingSeq);
-                polymImpleSig.setParent(polymophiSig);
+                polymImpleSig.setParent(polymorphicSig);
                 polymImpleSig.name =
-                        RulesForAlloyable.implimentedPolymophicSigName(polymophicStr,
+                        RulesForAlloyable.implimentedPolymorphicSigName(polymorphicStr,
                                 dummySig.originPropertyName);
                 sigList.add(polymImpleSig);
             }
@@ -52,9 +52,9 @@ public class PolymophicHandler {
             for (Sig refToSig : refToSigs) {
                 Sig polymImpleSig =
                         new Sig(Sig.Tipify.POLYMOPHIC_IMPLIMENT);
-                polymImpleSig.setParent(polymophiSig);
+                polymImpleSig.setParent(polymorphicSig);
                 polymImpleSig.name =
-                        RulesForAlloyable.implimentedPolymophicSigName(polymophicStr,
+                        RulesForAlloyable.implimentedPolymorphicSigName(polymorphicStr,
                                 refToSig.originPropertyName);
                 sigList.add(polymImpleSig);
             }
@@ -64,13 +64,13 @@ public class PolymophicHandler {
     }
 
     public List<Relation> buildRelation(Function<String, Sig> sigSearchByName,
-            List<? extends Sig> refToSigs, String polymophicStr, String ownerTableName) {
+            List<? extends Sig> refToSigs, String polymorphicStr, String ownerTableName) {
         List<Relation> relList = new ArrayList<>();
         // 1/9
         MultipleRelation valueRelation = new MultipleRelation(Relation.Tipify.VALUE);
         valueRelation.name =
-                RulesForAlloyable.colmnRelationName(polymophicStr
-                        + RulesForAlloyable.POLYMOPHIC_SUFFIX, ownerTableName);
+                RulesForAlloyable.colmnRelationName(polymorphicStr
+                        + RulesForAlloyable.POLYMORPHIC_SUFFIX, ownerTableName);
         valueRelation.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
         valueRelation.refToTypes = refToSigs;
         relList.add(valueRelation);
@@ -100,7 +100,7 @@ public class PolymophicHandler {
             polymImpleRel.name = RulesForAlloyable.singularize(refToSig.name);
             polymImpleRel.refTo = refToSig;
             polymImpleRel.owner =
-                    sigSearchByName.apply(RulesForAlloyable.polymophicImplSigName(polymophicStr,
+                    sigSearchByName.apply(RulesForAlloyable.polymorphicImplSigName(polymorphicStr,
                             refToSig.name));
             relList.add(polymImpleRel);
         }
@@ -139,7 +139,7 @@ public class PolymophicHandler {
         });
         
         for (Sig refToSig : refToSigs) {
-            Fact factForPolymophic = new Fact(Fact.Tipify.RELATION_POLYMOPHIC);
+            Fact factForPolymorphic = new Fact(Fact.Tipify.RELATION_POLYMOPHIC);
             String leftStr =
                     workList.stream()
                             .filter(rel -> rel.type.equals(Relation.Tipify.RELATION_REVERSED)
@@ -150,10 +150,10 @@ public class PolymophicHandler {
                             .filter(rel -> rel.type.equals(Relation.Tipify.ABSTRUCT_RELATION_REVERSED)
                                     && rel.refTo.equals(refToSig)).collect(Collectors.toList())
                             .get(0).name;
-            factForPolymophic.value = leftStr + " = ~(" + leftStrForColumn + "." + rightStr + ")";
-            factForPolymophic.owners.add(rootOwnerRel);
+            factForPolymorphic.value = leftStr + " = ~(" + leftStrForColumn + "." + rightStr + ")";
+            factForPolymorphic.owners.add(rootOwnerRel);
             
-            factList.add(factForPolymophic);
+            factList.add(factForPolymorphic);
         }
         return factList;
     }

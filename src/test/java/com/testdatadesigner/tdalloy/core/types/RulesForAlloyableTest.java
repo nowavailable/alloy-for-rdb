@@ -21,11 +21,11 @@ public class RulesForAlloyableTest extends TestCase {
     
     public void testポリモーフィック関連用カラムかどうか() {
         List<String> bag = Arrays.asList("campaign", "photable");
-        Boolean result1 = RulesForAlloyable.isInferencedPolymophic("photable_id", bag);
+        Boolean result1 = RulesForAlloyable.isInferencedPolymorphic("photable_id", bag);
         assertEquals(Boolean.TRUE, result1);
-        Boolean result2 = RulesForAlloyable.isInferencedPolymophic("photable_type", bag);
+        Boolean result2 = RulesForAlloyable.isInferencedPolymorphic("photable_type", bag);
         assertEquals(Boolean.TRUE, result2);
-        Boolean result3 = RulesForAlloyable.isInferencedPolymophic("id_of_campaign", bag);
+        Boolean result3 = RulesForAlloyable.isInferencedPolymorphic("id_of_campaign", bag);
         assertEquals(Boolean.FALSE, result3);
     }
 }

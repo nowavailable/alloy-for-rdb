@@ -21,10 +21,10 @@ public class DefaultColumnHandler {
         return colomnSig;
     }
 
-    public Sig buildSigPolymophicProspected(Function<String, Sig> sigSearchByName, String ownerTableName,
+    public Sig buildSigPolymorphicProspected(Function<String, Sig> sigSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
         Sig colomnSig = buildSig(sigSearchByName, ownerTableName, columnName);
-        colomnSig.type = Sig.Tipify.PROPERTY_PROTOTYPE_POLIMOPHIC_PROSPECTED;
+        colomnSig.type = Sig.Tipify.PROPERTY_PROTOTYPE_POLIMORPHIC_PROSPECTED;
         return colomnSig;
     }
     

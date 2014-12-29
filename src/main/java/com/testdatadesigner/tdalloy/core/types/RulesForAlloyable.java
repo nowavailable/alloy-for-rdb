@@ -11,10 +11,10 @@ import com.testdatadesigner.tdalloy.util.Inflector;
 public class RulesForAlloyable {
 
     public static final String FOREIGN_KEY_SUFFIX = "_id";
-    public static final String POLYMOPHIC_SUFFIX = "_type";
+    public static final String POLYMORPHIC_SUFFIX = "_type";
     public static final String COUPLER = "_";
     static Pattern foreignKeyPattern = Pattern.compile("^(.+)(" + FOREIGN_KEY_SUFFIX + ")$");
-    static Pattern patternsForPolymophic = Pattern.compile("^(.+)(" + POLYMOPHIC_SUFFIX + ")$");
+    static Pattern patternsForPolymorphic = Pattern.compile("^(.+)(" + POLYMORPHIC_SUFFIX + ")$");
     public static final String COLMN_SIG_PREFIX = "";
 
     /**
@@ -23,10 +23,10 @@ public class RulesForAlloyable {
      * @return 1番目がポリモーフィック関連用カラム群、2番目が外部キーカラム群
      */
     public static List<List<String>> inferencedRelations(List<String> columnNames) {
-        final List<String> matchedPolymophic = new ArrayList<>();
+        final List<String> matchedPolymorphic = new ArrayList<>();
         List<String> candidate = new ArrayList<>();
         for (String columnName : columnNames) {
-            Matcher idMatcher = patternsForPolymophic.matcher(columnName);
+            Matcher idMatcher = patternsForPolymorphic.matcher(columnName);
             if (idMatcher.find()) {
                 candidate.add(idMatcher.group(1));
             }
@@ -36,7 +36,7 @@ public class RulesForAlloyable {
                 Pattern pattern = Pattern.compile("^(" + keyStr + ")(_id)$");
                 Matcher matcher = pattern.matcher(columnName);
                 if (matcher.find()) {
-                    matchedPolymophic.add(keyStr);
+                    matchedPolymorphic.add(keyStr);
                 }
             }
         }
@@ -45,19 +45,19 @@ public class RulesForAlloyable {
         for (String columnName : columnNames) {
             Matcher matcher = foreignKeyPattern.matcher(columnName);
             if (matcher.find()) {
-                if (matchedPolymophic.contains(matcher.group(1))) {
+                if (matchedPolymorphic.contains(matcher.group(1))) {
                     continue;
                 }
                 matchedForeignKey.add(columnName);
             }
         }
-        return Arrays.asList(matchedPolymophic, matchedForeignKey);
+        return Arrays.asList(matchedPolymorphic, matchedForeignKey);
     }
     
-    public static Boolean isInferencedPolymophic(String originalColumnName, List<String> list) {
+    public static Boolean isInferencedPolymorphic(String originalColumnName, List<String> list) {
         return list.stream().anyMatch(
                 str -> str.equals(originalColumnName.replaceAll(FOREIGN_KEY_SUFFIX + "$", "")
-                        .replaceAll(POLYMOPHIC_SUFFIX + "$", "")));
+                        .replaceAll(POLYMORPHIC_SUFFIX + "$", "")));
     }
 
     public static String singularize(String originalTableName) {
@@ -96,12 +96,12 @@ public class RulesForAlloyable {
                 + inflector.upperCamelCase(originalColumnName);
     }
     
-    public static String polymophicImplSigName(String polymophicStr, String refToSigName) {
+    public static String polymorphicImplSigName(String polymorphicStr, String refToSigName) {
         Inflector inflector = Inflector.getInstance();
-        return inflector.upperCamelCase(polymophicStr) + refToSigName;
+        return inflector.upperCamelCase(polymorphicStr) + refToSigName;
     }
 
-    public static String implimentedPolymophicSigName(String keystr, String ownerTableName) {
+    public static String implimentedPolymorphicSigName(String keystr, String ownerTableName) {
         return tableSigName(keystr) + tableSigName(ownerTableName);
     }
 

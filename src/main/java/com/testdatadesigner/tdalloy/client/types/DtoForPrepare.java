@@ -21,7 +21,7 @@ public class DtoForPrepare {
 
     public static enum RelationType {
         // NONE,
-        MANY_TO_ONE, ONE_TO_ONE, POLYMOPHIC
+        MANY_TO_ONE, ONE_TO_ONE, POLYMORPHIC
     };
 
     public class Table {
@@ -85,14 +85,14 @@ public class DtoForPrepare {
                             .filter(s -> s.getParent() != null
                                     && s.getParent().equals(sig)
                                     && (s.type
-                                            .equals(Sig.Tipify.PROPERTY_PROTOTYPE_POLIMOPHIC_PROSPECTED)))
+                                            .equals(Sig.Tipify.PROPERTY_PROTOTYPE_POLIMORPHIC_PROSPECTED)))
                             .collect(Collectors.toList());
             // ポリモーフィック（初期の未決状態）
             polymColumnSigs.forEach(col -> {
                 Column column = this.constructColumn();
                 column.name = col.originPropertyName;
                 column.relation = this.constructRelation();
-                column.relation.type = RelationType.POLYMOPHIC;
+                column.relation.type = RelationType.POLYMORPHIC;
                 table.columns.add(column);
             });
             // 外部キー

@@ -17,7 +17,7 @@ import com.foundationdb.sql.parser.TableElementNode;
 import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.DefaultColumnHandler;
-import com.testdatadesigner.tdalloy.core.type_bulder.PolymophicHandler;
+import com.testdatadesigner.tdalloy.core.type_bulder.PolymorphicHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.RelationHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.TableHandler;
 
@@ -32,10 +32,10 @@ public class Alloyable implements Serializable {
     private RelationHandler relationHander = new RelationHandler();
     private DefaultColumnHandler columnHandler = new DefaultColumnHandler();
     private BooleanColumnHandler booleanColumnHandler = new BooleanColumnHandler();
-    private PolymophicHandler polymRelHandler = new PolymophicHandler();
+    private PolymorphicHandler polymRelHandler = new PolymorphicHandler();
 
     private List<String> skipElementListForColumn = new ArrayList<>();
-    HashMap<String, List<String>> allInferencedPolymophicSet = new HashMap<String, List<String>>();
+    HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
     private Integer dummyNamingSeq = new Integer(-1);
     static final String INTERNAL_SEPERATOR = "_#_";
 
@@ -123,31 +123,31 @@ public class Alloyable implements Serializable {
                 }
             }
             List<List<String>> inferenced = RulesForAlloyable.inferencedRelations(columnNames);
-            List<String> inferencedPolymophicSet = inferenced.get(0);
+            List<String> inferencedPolymorphicSet = inferenced.get(0);
             List<String> inferencedForeignKeySet = inferenced.get(1);
-            allInferencedPolymophicSet.put(tableNode.getFullName(), inferencedPolymophicSet);
+            allInferencedPolymorphicSet.put(tableNode.getFullName(), inferencedPolymorphicSet);
 
             // ポリモーフィック
-            if (!inferencedPolymophicSet.isEmpty()) {
+            if (!inferencedPolymorphicSet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
-                for (String polymophicStr : inferencedPolymophicSet) {
+                for (String polymorphicStr : inferencedPolymorphicSet) {
 //                    List<DummySig> twoDummySigs =
 //                            polymRelHandler.buildDummies(getNamingSeq, tableNode.getFullName());
 //                    List<Sig> builtSigs =
-//                            polymRelHandler.buildSig(sigSearchByName, twoDummySigs, polymophicStr,
+//                            polymRelHandler.buildSig(sigSearchByName, twoDummySigs, polymorphicStr,
 //                                    tableNode.getFullName());
 //                    this.sigs.addAll(builtSigs);
 //                    List<Relation> builtRelations =
 //                            polymRelHandler.buildRelation(sigSearchByName, twoDummySigs,
-//                                    polymophicStr, tableNode.getFullName());
+//                                    polymorphicStr, tableNode.getFullName());
 //                    this.relations.addAll(builtRelations);
 //                    this.facts.addAll(polymRelHandler.buildFact(builtRelations, twoDummySigs));
 //                    
                     // スキップ定義
-                    addToSkip(tableNode.getFullName(), polymophicStr
+                    addToSkip(tableNode.getFullName(), polymorphicStr
                             + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
-                    addToSkip(tableNode.getFullName(), polymophicStr
-                            + RulesForAlloyable.POLYMOPHIC_SUFFIX);
+                    addToSkip(tableNode.getFullName(), polymorphicStr
+                            + RulesForAlloyable.POLYMORPHIC_SUFFIX);
                 }
             }
             // 外部キー
@@ -181,10 +181,10 @@ public class Alloyable implements Serializable {
                     if (skipElementListForColumn.contains(tableNode.getFullName()
                             + INTERNAL_SEPERATOR + column.getName())) {
 
-                        if (RulesForAlloyable.isInferencedPolymophic(column.getName(),
-                                allInferencedPolymophicSet.get(tableNode.getFullName()))) {
+                        if (RulesForAlloyable.isInferencedPolymorphic(column.getName(),
+                                allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
                             Sig polymColumnSig =
-                                    columnHandler.buildSigPolymophicProspected(sigSearchByName,
+                                    columnHandler.buildSigPolymorphicProspected(sigSearchByName,
                                             tableNode.getFullName(), column.getName());
                             polymColumnSig.originTypeName = column.getType().getTypeName();
                             this.sigs.add(polymColumnSig);
@@ -215,7 +215,7 @@ public class Alloyable implements Serializable {
         return this;
     }
 
-    public void fixPolymophic() {
+    public void fixPolymorphic() {
         // ダミーSigを実在Sigにマージ
     }
 

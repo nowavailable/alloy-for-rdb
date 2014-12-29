@@ -82,13 +82,13 @@ public class DtoForPrepareTest extends TestCase {
         Column column1 = dto.constructColumn();
         column1.name = "photoable_type";
         Relation relation1 = dto.constructRelation();
-        relation1.type = DtoForPrepare.RelationType.POLYMOPHIC;
+        relation1.type = DtoForPrepare.RelationType.POLYMORPHIC;
         column1.relation = relation1;
 
         Column column2 = dto.constructColumn();
         column2.name = "photoable_id";
         Relation relation2 = dto.constructRelation();
-        relation2.type = DtoForPrepare.RelationType.POLYMOPHIC;
+        relation2.type = DtoForPrepare.RelationType.POLYMORPHIC;
         column2.relation = relation2;
         List<Column> columns =
                 new ArrayList<Column>() {

@@ -1,4 +1,4 @@
-// TODO: Singleton
+// TODO: SingletonなのでThreadSafeに。
 package com.testdatadesigner.tdalloy.util;
 /**
  * https://github.com/ModeShape/modeshape/blob/master/modeshape-common/src/main/java/org/modeshape/common/text/Inflector.java
