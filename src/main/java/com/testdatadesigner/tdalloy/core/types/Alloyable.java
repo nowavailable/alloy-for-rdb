@@ -5,7 +5,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
 import com.foundationdb.sql.parser.ColumnDefinitionNode;
@@ -17,7 +16,7 @@ import com.foundationdb.sql.parser.TableElementNode;
 import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.DefaultColumnHandler;
-import com.testdatadesigner.tdalloy.core.type_bulder.PolymorphicHandler;
+//import com.testdatadesigner.tdalloy.core.type_bulder.PolymorphicHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.RelationHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.TableHandler;
 
@@ -32,11 +31,9 @@ public class Alloyable implements Serializable {
     private RelationHandler relationHander = new RelationHandler();
     private DefaultColumnHandler columnHandler = new DefaultColumnHandler();
     private BooleanColumnHandler booleanColumnHandler = new BooleanColumnHandler();
-    private PolymorphicHandler polymRelHandler = new PolymorphicHandler();
 
     private List<String> skipElementListForColumn = new ArrayList<>();
     HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
-    private Integer dummyNamingSeq = new Integer(-1);
     static final String INTERNAL_SEPERATOR = "_#_";
 
     /*
@@ -106,11 +103,6 @@ public class Alloyable implements Serializable {
             }
         }
 
-        Supplier<Integer> getNamingSeq = () -> {
-            this.dummyNamingSeq++;
-            return this.dummyNamingSeq;
-        };
-
         /*
          * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。
          */
@@ -131,18 +123,6 @@ public class Alloyable implements Serializable {
             if (!inferencedPolymorphicSet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
                 for (String polymorphicStr : inferencedPolymorphicSet) {
-//                    List<DummySig> twoDummySigs =
-//                            polymRelHandler.buildDummies(getNamingSeq, tableNode.getFullName());
-//                    List<Sig> builtSigs =
-//                            polymRelHandler.buildSig(sigSearchByName, twoDummySigs, polymorphicStr,
-//                                    tableNode.getFullName());
-//                    this.sigs.addAll(builtSigs);
-//                    List<Relation> builtRelations =
-//                            polymRelHandler.buildRelation(sigSearchByName, twoDummySigs,
-//                                    polymorphicStr, tableNode.getFullName());
-//                    this.relations.addAll(builtRelations);
-//                    this.facts.addAll(polymRelHandler.buildFact(builtRelations, twoDummySigs));
-//                    
                     // スキップ定義
                     addToSkip(tableNode.getFullName(), polymorphicStr
                             + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
