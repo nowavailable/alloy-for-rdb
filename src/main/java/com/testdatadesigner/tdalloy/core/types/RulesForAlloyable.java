@@ -15,7 +15,7 @@ public class RulesForAlloyable {
     public static final String COUPLER = "_";
     static Pattern foreignKeyPattern = Pattern.compile("^(.+)(" + FOREIGN_KEY_SUFFIX + ")$");
     static Pattern patternsForPolymorphic = Pattern.compile("^(.+)(" + POLYMORPHIC_SUFFIX + ")$");
-    public static final String COLMN_SIG_PREFIX = "";
+    public static final String COLUMN_SIG_PREFIX = "";
 
     /**
      * カラム名から、外部キーと、ポリモーフィック関連用カラム群を推測する。
@@ -90,9 +90,9 @@ public class RulesForAlloyable {
         return reverse(matcher.group(1));
     }
 
-    public static String colmnSigName(String originalColumnName, String originalTableName) {
+    public static String columnSigName(String originalColumnName, String originalTableName) {
         Inflector inflector = Inflector.getInstance();
-        return COLMN_SIG_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
+        return COLUMN_SIG_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
                 + inflector.upperCamelCase(originalColumnName);
     }
     
@@ -101,11 +101,11 @@ public class RulesForAlloyable {
         return inflector.upperCamelCase(polymorphicStr) + refToSigName;
     }
 
-    public static String implimentedPolymorphicSigName(String keystr, String ownerTableName) {
+    public static String implementedPolymorphicSigName(String keystr, String ownerTableName) {
         return tableSigName(keystr) + tableSigName(ownerTableName);
     }
 
-    public static String colmnRelationName(String originalColumnName, String originalTableName) {
+    public static String columnRelationName(String originalColumnName, String originalTableName) {
         Inflector inflector = Inflector.getInstance();
         return originalTableName + COUPLER + inflector.upperCamelCase(originalColumnName);
     }

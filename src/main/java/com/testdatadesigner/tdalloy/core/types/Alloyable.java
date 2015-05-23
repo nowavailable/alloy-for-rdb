@@ -28,13 +28,13 @@ public class Alloyable implements Serializable {
     public Boolean isRailsOriented = Boolean.FALSE;
 
     private TableHandler tableHandler = new TableHandler();
-    private RelationHandler relationHander = new RelationHandler();
+    private RelationHandler relationHandler = new RelationHandler();
     private DefaultColumnHandler columnHandler = new DefaultColumnHandler();
     private BooleanColumnHandler booleanColumnHandler = new BooleanColumnHandler();
 
     private List<String> skipElementListForColumn = new ArrayList<>();
     HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
-    static final String INTERNAL_SEPERATOR = "_#_";
+    static final String INTERNAL_SEPARATOR = "_#_";
 
     /*
      * TODO: 自動で生成出来ない部分についての情報フィールド
@@ -44,7 +44,7 @@ public class Alloyable implements Serializable {
             .filter(s -> s.name.equals(name)).collect(Collectors.toList()).get(0);
 
     private void addToSkip(String tableName, String keyStr) {
-        skipElementListForColumn.add(tableName + INTERNAL_SEPERATOR + keyStr);
+        skipElementListForColumn.add(tableName + INTERNAL_SEPARATOR + keyStr);
     }
 
     /**
@@ -91,11 +91,11 @@ public class Alloyable implements Serializable {
                     FKConstraintDefinitionNode constraint =
                             (FKConstraintDefinitionNode) tableElement;
                     List<Relation> relations =
-                            relationHander.build(sigSearchByName, tableNode.getFullName(),
+                            relationHandler.build(sigSearchByName, tableNode.getFullName(),
                                     ((ResultColumn) constraint.getColumnList().get(0)).getName(),
                                     constraint.getRefTableName().getFullTableName());
                     this.relations.addAll(relations);
-                    this.facts.add(relationHander.buildFact(relations));
+                    this.facts.add(relationHandler.buildFact(relations));
                     // スキップ定義
                     addToSkip(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList()
                             .get(0)).getName());
@@ -136,14 +136,14 @@ public class Alloyable implements Serializable {
                 for (String keyStr : inferencedForeignKeySet) {
                     // スキップ
                     if (skipElementListForColumn.contains(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + keyStr)) {
+                            + INTERNAL_SEPARATOR + keyStr)) {
                         continue;
                     }
                     List<Relation> relations =
-                            relationHander.build(sigSearchByName, tableNode.getFullName(), keyStr,
+                            relationHandler.build(sigSearchByName, tableNode.getFullName(), keyStr,
                                     String.valueOf(""));
                     this.relations.addAll(relations);
-                    this.facts.add(relationHander.buildFact(relations));
+                    this.facts.add(relationHandler.buildFact(relations));
                     // スキップ定義
                     addToSkip(tableNode.getFullName(), keyStr);
                 }
@@ -159,7 +159,7 @@ public class Alloyable implements Serializable {
                     ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
                     // スキップ
                     if (skipElementListForColumn.contains(tableNode.getFullName()
-                            + INTERNAL_SEPERATOR + column.getName())) {
+                            + INTERNAL_SEPARATOR + column.getName())) {
 
                         if (RulesForAlloyable.isInferencedPolymorphic(column.getName(),
                                 allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
