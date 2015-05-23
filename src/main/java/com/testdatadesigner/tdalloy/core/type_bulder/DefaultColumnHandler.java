@@ -16,7 +16,7 @@ public class DefaultColumnHandler {
             String columnName) throws IllegalAccessException {
         Sig colomnSig = new Sig(Sig.Tipify.PROPERTY_PROTOTYPE);
         colomnSig.originPropertyName = columnName;
-        colomnSig.name = RulesForAlloyable.colmnSigName(columnName, ownerTableName);
+        colomnSig.name = RulesForAlloyable.columnSigName(columnName, ownerTableName);
         colomnSig.setParent(sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName)));
         return colomnSig;
     }
@@ -51,7 +51,7 @@ public class DefaultColumnHandler {
     public Relation buildRelation(Function<String, Sig> sigSearchByName, String ownerTableName,
             String columnName, List<Sig> propertyFactorSigs) {
         MultipleRelation colomnRel = new MultipleRelation(Relation.Tipify.VALUE);
-        colomnRel.name = RulesForAlloyable.colmnRelationName(columnName, ownerTableName);
+        colomnRel.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
         colomnRel.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
         colomnRel.refToTypes = propertyFactorSigs;
         return colomnRel;

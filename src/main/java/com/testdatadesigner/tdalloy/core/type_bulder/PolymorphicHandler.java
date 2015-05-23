@@ -30,7 +30,7 @@ public class PolymorphicHandler {
         Sig polymorphicSig = new Sig(Sig.Tipify.POLYMORPHIC_TYPE_ABSTRACT);
         polymorphicSig.originPropertyName = polymorphicStr + RulesForAlloyable.POLYMORPHIC_SUFFIX;
         polymorphicSig.name =
-                RulesForAlloyable.colmnSigName(polymorphicSig.originPropertyName, ownerTableName);
+                RulesForAlloyable.columnSigName(polymorphicSig.originPropertyName, ownerTableName);
         polymorphicSig.setParent(sigSearchByName.apply(RulesForAlloyable
                 .tableSigName(ownerTableName)));
         polymorphicSig.isAbstruct = Boolean.TRUE;
@@ -44,8 +44,8 @@ public class PolymorphicHandler {
                         new DummySig(Sig.Tipify.POLYMOPHIC_IMPLIMENT, ((DummySig)dummySig).namingSeq);
                 polymImpleSig.setParent(polymorphicSig);
                 polymImpleSig.name =
-                        RulesForAlloyable.implimentedPolymorphicSigName(polymorphicStr,
-                                dummySig.originPropertyName);
+                        RulesForAlloyable.implementedPolymorphicSigName(polymorphicStr,
+                            dummySig.originPropertyName);
                 sigList.add(polymImpleSig);
             }
         } else {
@@ -54,8 +54,8 @@ public class PolymorphicHandler {
                         new Sig(Sig.Tipify.POLYMOPHIC_IMPLIMENT);
                 polymImpleSig.setParent(polymorphicSig);
                 polymImpleSig.name =
-                        RulesForAlloyable.implimentedPolymorphicSigName(polymorphicStr,
-                                refToSig.originPropertyName);
+                        RulesForAlloyable.implementedPolymorphicSigName(polymorphicStr,
+                            refToSig.originPropertyName);
                 sigList.add(polymImpleSig);
             }
         }
@@ -69,8 +69,8 @@ public class PolymorphicHandler {
         // 1/9
         MultipleRelation valueRelation = new MultipleRelation(Relation.Tipify.VALUE);
         valueRelation.name =
-                RulesForAlloyable.colmnRelationName(polymorphicStr
-                        + RulesForAlloyable.POLYMORPHIC_SUFFIX, ownerTableName);
+                RulesForAlloyable.columnRelationName(
+                    polymorphicStr + RulesForAlloyable.POLYMORPHIC_SUFFIX, ownerTableName);
         valueRelation.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
         valueRelation.refToTypes = refToSigs;
         relList.add(valueRelation);

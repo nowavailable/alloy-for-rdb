@@ -12,7 +12,7 @@ public class BooleanColumnHandler {
             String columnName) {
         Relation relation = new Relation(Relation.Tipify.VALUE);
         relation.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
-        relation.name = RulesForAlloyable.colmnRelationName(columnName, ownerTableName);
+        relation.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
         Sig boolenValue = new Sig(Sig.Tipify.BOOLEAN_FACTOR);
         boolenValue.name = "(boolean)";
         relation.refTo = boolenValue;
