@@ -39,7 +39,7 @@ public class AlloyableTest extends TestCase {
     public void testBuildAll() throws Exception {
         this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
         String seperator = "  ";
-        // String seperator = "\t";
+        // String separator = "\t";
         for (Sig result : this.currentAlloyable.sigs) {
             System.out.println(result.name
                     + seperator

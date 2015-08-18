@@ -9,7 +9,7 @@ public class Relation implements Serializable {
     public Tipify type;
     public static enum Tipify {
         VALUE,                      // カラム値である
-        VALUE_REVERSED,             // カラム値の側から候補キーを見た関係
+        //VALUE_REVERSED,             // カラム値の側から候補キーを見た関係
         RELATION,                   // テーブルリレーション
         RELATION_REVERSED,          // 外部キーを持たれる側から見たテーブルリレーション
         ABSTRUCT_RELATION,          // 便宜上想定した実在しないテーブルリレーション。ポリモーフィック関連などで使用。

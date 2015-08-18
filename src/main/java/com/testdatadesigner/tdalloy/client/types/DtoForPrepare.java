@@ -72,7 +72,7 @@ public class DtoForPrepare {
                     alloyable.sigs
                             .stream()
                             .filter(s -> s.getParent() != null && s.getParent().equals(sig)
-                                    && (s.type.equals(Sig.Tipify.PROPERTY_PROTOTYPE)))
+                                    && (s.type.equals(Sig.Tipify.PROPERTY)))
                             .collect(Collectors.toList());
             columnSigs.forEach(col -> {
                 Column column = this.constructColumn();
@@ -85,7 +85,7 @@ public class DtoForPrepare {
                             .filter(s -> s.getParent() != null
                                     && s.getParent().equals(sig)
                                     && (s.type
-                                            .equals(Sig.Tipify.PROPERTY_PROTOTYPE_POLIMORPHIC_PROSPECTED)))
+                                            .equals(Sig.Tipify.POLIMORPHIC_PROTOTYPE)))
                             .collect(Collectors.toList());
             // ポリモーフィック（初期の未決状態）
             polymColumnSigs.forEach(col -> {

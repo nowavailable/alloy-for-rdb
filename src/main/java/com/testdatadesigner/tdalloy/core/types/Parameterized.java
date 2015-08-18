@@ -4,21 +4,24 @@ import java.io.Serializable;
 import java.util.HashMap;
 import java.util.List;
 
-import com.testdatadesigner.tdalloy.client.types.DtoForPrepare;
-import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Column;
 
 public class Parameterized implements Serializable {
     private static final long serialVersionUID = 1L;
 
-    /*
-     * テーブルリスト
-     */
-    public List<Column> tables;
-    /*
-     * カラムリスト 
-     */
-    public List<Column> columns;
-    
+//    /*
+//     * テーブルリスト
+//     */
+//    public class Tables {
+//        public List<String> tables;
+//    }
+//    public Tables tables = new Tables();
+//    /*
+//     * カラムリスト 
+//     */
+//    public class Columns {
+//        public List<String> columns;
+//    }
+//    public Columns columns = new Columns();
     
     /*
      * 関係リスト

@@ -12,9 +12,8 @@ public class Sig implements Serializable {
 
     public static enum Tipify {
         ENTITY, // テーブル相当
-        PROPERTY_FACTOR, // 属性値としてモデリングされたenumの列挙子
-        PROPERTY_PROTOTYPE, // 属性値としてモデリングされたenum
-        PROPERTY_PROTOTYPE_POLIMORPHIC_PROSPECTED, 
+        PROPERTY,    // カラム値である（Boolean型以外はこれにまとめる）
+        POLIMORPHIC_PROTOTYPE, 
         POLYMORPHIC_TYPE_ABSTRACT, // ポリモーフィック関連のtypeの抽象化されたsig
         POLYMOPHIC_IMPLIMENT, // ポリモーフィック関連のtypeの抽象化されたsigの継承先
         BOOLEAN_FACTOR,
@@ -45,8 +44,7 @@ public class Sig implements Serializable {
     }
 
     public void setParent(Sig parent) throws IllegalAccessException {
-        if (!Arrays.asList(Tipify.ENTITY, Tipify.PROPERTY_PROTOTYPE,
-                Tipify.POLYMORPHIC_TYPE_ABSTRACT).contains(parent.type)) {
+        if (!Arrays.asList(Tipify.ENTITY, Tipify.POLYMORPHIC_TYPE_ABSTRACT).contains(parent.type)) {
             throw new IllegalAccessException("No need parent.");
         }
         this.parent = parent;

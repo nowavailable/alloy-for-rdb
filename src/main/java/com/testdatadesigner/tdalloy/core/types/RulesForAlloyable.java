@@ -95,7 +95,11 @@ public class RulesForAlloyable {
         return COLUMN_SIG_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
                 + inflector.upperCamelCase(originalColumnName);
     }
-    
+
+    public static String columnFieldName(String originalColumnName, String originalTableName) {
+        return originalColumnName;
+    }
+
     public static String polymorphicImplSigName(String polymorphicStr, String refToSigName) {
         Inflector inflector = Inflector.getInstance();
         return inflector.upperCamelCase(polymorphicStr) + refToSigName;

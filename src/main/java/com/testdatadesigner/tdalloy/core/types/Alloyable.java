@@ -176,19 +176,10 @@ public class Alloyable implements Serializable {
                     if (column.getType().getSQLstring().equals("TINYINT")) {
                         this.relations.add(booleanColumnHandler.build(sigSearchByName,
                                 tableNode.getFullName(), column.getName()));
-                        continue;
+                    } else {
+                        this.relations.add(columnHandler.buildRelation(sigSearchByName,
+                                tableNode.getFullName(), column.getName()));
                     }
-
-                    Sig columnSig = columnHandler.buildSig(sigSearchByName, tableNode.getFullName(),
-                            column.getName());
-                    columnSig.originTypeName = column.getType().getTypeName();
-                    this.sigs.add(columnSig);
-                    List<Sig> propertyFactorSigs =
-                            columnHandler
-                                    .buildFactorSigs(tableNode.getFullName(), column.getName());
-                    propertyFactorSigs.forEach(sig -> this.sigs.add(sig));
-                    this.relations.add(columnHandler.buildRelation(sigSearchByName,
-                            tableNode.getFullName(), column.getName(), propertyFactorSigs));
                 }
             }
         }
