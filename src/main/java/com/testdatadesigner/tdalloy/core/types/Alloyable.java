@@ -100,7 +100,7 @@ public class Alloyable implements Serializable {
                                     constraint.getRefTableName().getFullTableName());
                     this.relations.addAll(relations);
                     this.facts.add(relationHandler.buildFact(relations));
-                    // スキップ定義
+                    // スキップ対象にadd
                     addToSkip(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList()
                             .get(0)).getName());
                 }
@@ -127,7 +127,7 @@ public class Alloyable implements Serializable {
             if (!inferencedPolymorphicSet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
                 for (String polymorphicStr : inferencedPolymorphicSet) {
-                    // スキップ定義
+                    // スキップ対象にadd
                     addToSkip(tableNode.getFullName(), polymorphicStr
                             + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
                     addToSkip(tableNode.getFullName(), polymorphicStr
@@ -148,7 +148,7 @@ public class Alloyable implements Serializable {
                                     String.valueOf(""));
                     this.relations.addAll(relations);
                     this.facts.add(relationHandler.buildFact(relations));
-                    // スキップ定義
+                    // スキップ対象にadd
                     addToSkip(tableNode.getFullName(), keyStr);
                 }
             }
@@ -173,6 +173,9 @@ public class Alloyable implements Serializable {
                             	for (String polymorphicStr : allInferencedPolymorphicSet.get(tableNode.getFullName())) {
                                 	List<Relation> polymophicRelation = polymorphicHandler.buildRelation(atomSearchByName, polymorphicStr, tableNode.getFullName());
                                 	this.relations.addAll(polymophicRelation);
+
+                                	// as basic fact
+                                    this.facts.add(polymorphicHandler.buildFactBase(polymophicRelation));
                             	}
                             	buildPolymRelationCount++;	
                         	}

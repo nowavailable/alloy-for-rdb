@@ -108,55 +108,71 @@ public class PolymorphicHandler {
 //        }
         return relList;
     }
-    
-    public List<Fact> buildFact(List<Relation> relations, List<? extends Atom> refToAtoms) {
 
-        List<Fact> factList = new ArrayList<>();
-        Relation rootOwnerRel = null;
-
-        Fact factForColumn = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);
-        String leftStrForColumn = new String();
-        String rightStrForColumn = new String();
+    public Fact buildFactBase(List<Relation> relations) {
+        String leftStr = new String();
+        String rightStr = new String();
         for (Relation relation : relations) {
             if (relation.type.equals(Relation.Tipify.ABSTRUCT_RELATION)) {
-                rightStrForColumn = relation.name;
-                factForColumn.owners.add(relation);
-            }
-            if (relation.type.equals(Relation.Tipify.VALUE)) {
-                leftStrForColumn = relation.name;
-                factForColumn.owners.add(relation);
-                
-                rootOwnerRel = relation;
+                rightStr = relation.name;
+            } else if (relation.type.equals(Relation.Tipify.VALUE)) {
+                leftStr = relation.name;
             }
         }
-        factForColumn.value = leftStrForColumn + " = ~" + rightStrForColumn;
-        factList.add(factForColumn);
-        
-        List<Relation> workList = new ArrayList<>();
-        relations.forEach(rel -> {
-            if (rel.type.equals(Relation.Tipify.RELATION_REVERSED)
-                    | rel.type.equals(Relation.Tipify.ABSTRUCT_RELATION_REVERSED)) {
-                workList.add(rel);
-            }
-        });
-        
-        for (Atom refToAtom : refToAtoms) {
-            Fact factForPolymorphic = new Fact(Fact.Tipify.RELATION_POLYMOPHIC);
-            String leftStr =
-                    workList.stream()
-                            .filter(rel -> rel.type.equals(Relation.Tipify.RELATION_REVERSED)
-                                    && rel.owner.equals(refToAtom)).collect(Collectors.toList())
-                            .get(0).name;
-            String rightStr =
-                    workList.stream()
-                            .filter(rel -> rel.type.equals(Relation.Tipify.ABSTRUCT_RELATION_REVERSED)
-                                    && rel.refTo.equals(refToAtom)).collect(Collectors.toList())
-                            .get(0).name;
-            factForPolymorphic.value = leftStr + " = ~(" + leftStrForColumn + "." + rightStr + ")";
-            factForPolymorphic.owners.add(rootOwnerRel);
-            
-            factList.add(factForPolymorphic);
-        }
-        return factList;
+        Fact fact = new Fact(Fact.Tipify.RELATION);
+        fact.value = leftStr + " = ~" + rightStr;
+        fact.owners.addAll(relations);
+        return fact;
     }
+    
+//    public List<Fact> buildFact(List<Relation> relations, List<? extends Atom> refToAtoms) {
+//
+//        List<Fact> factList = new ArrayList<>();
+//        Relation rootOwnerRel = null;
+//
+//        Fact factForColumn = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);
+//        String leftStrForColumn = new String();
+//        String rightStrForColumn = new String();
+//        for (Relation relation : relations) {
+//            if (relation.type.equals(Relation.Tipify.ABSTRUCT_RELATION)) {
+//                rightStrForColumn = relation.name;
+//                factForColumn.owners.add(relation);
+//            }
+//            if (relation.type.equals(Relation.Tipify.VALUE)) {
+//                leftStrForColumn = relation.name;
+//                factForColumn.owners.add(relation);
+//                
+//                rootOwnerRel = relation;
+//            }
+//        }
+//        factForColumn.value = leftStrForColumn + " = ~" + rightStrForColumn;
+//        factList.add(factForColumn);
+//        
+//        List<Relation> workList = new ArrayList<>();
+//        relations.forEach(rel -> {
+//            if (rel.type.equals(Relation.Tipify.RELATION_REVERSED)
+//                    | rel.type.equals(Relation.Tipify.ABSTRUCT_RELATION_REVERSED)) {
+//                workList.add(rel);
+//            }
+//        });
+//        
+//        for (Atom refToAtom : refToAtoms) {
+//            Fact factForPolymorphic = new Fact(Fact.Tipify.RELATION_POLYMOPHIC);
+//            String leftStr =
+//                    workList.stream()
+//                            .filter(rel -> rel.type.equals(Relation.Tipify.RELATION_REVERSED)
+//                                    && rel.owner.equals(refToAtom)).collect(Collectors.toList())
+//                            .get(0).name;
+//            String rightStr =
+//                    workList.stream()
+//                            .filter(rel -> rel.type.equals(Relation.Tipify.ABSTRUCT_RELATION_REVERSED)
+//                                    && rel.refTo.equals(refToAtom)).collect(Collectors.toList())
+//                            .get(0).name;
+//            factForPolymorphic.value = leftStr + " = ~(" + leftStrForColumn + "." + rightStr + ")";
+//            factForPolymorphic.owners.add(rootOwnerRel);
+//            
+//            factList.add(factForPolymorphic);
+//        }
+//        return factList;
+//    }
 }
