@@ -9,9 +9,6 @@ import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
 
 public class IOGatewayInner {
 
-	public IOGatewayInner() {
-	}
-
 	public static List<String> readSchemesFromDDL(String path) throws IOException {
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
 		try(BufferedInputStream in = new BufferedInputStream(new FileInputStream(path))) {
