@@ -18,7 +18,7 @@ import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.types.Sig;
+import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class MySQLSchemaParserTest extends TestCase {
 

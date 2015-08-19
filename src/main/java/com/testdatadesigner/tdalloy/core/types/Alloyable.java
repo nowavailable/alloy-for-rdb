@@ -22,7 +22,7 @@ import com.testdatadesigner.tdalloy.core.type_bulder.TableHandler;
 
 public class Alloyable implements Serializable {
     private static final long serialVersionUID = 1L;
-    public List<Sig> sigs = new ArrayList<>();
+    public List<Atom> atoms = new ArrayList<>();
     public List<Relation> relations = new ArrayList<>();
     public List<Fact> facts = new ArrayList<>();
     public Boolean isRailsOriented = Boolean.FALSE;
@@ -40,7 +40,7 @@ public class Alloyable implements Serializable {
      * TODO: 自動で生成出来ない部分についての情報フィールド
      */
 
-    Function<String, Sig> sigSearchByName = name -> this.sigs.stream()
+    Function<String, Atom> atomSearchByName = name -> this.atoms.stream()
             .filter(s -> s.name.equals(name)).collect(Collectors.toList()).get(0);
 
     private void addToSkip(String tableName, String keyStr) {
@@ -62,7 +62,7 @@ public class Alloyable implements Serializable {
          */
         for (CreateTableNode tableNode : parsedDDLList) {
 
-            this.sigs.add(tableHandler.build(tableNode.getFullName()));
+            this.atoms.add(tableHandler.build(tableNode.getFullName()));
 
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 // 外部キーはスキップ対象に。
@@ -91,7 +91,7 @@ public class Alloyable implements Serializable {
                     FKConstraintDefinitionNode constraint =
                             (FKConstraintDefinitionNode) tableElement;
                     List<Relation> relations =
-                            relationHandler.build(sigSearchByName, tableNode.getFullName(),
+                            relationHandler.build(atomSearchByName, tableNode.getFullName(),
                                     ((ResultColumn) constraint.getColumnList().get(0)).getName(),
                                     constraint.getRefTableName().getFullTableName());
                     this.relations.addAll(relations);
@@ -140,7 +140,7 @@ public class Alloyable implements Serializable {
                         continue;
                     }
                     List<Relation> relations =
-                            relationHandler.build(sigSearchByName, tableNode.getFullName(), keyStr,
+                            relationHandler.build(atomSearchByName, tableNode.getFullName(), keyStr,
                                     String.valueOf(""));
                     this.relations.addAll(relations);
                     this.facts.add(relationHandler.buildFact(relations));
@@ -163,21 +163,21 @@ public class Alloyable implements Serializable {
 
                         if (RulesForAlloyable.isInferencedPolymorphic(column.getName(),
                                 allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
-                            Sig polymColumnSig =
-                                    columnHandler.buildSigPolymorphicProspected(sigSearchByName,
+                            Atom polymColumnAtom =
+                                    columnHandler.buildAtomPolymorphicProspected(atomSearchByName,
                                             tableNode.getFullName(), column.getName());
-                            polymColumnSig.originTypeName = column.getType().getTypeName();
-                            this.sigs.add(polymColumnSig);
+                            polymColumnAtom.originTypeName = column.getType().getTypeName();
+                            this.atoms.add(polymColumnAtom);
                         }
 
                         continue;
                     }
                     // Booleanフィールドはsigとしては扱わないのでスキップ
                     if (column.getType().getSQLstring().equals("TINYINT")) {
-                        this.relations.add(booleanColumnHandler.build(sigSearchByName,
+                        this.relations.add(booleanColumnHandler.build(atomSearchByName,
                                 tableNode.getFullName(), column.getName()));
                     } else {
-                        this.relations.add(columnHandler.buildRelation(sigSearchByName,
+                        this.relations.add(columnHandler.buildRelation(atomSearchByName,
                                 tableNode.getFullName(), column.getName()));
                     }
                 }
@@ -187,7 +187,7 @@ public class Alloyable implements Serializable {
     }
 
     public void fixPolymorphic() {
-        // ダミーSigを実在Sigにマージ
+        // ダミーAtomを実在Atomにマージ
     }
 
     public void fixOneToOne() {

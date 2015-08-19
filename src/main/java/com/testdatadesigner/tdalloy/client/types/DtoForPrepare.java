@@ -7,7 +7,7 @@ import java.util.stream.Collectors;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
 import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.types.Sig;
+import com.testdatadesigner.tdalloy.core.types.Atom;
 
 /**
  * クライアントの、初期設定ビューにGETさせる and 初期設定ビューからPOSTさせる 用の<br/>
@@ -61,34 +61,34 @@ public class DtoForPrepare {
      * @param alloyable
      */
     public void buiildFromAlloyable(Alloyable alloyable) {
-        List<Sig> tableSigs =
-                alloyable.sigs.stream().filter(sig -> sig.type.equals(Sig.Tipify.ENTITY))
+        List<Atom> tableAtoms =
+                alloyable.atoms.stream().filter(atom -> atom.type.equals(Atom.Tipify.ENTITY))
                         .collect(Collectors.toList());
-        tableSigs.forEach(sig -> {
+        tableAtoms.forEach(atom -> {
             Table table = this.constructTable();
-            table.name = sig.originPropertyName;
+            table.name = atom.originPropertyName;
             // カラム
-            List<Sig> columnSigs =
-                    alloyable.sigs
+            List<Atom> columnAtoms =
+                    alloyable.atoms
                             .stream()
-                            .filter(s -> s.getParent() != null && s.getParent().equals(sig)
-                                    && (s.type.equals(Sig.Tipify.PROPERTY)))
+                            .filter(a -> a.getParent() != null && a.getParent().equals(atom)
+                                    && (a.type.equals(Atom.Tipify.PROPERTY)))
                             .collect(Collectors.toList());
-            columnSigs.forEach(col -> {
+            columnAtoms.forEach(col -> {
                 Column column = this.constructColumn();
                 column.name = col.originPropertyName;
                 table.columns.add(column);
             });
-            List<Sig> polymColumnSigs =
-                    alloyable.sigs
+            List<Atom> polymColumnAtoms =
+                    alloyable.atoms
                             .stream()
-                            .filter(s -> s.getParent() != null
-                                    && s.getParent().equals(sig)
-                                    && (s.type
-                                            .equals(Sig.Tipify.POLIMORPHIC_PROTOTYPE)))
+                            .filter(a -> a.getParent() != null
+                                    && a.getParent().equals(atom)
+                                    && (a.type
+                                            .equals(Atom.Tipify.POLIMORPHIC_PROTOTYPE)))
                             .collect(Collectors.toList());
             // ポリモーフィック（初期の未決状態）
-            polymColumnSigs.forEach(col -> {
+            polymColumnAtoms.forEach(col -> {
                 Column column = this.constructColumn();
                 column.name = col.originPropertyName;
                 column.relation = this.constructRelation();
@@ -99,7 +99,7 @@ public class DtoForPrepare {
             List<? extends com.testdatadesigner.tdalloy.core.types.Relation> relsConcrete =
                     alloyable.relations
                             .stream()
-                            .filter(rel -> rel.owner.equals(sig)
+                            .filter(rel -> rel.owner.equals(atom)
                                     && rel.type
                                             .equals(com.testdatadesigner.tdalloy.core.types.Relation.Tipify.RELATION)
                                     && !rel.getClass().equals(MultipleRelation.class))

@@ -19,8 +19,8 @@ public class Relation implements Serializable {
         //ON_STATE,
     }
 
-    public Sig refTo;
-    public Sig owner;
+    public Atom refTo;
+    public Atom owner;
     // public String originOwner; // dbスキーマ上の親（テーブル名）
     // public String originPropertyName;
     public Boolean ignore = Boolean.FALSE;

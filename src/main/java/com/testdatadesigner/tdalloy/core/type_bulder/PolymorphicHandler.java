@@ -7,107 +7,107 @@ import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-import com.testdatadesigner.tdalloy.core.types.DummySig;
+import com.testdatadesigner.tdalloy.core.types.PseudoAtom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.types.Sig;
+import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class PolymorphicHandler {
 
-    public List<DummySig> buildDummies(Supplier<Integer> getNamingSeq, String ownerTableName) {
+    public List<PseudoAtom> buildDummies(Supplier<Integer> getNamingSeq, String ownerTableName) {
         // ダミー作成
-        DummySig dummyRefToSig_1 = new DummySig(Sig.Tipify.ENTITY, getNamingSeq.get());
-        DummySig dummyRefToSig_2 = new DummySig(Sig.Tipify.ENTITY, getNamingSeq.get());
-        return Arrays.asList(dummyRefToSig_1, dummyRefToSig_2);
+        PseudoAtom dummyRefToAtom_1 = new PseudoAtom(Atom.Tipify.ENTITY, getNamingSeq.get());
+        PseudoAtom dummyRefToAtom_2 = new PseudoAtom(Atom.Tipify.ENTITY, getNamingSeq.get());
+        return Arrays.asList(dummyRefToAtom_1, dummyRefToAtom_2);
     }
 
-    public List<Sig> buildSig(Function<String, Sig> sigSearchByName, List<? extends Sig> refToSigs,
+    public List<Atom> buildAtom(Function<String, Atom> atomSearchByName, List<? extends Atom> refToAtoms,
             String polymorphicStr, String ownerTableName) throws IllegalAccessException {
-        List<Sig> sigList = new ArrayList<>();
+        List<Atom> atomList = new ArrayList<>();
         // 4/9
-        Sig polymorphicSig = new Sig(Sig.Tipify.POLYMORPHIC_TYPE_ABSTRACT);
-        polymorphicSig.originPropertyName = polymorphicStr + RulesForAlloyable.POLYMORPHIC_SUFFIX;
-        polymorphicSig.name =
-                RulesForAlloyable.columnSigName(polymorphicSig.originPropertyName, ownerTableName);
-        polymorphicSig.setParent(sigSearchByName.apply(RulesForAlloyable
-                .tableSigName(ownerTableName)));
-        polymorphicSig.isAbstruct = Boolean.TRUE;
-        sigList.add(polymorphicSig);
+        Atom polymorphicAtom = new Atom(Atom.Tipify.POLYMORPHIC_TYPE_ABSTRACT);
+        polymorphicAtom.originPropertyName = polymorphicStr + RulesForAlloyable.POLYMORPHIC_SUFFIX;
+        polymorphicAtom.name =
+                RulesForAlloyable.columnAtomName(polymorphicAtom.originPropertyName, ownerTableName);
+        polymorphicAtom.setParent(atomSearchByName.apply(RulesForAlloyable
+                .tableAtomName(ownerTableName)));
+        polymorphicAtom.isAbstruct = Boolean.TRUE;
+        atomList.add(polymorphicAtom);
 
         // 6/9
         // 8/9
-        if (refToSigs.get(0).getClass().equals(DummySig.class)) {
-            for (Sig dummySig : refToSigs) {
-                DummySig polymImpleSig =
-                        new DummySig(Sig.Tipify.POLYMOPHIC_IMPLIMENT, ((DummySig)dummySig).namingSeq);
-                polymImpleSig.setParent(polymorphicSig);
-                polymImpleSig.name =
-                        RulesForAlloyable.implementedPolymorphicSigName(polymorphicStr,
-                            dummySig.originPropertyName);
-                sigList.add(polymImpleSig);
+        if (refToAtoms.get(0).getClass().equals(PseudoAtom.class)) {
+            for (Atom dummyAtom : refToAtoms) {
+                PseudoAtom polymImpleAtom =
+                        new PseudoAtom(Atom.Tipify.POLYMOPHIC_IMPLIMENT, ((PseudoAtom)dummyAtom).namingSeq);
+                polymImpleAtom.setParent(polymorphicAtom);
+                polymImpleAtom.name =
+                        RulesForAlloyable.implementedPolymorphicAtomName(polymorphicStr,
+                            dummyAtom.originPropertyName);
+                atomList.add(polymImpleAtom);
             }
         } else {
-            for (Sig refToSig : refToSigs) {
-                Sig polymImpleSig =
-                        new Sig(Sig.Tipify.POLYMOPHIC_IMPLIMENT);
-                polymImpleSig.setParent(polymorphicSig);
-                polymImpleSig.name =
-                        RulesForAlloyable.implementedPolymorphicSigName(polymorphicStr,
-                            refToSig.originPropertyName);
-                sigList.add(polymImpleSig);
+            for (Atom refToAtom : refToAtoms) {
+                Atom polymImpleAtom =
+                        new Atom(Atom.Tipify.POLYMOPHIC_IMPLIMENT);
+                polymImpleAtom.setParent(polymorphicAtom);
+                polymImpleAtom.name =
+                        RulesForAlloyable.implementedPolymorphicAtomName(polymorphicStr,
+                            refToAtom.originPropertyName);
+                atomList.add(polymImpleAtom);
             }
         }
 
-        return sigList;
+        return atomList;
     }
 
-    public List<Relation> buildRelation(Function<String, Sig> sigSearchByName,
-            List<? extends Sig> refToSigs, String polymorphicStr, String ownerTableName) {
+    public List<Relation> buildRelation(Function<String, Atom> atomSearchByName,
+            List<? extends Atom> refToAtoms, String polymorphicStr, String ownerTableName) {
         List<Relation> relList = new ArrayList<>();
         // 1/9
         MultipleRelation valueRelation = new MultipleRelation(Relation.Tipify.VALUE);
         valueRelation.name =
                 RulesForAlloyable.columnRelationName(
                     polymorphicStr + RulesForAlloyable.POLYMORPHIC_SUFFIX, ownerTableName);
-        valueRelation.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
-        valueRelation.refToTypes = refToSigs;
+        valueRelation.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
+        valueRelation.refToTypes = refToAtoms;
         relList.add(valueRelation);
 
         // 5/9
         MultipleRelation polymRelationReversed =
                 new MultipleRelation(Relation.Tipify.ABSTRUCT_RELATION);
-        polymRelationReversed.name = "refTo_" + RulesForAlloyable.tableSigName(ownerTableName);
+        polymRelationReversed.name = "refTo_" + RulesForAlloyable.tableAtomName(ownerTableName);
         polymRelationReversed.refTo =
-                sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
-        polymRelationReversed.reverseOfrefToTypes = refToSigs;
+                atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
+        polymRelationReversed.reverseOfrefToTypes = refToAtoms;
         relList.add(polymRelationReversed);
 
-        for (Sig refToSig : refToSigs) {
+        for (Atom refToAtom : refToAtoms) {
             // 2/9
             // 3/9
             Relation relForRef = new Relation(Relation.Tipify.RELATION_REVERSED);
             relForRef.name =
                     RulesForAlloyable
-                            .foreignKeyNameReversed(refToSig.originPropertyName, ownerTableName);
-            relForRef.owner = refToSig;
+                            .foreignKeyNameReversed(refToAtom.originPropertyName, ownerTableName);
+            relForRef.owner = refToAtom;
             relForRef.refTo = valueRelation.owner;
             relList.add(relForRef);
             // 7/9
             // 9/9
             Relation polymImpleRel = new Relation(Relation.Tipify.ABSTRUCT_RELATION_REVERSED);
-            polymImpleRel.name = RulesForAlloyable.singularize(refToSig.name);
-            polymImpleRel.refTo = refToSig;
+            polymImpleRel.name = RulesForAlloyable.singularize(refToAtom.name);
+            polymImpleRel.refTo = refToAtom;
             polymImpleRel.owner =
-                    sigSearchByName.apply(RulesForAlloyable.polymorphicImplSigName(polymorphicStr,
-                            refToSig.name));
+                    atomSearchByName.apply(RulesForAlloyable.polymorphicImplAtomName(polymorphicStr,
+                            refToAtom.name));
             relList.add(polymImpleRel);
         }
         return relList;
     }
     
-    public List<Fact> buildFact(List<Relation> relations, List<? extends Sig> refToSigs) {
+    public List<Fact> buildFact(List<Relation> relations, List<? extends Atom> refToAtoms) {
 
         List<Fact> factList = new ArrayList<>();
         Relation rootOwnerRel = null;
@@ -138,17 +138,17 @@ public class PolymorphicHandler {
             }
         });
         
-        for (Sig refToSig : refToSigs) {
+        for (Atom refToAtom : refToAtoms) {
             Fact factForPolymorphic = new Fact(Fact.Tipify.RELATION_POLYMOPHIC);
             String leftStr =
                     workList.stream()
                             .filter(rel -> rel.type.equals(Relation.Tipify.RELATION_REVERSED)
-                                    && rel.owner.equals(refToSig)).collect(Collectors.toList())
+                                    && rel.owner.equals(refToAtom)).collect(Collectors.toList())
                             .get(0).name;
             String rightStr =
                     workList.stream()
                             .filter(rel -> rel.type.equals(Relation.Tipify.ABSTRUCT_RELATION_REVERSED)
-                                    && rel.refTo.equals(refToSig)).collect(Collectors.toList())
+                                    && rel.refTo.equals(refToAtom)).collect(Collectors.toList())
                             .get(0).name;
             factForPolymorphic.value = leftStr + " = ~(" + leftStrForColumn + "." + rightStr + ")";
             factForPolymorphic.owners.add(rootOwnerRel);

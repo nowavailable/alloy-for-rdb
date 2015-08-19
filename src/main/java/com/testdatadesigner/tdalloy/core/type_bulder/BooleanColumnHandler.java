@@ -4,17 +4,17 @@ import java.util.function.Function;
 
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.types.Sig;
+import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class BooleanColumnHandler {
 
-    public Relation build(Function<String, Sig> sigSearchByName, String ownerTableName,
+    public Relation build(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) {
         Relation relation = new Relation(Relation.Tipify.VALUE);
-        relation.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
-//        relation.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
+        relation.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
+        //relation.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
         relation.name = columnName;
-        Sig boolenValue = new Sig(Sig.Tipify.BOOLEAN_FACTOR);
+        Atom boolenValue = new Atom(Atom.Tipify.BOOLEAN_FACTOR);
         boolenValue.name = "Bool";
         relation.refTo = boolenValue;
         return relation;

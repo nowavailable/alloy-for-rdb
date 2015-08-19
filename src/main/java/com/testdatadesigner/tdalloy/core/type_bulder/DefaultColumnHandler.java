@@ -4,38 +4,38 @@ import java.util.function.Function;
 
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.types.Sig;
+import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class DefaultColumnHandler {
 
-    public Relation buildRelation(Function<String, Sig> sigSearchByName, String ownerTableName,
+    public Relation buildRelation(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) {
         Relation relation = new Relation(Relation.Tipify.VALUE);
-        relation.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
+        relation.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
         relation.name = columnName;
-        Sig column = new Sig(Sig.Tipify.PROPERTY);
+        Atom column = new Atom(Atom.Tipify.PROPERTY);
         column.name = "Boundary";
         relation.refTo = column;
         return relation;
     }
 
-    public Sig buildSig(Function<String, Sig> sigSearchByName, String ownerTableName,
+    public Atom buildAtom(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
-        Sig colomnSig = new Sig(Sig.Tipify.PROPERTY);
-        colomnSig.originPropertyName = columnName;
-        colomnSig.name = RulesForAlloyable.columnSigName(columnName, ownerTableName);
-        colomnSig.setParent(sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName)));
-        return colomnSig;
+        Atom colomnAtom = new Atom(Atom.Tipify.PROPERTY);
+        colomnAtom.originPropertyName = columnName;
+        colomnAtom.name = RulesForAlloyable.columnAtomName(columnName, ownerTableName);
+        colomnAtom.setParent(atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName)));
+        return colomnAtom;
     }
 
-    public Sig buildSigPolymorphicProspected(Function<String, Sig> sigSearchByName, String ownerTableName,
+    public Atom buildAtomPolymorphicProspected(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
-        Sig colomnSig = buildSig(sigSearchByName, ownerTableName, columnName);
-        colomnSig.type = Sig.Tipify.POLIMORPHIC_PROTOTYPE;
-        return colomnSig;
+        Atom colomnAtom = buildAtom(atomSearchByName, ownerTableName, columnName);
+        colomnAtom.type = Atom.Tipify.POLIMORPHIC_PROTOTYPE;
+        return colomnAtom;
     }
     
-//    public List<Sig> buildFactorSigs(String ownerTableName, String columnName) {
+//    public List<Atom> buildFactorAtoms(String ownerTableName, String columnName) {
 //        List<String> factors = new ArrayList<String>() {
 //            {
 //                Inflector inflector = Inflector.getInstance();
@@ -45,22 +45,22 @@ public class DefaultColumnHandler {
 //                        + inflector.upperCamelCase(columnName) + "LOW"));
 //            }
 //        };
-//        List<Sig> sigs = new ArrayList<>();
+//        List<Atom> atoms = new ArrayList<>();
 //        for (String factor : factors) {
-//            Sig sig = new Sig(Sig.Tipify.PROPERTY_FACTOR);
-//            sig.originPropertyName = columnName;
-//            sig.name = factor;
-//            sigs.add(sig);
+//            Atom atom = new Atom(Atom.Tipify.PROPERTY_FACTOR);
+//            atom.originPropertyName = columnName;
+//            atom.name = factor;
+//            atoms.add(atom);
 //        }
-//        return sigs;
+//        return atoms;
 //    }
 
-//    public Relation buildRelation(Function<String, Sig> sigSearchByName, String ownerTableName,
-//            String columnName, List<Sig> propertyFactorSigs) {
+//    public Relation buildRelation(Function<String, Atom> atomSearchByName, String ownerTableName,
+//            String columnName, List<Atom> propertyFactorAtoms) {
 //        MultipleRelation colomnRel = new MultipleRelation(Relation.Tipify.VALUE);
 //        colomnRel.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
-//        colomnRel.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
-//        colomnRel.refToTypes = propertyFactorSigs;
+//        colomnRel.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
+//        colomnRel.refToTypes = propertyFactorAtoms;
 //        return colomnRel;
 //    }
 }

@@ -15,7 +15,7 @@ public class RulesForAlloyable {
     public static final String COUPLER = "_";
     static Pattern foreignKeyPattern = Pattern.compile("^(.+)(" + FOREIGN_KEY_SUFFIX + ")$");
     static Pattern patternsForPolymorphic = Pattern.compile("^(.+)(" + POLYMORPHIC_SUFFIX + ")$");
-    public static final String COLUMN_SIG_PREFIX = "";
+    public static final String COLUMN_ATOM_PREFIX = "";
 
     /**
      * カラム名から、外部キーと、ポリモーフィック関連用カラム群を推測する。
@@ -65,17 +65,17 @@ public class RulesForAlloyable {
         return inflector.underscore(inflector.singularize(originalTableName));
     }
 
-    public static String reverse(String sigName) {
+    public static String reverse(String atomName) {
         Inflector inflector = Inflector.getInstance();
-        return inflector.underscore(inflector.pluralize(sigName));
+        return inflector.underscore(inflector.pluralize(atomName));
     }
 
-    public static String tableSigName(String originalTableName) {
+    public static String tableAtomName(String originalTableName) {
         Inflector inflector = Inflector.getInstance();
         return inflector.upperCamelCase(inflector.singularize(originalTableName));
     }
 
-    public static String tableSigNameFromFKey(String originalColumnName)
+    public static String tableAtomNameFromFKey(String originalColumnName)
             throws IllegalAccessException {
         Inflector inflector = Inflector.getInstance();
         return inflector.upperCamelCase(inflector
@@ -90,9 +90,9 @@ public class RulesForAlloyable {
         return reverse(matcher.group(1));
     }
 
-    public static String columnSigName(String originalColumnName, String originalTableName) {
+    public static String columnAtomName(String originalColumnName, String originalTableName) {
         Inflector inflector = Inflector.getInstance();
-        return COLUMN_SIG_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
+        return COLUMN_ATOM_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
                 + inflector.upperCamelCase(originalColumnName);
     }
 
@@ -100,13 +100,13 @@ public class RulesForAlloyable {
         return originalColumnName;
     }
 
-    public static String polymorphicImplSigName(String polymorphicStr, String refToSigName) {
+    public static String polymorphicImplAtomName(String polymorphicStr, String refToAtomName) {
         Inflector inflector = Inflector.getInstance();
-        return inflector.upperCamelCase(polymorphicStr) + refToSigName;
+        return inflector.upperCamelCase(polymorphicStr) + refToAtomName;
     }
 
-    public static String implementedPolymorphicSigName(String keystr, String ownerTableName) {
-        return tableSigName(keystr) + tableSigName(ownerTableName);
+    public static String implementedPolymorphicAtomName(String keystr, String ownerTableName) {
+        return tableAtomName(keystr) + tableAtomName(ownerTableName);
     }
 
     public static String columnRelationName(String originalColumnName, String originalTableName) {
@@ -121,7 +121,7 @@ public class RulesForAlloyable {
         while (matcher.find()) {
             optimized = matcher.replaceAll("$1");
         }
-        return originalTableName + COUPLER + tableSigName(optimized);
+        return originalTableName + COUPLER + tableAtomName(optimized);
     }
 
     public static String foreignKeyNameReversed(String refTableName, String originalTableName) {

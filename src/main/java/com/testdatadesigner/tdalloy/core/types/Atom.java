@@ -3,7 +3,7 @@ package com.testdatadesigner.tdalloy.core.types;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class Sig implements Serializable {
+public class Atom implements Serializable {
     private static final long serialVersionUID = 1L;
 
     public String name;
@@ -27,23 +27,23 @@ public class Sig implements Serializable {
     
     public Boolean ignore = Boolean.FALSE;
 
-    private Sig parent;
+    private Atom parent;
 
 
-    public Sig() {
+    public Atom() {
         super();
     }
 
-    public Sig(Tipify type) {
+    public Atom(Tipify type) {
         super();
         this.type = type;
     }
 
-    public Sig getParent() {
+    public Atom getParent() {
         return this.parent;
     }
 
-    public void setParent(Sig parent) throws IllegalAccessException {
+    public void setParent(Atom parent) throws IllegalAccessException {
         if (!Arrays.asList(Tipify.ENTITY, Tipify.POLYMORPHIC_TYPE_ABSTRACT).contains(parent.type)) {
             throw new IllegalAccessException("No need parent.");
         }

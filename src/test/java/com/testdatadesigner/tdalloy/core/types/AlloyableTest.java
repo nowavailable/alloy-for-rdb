@@ -40,7 +40,7 @@ public class AlloyableTest extends TestCase {
         this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
         String seperator = "  ";
         // String separator = "\t";
-        for (Sig result : this.currentAlloyable.sigs) {
+        for (Atom result : this.currentAlloyable.atoms) {
             System.out.println(result.name
                     + seperator
                     + result.type.toString()
@@ -77,12 +77,12 @@ public class AlloyableTest extends TestCase {
         }
     }
 
-    public void testBuildTableSigs() throws Exception {
+    public void testBuildTableAtoms() throws Exception {
         // 期待値
         
     }
 
-    public void testBuildColumnSigs() throws Exception {
+    public void testBuildColumnAtoms() throws Exception {
         // 期待値
         
     }

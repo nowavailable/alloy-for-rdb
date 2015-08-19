@@ -7,29 +7,29 @@ import java.util.function.Function;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.types.Sig;
+import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class RelationHandler {
 
     /**
      * テーブルリレーションを表現するオブジェクトを返す。
      * 
-     * @param sigSearchByName
+     * @param atomSearchByName
      * @param ownerTableName 外部キー保持テーブル名
      * @param fKeyColumnStr 外部キーカラム名
      * @param refTableName 参照される側テーブル名
      * @return List<Relation> 外部キー保持側Relation, 参照される側Relation、のペア。
      * @throws IllegalAccessException
      */
-    public List<Relation> build(Function<String, Sig> sigSearchByName, String ownerTableName,
+    public List<Relation> build(Function<String, Atom> atomSearchByName, String ownerTableName,
             String fKeyColumnStr, String refTableName) throws IllegalAccessException {
 
         // 外部キー保持側
         Relation relation = new Relation(Relation.Tipify.RELATION);
         relation.name = RulesForAlloyable.foreignKeyName(fKeyColumnStr, ownerTableName);
-        relation.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
+        relation.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
         relation.refTo =
-                sigSearchByName.apply(RulesForAlloyable.tableSigNameFromFKey(fKeyColumnStr));
+                atomSearchByName.apply(RulesForAlloyable.tableAtomNameFromFKey(fKeyColumnStr));
 
         // 参照される側
         Relation relationReversed = new Relation(Relation.Tipify.RELATION_REVERSED);
@@ -37,10 +37,10 @@ public class RelationHandler {
         String refTable =
                 refTableName.isEmpty() ? RulesForAlloyable.tableNameFromFKey(fKeyColumnStr)
                         : refTableName;
-        relationReversed.owner = sigSearchByName.apply(RulesForAlloyable.tableSigName(refTable));
+        relationReversed.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(refTable));
         relationReversed.name = RulesForAlloyable.foreignKeyNameReversed(refTable, ownerTableName);
         relationReversed.refTo =
-                sigSearchByName.apply(RulesForAlloyable.tableSigName(ownerTableName));
+                atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
 
         return Arrays.asList(relation, relationReversed);
     }

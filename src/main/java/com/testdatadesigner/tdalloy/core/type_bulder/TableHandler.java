@@ -1,14 +1,14 @@
 package com.testdatadesigner.tdalloy.core.type_bulder;
 
 import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.types.Sig;
+import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class TableHandler {
 
-    public Sig build(String tableName) {
-        Sig sig = new Sig(Sig.Tipify.ENTITY);
-        sig.originPropertyName = tableName;
-        sig.name = RulesForAlloyable.tableSigName(tableName);
-        return sig;
+    public Atom build(String tableName) {
+        Atom atom = new Atom(Atom.Tipify.ENTITY);
+        atom.originPropertyName = tableName;
+        atom.name = RulesForAlloyable.tableAtomName(tableName);
+        return atom;
     }
 }

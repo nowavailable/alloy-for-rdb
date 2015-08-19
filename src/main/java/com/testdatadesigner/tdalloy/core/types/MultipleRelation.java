@@ -8,8 +8,8 @@ public class MultipleRelation extends Relation {
 
     private static final long serialVersionUID = 1L;
 
-    public List<? extends Sig> refToTypes = new ArrayList<>();
-    public List<? extends Sig> reverseOfrefToTypes = new ArrayList<>();
+    public List<? extends Atom> refToTypes = new ArrayList<>();
+    public List<? extends Atom> reverseOfrefToTypes = new ArrayList<>();
 
     public MultipleRelation(Tipify type) {
         super(type);
