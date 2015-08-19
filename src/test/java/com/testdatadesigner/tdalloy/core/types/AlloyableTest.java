@@ -1,11 +1,13 @@
 package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.InputStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import com.foundationdb.sql.parser.CreateTableNode;
+import com.testdatadesigner.tdalloy.core.io.IOGatewayInner;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
@@ -21,10 +23,13 @@ public class AlloyableTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
 
-        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
-        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-        ddlSplitter.prepare(in);
-        List<String> results = ddlSplitter.getRawTables();
+//        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
+//        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+//        ddlSplitter.prepare(in);
+//        List<String> results = ddlSplitter.getRawTables();
+        URL resInfo = this.getClass().getResource("/naming_rule.dump");
+        String filePath = resInfo.getFile();
+        List<String> results = IOGatewayInner.readSchemesFromDDL(filePath);
 
         IRdbSchemmaParser parser = new MySQLSchemaParser();
         this.resultList = parser.inboundParse(results);
