@@ -31,7 +31,7 @@ public class DefaultColumnHandler {
     public Atom buildAtomPolymorphicProspected(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
         Atom colomnAtom = buildAtom(atomSearchByName, ownerTableName, columnName);
-        colomnAtom.type = Atom.Tipify.POLIMORPHIC_PROTOTYPE;
+        colomnAtom.type = Atom.Tipify.POLYMORPHIC_ABSTRACT;
         return colomnAtom;
     }
     

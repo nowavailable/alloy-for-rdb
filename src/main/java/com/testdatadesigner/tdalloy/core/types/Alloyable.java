@@ -1,5 +1,7 @@
 package com.testdatadesigner.tdalloy.core.types;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,7 +18,7 @@ import com.foundationdb.sql.parser.TableElementNode;
 import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.DefaultColumnHandler;
-//import com.testdatadesigner.tdalloy.core.type_bulder.PolymorphicHandler;
+import com.testdatadesigner.tdalloy.core.type_bulder.PolymorphicHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.RelationHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.TableHandler;
 
@@ -31,6 +33,7 @@ public class Alloyable implements Serializable {
     private RelationHandler relationHandler = new RelationHandler();
     private DefaultColumnHandler columnHandler = new DefaultColumnHandler();
     private BooleanColumnHandler booleanColumnHandler = new BooleanColumnHandler();
+    private PolymorphicHandler polymorphicHandler = new PolymorphicHandler();
 
     private List<String> skipElementListForColumn = new ArrayList<>();
     HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
@@ -48,7 +51,8 @@ public class Alloyable implements Serializable {
     }
 
     /**
-     * テーブルの処理。 Constraintsに定義されている外部キーによる関連の処理 ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。 カラムの処理。
+     * テーブルの処理。 Constraintsに定義されている外部キーによる関連の処理
+     * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。 カラムの処理。
      * という順。
      * 
      * @param parsedDDLList
@@ -151,27 +155,38 @@ public class Alloyable implements Serializable {
         }
 
         /*
-         * カラムの処理。
+         * カラムの処理（含 ポリモーフィックの、typeのほうの、sig化）。
          */
         for (CreateTableNode tableNode : parsedDDLList) {
-            for (TableElementNode tableElement : tableNode.getTableElementList()) {
-                if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
+        	// for polymorphic relations
+        	int buildPolymRelationCount = 0;
+
+        	for (TableElementNode tableElement : tableNode.getTableElementList()) {
+            	if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
                     ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
-                    // スキップ
                     if (skipElementListForColumn.contains(tableNode.getFullName()
                             + INTERNAL_SEPARATOR + column.getName())) {
-
                         if (RulesForAlloyable.isInferencedPolymorphic(column.getName(),
                                 allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
-                            Atom polymColumnAtom =
+							// as fields
+                        	if (buildPolymRelationCount == 0) {
+                            	for (String polymorphicStr : allInferencedPolymorphicSet.get(tableNode.getFullName())) {
+                                	List<Relation> polymophicRelation = polymorphicHandler.buildRelation(atomSearchByName, polymorphicStr, tableNode.getFullName());
+                                	this.relations.addAll(polymophicRelation);
+                            	}
+                            	buildPolymRelationCount++;	
+                        	}
+                        	// as sig
+                        	Atom polymAtom =
                                     columnHandler.buildAtomPolymorphicProspected(atomSearchByName,
                                             tableNode.getFullName(), column.getName());
-                            polymColumnAtom.originTypeName = column.getType().getTypeName();
-                            this.atoms.add(polymColumnAtom);
+                            polymAtom.originTypeName = column.getType().getTypeName();
+                            this.atoms.add(polymAtom);
                         }
 
                         continue;
                     }
+
                     // Booleanフィールドはsigとしては扱わないのでスキップ
                     if (column.getType().getSQLstring().equals("TINYINT")) {
                         this.relations.add(booleanColumnHandler.build(atomSearchByName,
@@ -185,6 +200,48 @@ public class Alloyable implements Serializable {
         }
         return this;
     }
+
+//    /**
+//     * Alloyableインスタンスからalloy定義を生成。
+//     * 
+//     * @return String
+//     * @throws IOException 
+//     */
+//    public String outputToAls() throws IOException {
+//    	String als = null;
+//    	File tempFile = File.createTempFile("tdalloyToAlsFromAlloyable", "als");
+//    	tempFile.deleteOnExit();
+//
+//        Function<Atom, List<Relation>> atomSearchByRelationOwner = atom -> this.relations.stream()
+//                .filter(rel -> rel.owner.equals(atom.getClass())).collect(Collectors.toList());
+//
+//        StringBuffer sigStrBuff = new StringBuffer();
+//        for (Atom atom : this.atoms) {
+//        	// sig にする。
+//        	// TODO: ポリモーフィックなら、abstract sig が出てくる。
+//        	sigStrBuff.append("sig ");
+//        	sigStrBuff.append(atom.name);
+//        	sigStrBuff.append(" { ");
+//        	
+//        	// それを参照しているRELATIONを探してfieldにする。
+//        	List<Relation> relations = atomSearchByRelationOwner.apply(atom);
+//        	List<String> fields = new ArrayList<String>();
+//        	for (Relation relation : relations) {
+//            	sigStrBuff.append(" ");
+//            	sigStrBuff.append(relation.name);
+//            	sigStrBuff.append(": ");
+//            	// 型と限量子
+//        		
+//        	}
+//        }
+//
+//        for (Fact fact : this.facts) {
+//        	// fact
+//        	
+//        }
+//        
+//    	return als;
+//    }
 
     public void fixPolymorphic() {
         // ダミーAtomを実在Atomにマージ

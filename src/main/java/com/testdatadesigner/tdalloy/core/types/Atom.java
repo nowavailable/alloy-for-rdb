@@ -13,8 +13,7 @@ public class Atom implements Serializable {
     public static enum Tipify {
         ENTITY, // テーブル相当
         PROPERTY,    // カラム値である（Boolean型以外はこれにまとめる）
-        POLIMORPHIC_PROTOTYPE, 
-        POLYMORPHIC_TYPE_ABSTRACT, // ポリモーフィック関連のtypeの抽象化されたsig
+        POLYMORPHIC_ABSTRACT, // ポリモーフィック関連のtypeの抽象化されたsig
         POLYMOPHIC_IMPLIMENT, // ポリモーフィック関連のtypeの抽象化されたsigの継承先
         BOOLEAN_FACTOR,
         // TODO: 状態sig用。
@@ -28,6 +27,7 @@ public class Atom implements Serializable {
     public Boolean ignore = Boolean.FALSE;
 
     private Atom parent;
+    private Atom extended;
 
 
     public Atom() {
@@ -44,7 +44,7 @@ public class Atom implements Serializable {
     }
 
     public void setParent(Atom parent) throws IllegalAccessException {
-        if (!Arrays.asList(Tipify.ENTITY, Tipify.POLYMORPHIC_TYPE_ABSTRACT).contains(parent.type)) {
+        if (!Arrays.asList(Tipify.ENTITY, Tipify.POLYMORPHIC_ABSTRACT).contains(parent.type)) {
             throw new IllegalAccessException("No need parent.");
         }
         this.parent = parent;

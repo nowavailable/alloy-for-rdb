@@ -85,7 +85,7 @@ public class DtoForPrepare {
                             .filter(a -> a.getParent() != null
                                     && a.getParent().equals(atom)
                                     && (a.type
-                                            .equals(Atom.Tipify.POLIMORPHIC_PROTOTYPE)))
+                                            .equals(Atom.Tipify.POLYMORPHIC_ABSTRACT)))
                             .collect(Collectors.toList());
             // ポリモーフィック（初期の未決状態）
             polymColumnAtoms.forEach(col -> {
