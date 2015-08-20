@@ -50,13 +50,13 @@ public class RelationHandler {
         String rightStr = new String();
         for (Relation relation : relations) {
             if (relation.type.equals(Relation.Tipify.RELATION)) {
-                rightStr = relation.name;
+                rightStr = relation.owner.name + "<:" + relation.name;
             } else if (relation.type.equals(Relation.Tipify.RELATION_REVERSED)) {
-                leftStr = relation.name;
+                leftStr = relation.owner.name + "<:" + relation.name;
             }
         }
         Fact fact = new Fact(Fact.Tipify.RELATION);
-        fact.value = leftStr + " = ~" + rightStr;
+        fact.value = leftStr + " = ~(" + rightStr + ")";
         fact.owners.addAll(relations);
         return fact;
     }

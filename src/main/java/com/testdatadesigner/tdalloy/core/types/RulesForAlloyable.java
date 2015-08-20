@@ -92,8 +92,9 @@ public class RulesForAlloyable {
 
     public static String columnAtomName(String originalColumnName, String originalTableName) {
         Inflector inflector = Inflector.getInstance();
-        return COLUMN_ATOM_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
-                + inflector.upperCamelCase(originalColumnName);
+        //return COLUMN_ATOM_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
+        //        + inflector.upperCamelCase(originalColumnName);
+        return inflector.upperCamelCase(originalColumnName);
     }
 
     public static String columnFieldName(String originalColumnName, String originalTableName) {
@@ -111,7 +112,8 @@ public class RulesForAlloyable {
 
     public static String columnRelationName(String originalColumnName, String originalTableName) {
         Inflector inflector = Inflector.getInstance();
-        return originalTableName + COUPLER + inflector.upperCamelCase(originalColumnName);
+        //return originalTableName + COUPLER + inflector.upperCamelCase(originalColumnName);
+        return inflector.lowerCamelCase(originalColumnName);
     }
 
     public static String foreignKeyName(String originalColumnName, String originalTableName) {
@@ -121,13 +123,16 @@ public class RulesForAlloyable {
         while (matcher.find()) {
             optimized = matcher.replaceAll("$1");
         }
-        return originalTableName + COUPLER + tableAtomName(optimized);
+        //return originalTableName + COUPLER + tableAtomName(optimized);
+        Inflector inflector = Inflector.getInstance();
+        return inflector.singularize(optimized);
     }
 
     public static String foreignKeyNameReversed(String refTableName, String originalTableName) {
         Inflector inflector = Inflector.getInstance();
         // NOTICE: defaultは複数形。OneToManyのOne側と見做して。
-        return refTableName + COUPLER + inflector.upperCamelCase(originalTableName);
+        //return refTableName + COUPLER + inflector.upperCamelCase(originalTableName);
+        return inflector.pluralize(originalTableName);
     }
 
 }

@@ -116,13 +116,13 @@ public class PolymorphicHandler {
         String rightStr = new String();
         for (Relation relation : relations) {
             if (relation.type.equals(Relation.Tipify.ABSTRUCT_RELATION)) {
-                rightStr = relation.name;
+                rightStr = relation.owner.name + "<:" + relation.name;
             } else if (relation.type.equals(Relation.Tipify.RELATION_POLYMOPHIC)) {
-                leftStr = relation.name;
+                leftStr = relation.owner.name + "<:" + relation.name;
             }
         }
         Fact fact = new Fact(Fact.Tipify.RELATION);
-        fact.value = leftStr + " = ~" + rightStr;
+        fact.value = leftStr + " = ~(" + rightStr + ")";
         fact.owners.addAll(relations);
         return fact;
     }
