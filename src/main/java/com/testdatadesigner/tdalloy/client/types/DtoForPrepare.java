@@ -4,9 +4,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
-import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 
 /**
@@ -106,8 +108,7 @@ public class DtoForPrepare {
                             .collect(Collectors.toList());
             relsConcrete.forEach(rel -> {
                 Column column = this.constructColumn();
-                column.name =
-                        RulesForAlloyable.singularize(rel.refTo.originPropertyName)
+                column.name = RulesForAlloyableFactory.getInstance().getRule().singularize(rel.refTo.originPropertyName)
                                 + RulesForAlloyable.FOREIGN_KEY_SUFFIX;
                 column.relation = this.constructRelation();
                 column.relation.type = RelationType.MANY_TO_ONE;

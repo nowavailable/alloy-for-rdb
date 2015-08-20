@@ -5,13 +5,14 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 import java.util.function.Supplier;
-import java.util.stream.Collectors;
 
+import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.PseudoAtom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
 import com.testdatadesigner.tdalloy.core.types.Relation;
-import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class PolymorphicHandler {
@@ -67,13 +68,13 @@ public class PolymorphicHandler {
             //List<? extends Atom> refToAtoms, 
             String polymorphicStr, String ownerTableName, Atom polymAbstructAtom) {
         List<Relation> relList = new ArrayList<>();
-
+        IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         // 1/9
         MultipleRelation valueRelation = new MultipleRelation(Relation.Tipify.RELATION_POLYMOPHIC);
         valueRelation.name =
-                RulesForAlloyable.columnRelationName(
+                namingRule.columnRelationName(
                     polymorphicStr + RulesForAlloyable.POLYMORPHIC_SUFFIX, ownerTableName);
-        valueRelation.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
+        valueRelation.owner = atomSearchByName.apply(namingRule.tableAtomName(ownerTableName));
         //valueRelation.refToTypes = refToAtoms;
         valueRelation.refTo = polymAbstructAtom;
         relList.add(valueRelation);
@@ -81,9 +82,9 @@ public class PolymorphicHandler {
         // 5/9
         MultipleRelation polymRelationReversed =
                 new MultipleRelation(Relation.Tipify.ABSTRUCT_RELATION);
-        polymRelationReversed.name = "refTo_" + RulesForAlloyable.tableAtomName(ownerTableName);
+        polymRelationReversed.name = "refTo_" + namingRule.tableAtomName(ownerTableName);
         polymRelationReversed.refTo =
-                atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
+                atomSearchByName.apply(namingRule.tableAtomName(ownerTableName));
         //polymRelationReversed.reverseOfrefToTypes = refToAtoms;
         polymRelationReversed.owner = polymAbstructAtom;
         relList.add(polymRelationReversed);

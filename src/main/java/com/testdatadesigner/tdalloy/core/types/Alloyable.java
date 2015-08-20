@@ -20,6 +20,9 @@ import com.foundationdb.sql.parser.ResultColumn;
 import com.foundationdb.sql.parser.TableElementNode;
 import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 import com.google.common.base.Joiner;
+import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.DefaultColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.PolymorphicHandler;
@@ -49,6 +52,8 @@ public class Alloyable implements Serializable {
 
     Function<String, Atom> atomSearchByName = name -> this.atoms.stream()
             .filter(s -> s.name.equals(name)).collect(Collectors.toList()).get(0);
+
+    IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
 
     private void addToSkip(String tableName, String keyStr) {
         skipElementListForColumn.add(tableName + INTERNAL_SEPARATOR + keyStr);
@@ -122,7 +127,7 @@ public class Alloyable implements Serializable {
                     columnNames.add(column.getName());
                 }
             }
-            List<List<String>> inferenced = RulesForAlloyable.inferencedRelations(columnNames);
+            List<List<String>> inferenced = namingRule.inferencedRelations(columnNames);
             List<String> inferencedPolymorphicSet = inferenced.get(0);
             List<String> inferencedForeignKeySet = inferenced.get(1);
             allInferencedPolymorphicSet.put(tableNode.getFullName(), inferencedPolymorphicSet);
@@ -173,7 +178,7 @@ public class Alloyable implements Serializable {
                      */
                     if (skipElementListForColumn.contains(tableNode.getFullName()
                             + INTERNAL_SEPARATOR + column.getName())) {
-                        if (RulesForAlloyable.isInferencedPolymorphic(column.getName(),
+                        if (namingRule.isInferencedPolymorphic(column.getName(),
                                 allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
                         	// as sig
                         	Atom polymAbstructAtom =

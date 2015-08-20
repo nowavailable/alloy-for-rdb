@@ -2,8 +2,9 @@ package com.testdatadesigner.tdalloy.core.type_bulder;
 
 import java.util.function.Function;
 
+import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.Relation;
-import com.testdatadesigner.tdalloy.core.types.RulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class DefaultColumnHandler {
@@ -11,7 +12,7 @@ public class DefaultColumnHandler {
     public Relation buildRelation(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) {
         Relation relation = new Relation(Relation.Tipify.VALUE);
-        relation.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
+        relation.owner = atomSearchByName.apply(RulesForAlloyableFactory.getInstance().getRule().tableAtomName(ownerTableName));
         relation.name = columnName;
         Atom column = new Atom(Atom.Tipify.PROPERTY);
         column.name = "Boundary";
@@ -22,9 +23,10 @@ public class DefaultColumnHandler {
     public Atom buildAtom(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
         Atom colomnAtom = new Atom(Atom.Tipify.PROPERTY);
+        IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         colomnAtom.originPropertyName = columnName;
-        colomnAtom.name = RulesForAlloyable.columnAtomName(columnName, ownerTableName);
-        colomnAtom.setParent(atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName)));
+        colomnAtom.name = namingRule.columnAtomName(columnName, ownerTableName);
+        colomnAtom.setParent(atomSearchByName.apply(namingRule.tableAtomName(ownerTableName)));
         return colomnAtom;
     }
 
