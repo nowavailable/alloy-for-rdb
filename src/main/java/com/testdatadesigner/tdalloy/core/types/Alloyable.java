@@ -21,7 +21,7 @@ import com.foundationdb.sql.parser.TableElementNode;
 import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 import com.google.common.base.Joiner;
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableRails;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.DefaultColumnHandler;
@@ -138,9 +138,9 @@ public class Alloyable implements Serializable {
                 for (String polymorphicStr : inferencedPolymorphicSet) {
                     // スキップ対象にadd
                     addToSkip(tableNode.getFullName(), polymorphicStr
-                            + RulesForAlloyable.FOREIGN_KEY_SUFFIX);
+                            + RulesForAlloyableRails.FOREIGN_KEY_SUFFIX);
                     addToSkip(tableNode.getFullName(), polymorphicStr
-                            + RulesForAlloyable.POLYMORPHIC_SUFFIX);
+                            + RulesForAlloyableRails.POLYMORPHIC_SUFFIX);
                 }
             }
             // 外部キー

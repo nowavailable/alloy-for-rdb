@@ -4,7 +4,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyable;
+import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableRails;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 
 import junit.framework.TestCase;

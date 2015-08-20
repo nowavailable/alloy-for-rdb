@@ -8,7 +8,7 @@ import java.util.regex.Pattern;
 
 import com.testdatadesigner.tdalloy.util.Inflector;
 
-public class RulesForAlloyable implements IRulesForAlloyable {
+public class RulesForAlloyableRails implements IRulesForAlloyable {
 
     public static final String FOREIGN_KEY_SUFFIX = "_id";
     public static final String POLYMORPHIC_SUFFIX = "_type";

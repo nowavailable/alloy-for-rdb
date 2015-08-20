@@ -14,7 +14,7 @@ public final class RulesForAlloyableFactory {  // singleton.
     public IRulesForAlloyable getRule() {
         if (this.rule == null) {
             // TODO: 実装切り替えの
-            this.rule = new RulesForAlloyable();
+            this.rule = new RulesForAlloyableRails();
         }
         return this.rule;
     }
