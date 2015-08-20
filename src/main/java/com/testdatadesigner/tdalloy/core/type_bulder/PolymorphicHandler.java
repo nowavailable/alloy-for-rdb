@@ -65,16 +65,17 @@ public class PolymorphicHandler {
 
     public List<Relation> buildRelation(Function<String, Atom> atomSearchByName,
             //List<? extends Atom> refToAtoms, 
-            String polymorphicStr, String ownerTableName) {
+            String polymorphicStr, String ownerTableName, Atom polymAbstructAtom) {
         List<Relation> relList = new ArrayList<>();
 
         // 1/9
-        MultipleRelation valueRelation = new MultipleRelation(Relation.Tipify.VALUE);
+        MultipleRelation valueRelation = new MultipleRelation(Relation.Tipify.RELATION_POLYMOPHIC);
         valueRelation.name =
                 RulesForAlloyable.columnRelationName(
                     polymorphicStr + RulesForAlloyable.POLYMORPHIC_SUFFIX, ownerTableName);
         valueRelation.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
         //valueRelation.refToTypes = refToAtoms;
+        valueRelation.refTo = polymAbstructAtom;
         relList.add(valueRelation);
 
         // 5/9
@@ -84,6 +85,7 @@ public class PolymorphicHandler {
         polymRelationReversed.refTo =
                 atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
         //polymRelationReversed.reverseOfrefToTypes = refToAtoms;
+        polymRelationReversed.owner = polymAbstructAtom;
         relList.add(polymRelationReversed);
 
 //        for (Atom refToAtom : refToAtoms) {
@@ -115,7 +117,7 @@ public class PolymorphicHandler {
         for (Relation relation : relations) {
             if (relation.type.equals(Relation.Tipify.ABSTRUCT_RELATION)) {
                 rightStr = relation.name;
-            } else if (relation.type.equals(Relation.Tipify.VALUE)) {
+            } else if (relation.type.equals(Relation.Tipify.RELATION_POLYMOPHIC)) {
                 leftStr = relation.name;
             }
         }
@@ -138,7 +140,7 @@ public class PolymorphicHandler {
 //                rightStrForColumn = relation.name;
 //                factForColumn.owners.add(relation);
 //            }
-//            if (relation.type.equals(Relation.Tipify.VALUE)) {
+//            if (relation.type.equals(Relation.Tipify.RELATION_POLYMOPHIC)) {
 //                leftStrForColumn = relation.name;
 //                factForColumn.owners.add(relation);
 //                

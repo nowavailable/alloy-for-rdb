@@ -1,7 +1,10 @@
 package com.testdatadesigner.tdalloy.core.types;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,6 +19,7 @@ import com.foundationdb.sql.parser.FKConstraintDefinitionNode;
 import com.foundationdb.sql.parser.ResultColumn;
 import com.foundationdb.sql.parser.TableElementNode;
 import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
+import com.google.common.base.Joiner;
 import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.DefaultColumnHandler;
 import com.testdatadesigner.tdalloy.core.type_bulder.PolymorphicHandler;
@@ -164,14 +168,24 @@ public class Alloyable implements Serializable {
         	for (TableElementNode tableElement : tableNode.getTableElementList()) {
             	if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
                     ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
+                    /*
+                     * ポリモーフィック関連
+                     */
                     if (skipElementListForColumn.contains(tableNode.getFullName()
                             + INTERNAL_SEPARATOR + column.getName())) {
                         if (RulesForAlloyable.isInferencedPolymorphic(column.getName(),
                                 allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
+                        	// as sig
+                        	Atom polymAbstructAtom =
+                                    columnHandler.buildAtomPolymorphicProspected(atomSearchByName,
+                                            tableNode.getFullName(), column.getName());
+                            polymAbstructAtom.originTypeName = column.getType().getTypeName();
+                            this.atoms.add(polymAbstructAtom);
 							// as fields
                         	if (buildPolymRelationCount == 0) {
                             	for (String polymorphicStr : allInferencedPolymorphicSet.get(tableNode.getFullName())) {
-                                	List<Relation> polymophicRelation = polymorphicHandler.buildRelation(atomSearchByName, polymorphicStr, tableNode.getFullName());
+                                	List<Relation> polymophicRelation = 
+                                			polymorphicHandler.buildRelation(atomSearchByName, polymorphicStr, tableNode.getFullName(), polymAbstructAtom);
                                 	this.relations.addAll(polymophicRelation);
 
                                 	// as basic fact
@@ -179,18 +193,12 @@ public class Alloyable implements Serializable {
                             	}
                             	buildPolymRelationCount++;	
                         	}
-                        	// as sig
-                        	Atom polymAtom =
-                                    columnHandler.buildAtomPolymorphicProspected(atomSearchByName,
-                                            tableNode.getFullName(), column.getName());
-                            polymAtom.originTypeName = column.getType().getTypeName();
-                            this.atoms.add(polymAtom);
                         }
-
                         continue;
                     }
-
-                    // Booleanフィールドはsigとしては扱わないのでスキップ
+                    /*
+                     * その他ふつうのカラム
+                     */
                     if (column.getType().getSQLstring().equals("TINYINT")) {
                         this.relations.add(booleanColumnHandler.build(atomSearchByName,
                                 tableNode.getFullName(), column.getName()));
@@ -204,47 +212,76 @@ public class Alloyable implements Serializable {
         return this;
     }
 
-//    /**
-//     * Alloyableインスタンスからalloy定義を生成。
-//     * 
-//     * @return String
-//     * @throws IOException 
-//     */
-//    public String outputToAls() throws IOException {
-//    	String als = null;
-//    	File tempFile = File.createTempFile("tdalloyToAlsFromAlloyable", "als");
-//    	tempFile.deleteOnExit();
-//
-//        Function<Atom, List<Relation>> atomSearchByRelationOwner = atom -> this.relations.stream()
-//                .filter(rel -> rel.owner.equals(atom.getClass())).collect(Collectors.toList());
-//
-//        StringBuffer sigStrBuff = new StringBuffer();
-//        for (Atom atom : this.atoms) {
-//        	// sig にする。
-//        	// TODO: ポリモーフィックなら、abstract sig が出てくる。
-//        	sigStrBuff.append("sig ");
-//        	sigStrBuff.append(atom.name);
-//        	sigStrBuff.append(" { ");
-//        	
-//        	// それを参照しているRELATIONを探してfieldにする。
-//        	List<Relation> relations = atomSearchByRelationOwner.apply(atom);
-//        	List<String> fields = new ArrayList<String>();
-//        	for (Relation relation : relations) {
-//            	sigStrBuff.append(" ");
-//            	sigStrBuff.append(relation.name);
-//            	sigStrBuff.append(": ");
-//            	// 型と限量子
-//        		
-//        	}
-//        }
-//
-//        for (Fact fact : this.facts) {
-//        	// fact
-//        	
-//        }
-//        
-//    	return als;
-//    }
+    /**
+     * Alloyableインスタンスからalloy定義を生成。
+     * 
+     * @return String
+     * @throws IOException 
+     */
+    public File outputToAls() throws IOException {
+    	File tempFile = File.createTempFile("tdalloyToAlsFromAlloyable", "als");
+    	tempFile.deleteOnExit();
+    	
+    	RuleForAls ruleForAls = new RuleForAls();
+
+        Function<Atom, List<Relation>> atomSearchByRelationOwner = atom -> this.relations.stream()
+                .filter(rel -> rel.owner.name.equals(atom.name)).collect(Collectors.toList());
+
+        String indent = "  ";
+    	try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFile), "UTF-8"))){
+            StringBuffer strBuff = new StringBuffer();
+
+            strBuff.append("open util/boolean\n");
+            strBuff.append("sig Boundary { val: one Int }\n");  // FIXME: 仮実装
+            strBuff.append("\n");
+            writer.write(strBuff.toString());
+            strBuff.setLength(0);
+            
+            for (Atom atom : this.atoms) {
+                StringBuffer sigStrBuff = new StringBuffer();
+                /*
+                 * sig にする。
+                 */
+            	String sigStr = atom.type.equals(Atom.Tipify.POLYMORPHIC_ABSTRACT) ? "abstract sig " : "sig ";
+            	sigStrBuff.append(sigStr);
+            	sigStrBuff.append(atom.name);
+            	sigStrBuff.append(" {");
+            	sigStrBuff.append("\n");
+            	/*
+            	 * それを参照しているRELATIONを探してfieldにする。
+            	 */
+            	List<Relation> relations = atomSearchByRelationOwner.apply(atom);
+            	List<String> fields = new ArrayList<String>();
+            	for (Relation relation : relations) {
+                	fields.add(relation.name + ": " + ruleForAls.searchQuantifierMap(relation) + " " + relation.refTo.name);
+            	}
+            	sigStrBuff.append(indent);
+            	sigStrBuff.append(Joiner.on(",\n" + indent).join(fields));
+
+            	sigStrBuff.append("\n");
+            	sigStrBuff.append("}");
+            	sigStrBuff.append("\n");
+            	
+        		writer.write(sigStrBuff.toString());
+            }
+
+            strBuff.append("\n");
+            strBuff.append("fact {\n");
+            writer.write(strBuff.toString());
+            strBuff.setLength(0);
+            for (Fact fact : this.facts) {
+                StringBuffer factStrBuff = new StringBuffer();
+                factStrBuff.append(indent);
+                factStrBuff.append(fact.value);
+                factStrBuff.append("\n");
+        		writer.write(factStrBuff.toString());
+            }
+            strBuff.append("}\n");
+            writer.write(strBuff.toString());
+            strBuff.setLength(0);
+    	}
+    	return tempFile;
+    }
 
     public void fixPolymorphic() {
         // ダミーAtomを実在Atomにマージ

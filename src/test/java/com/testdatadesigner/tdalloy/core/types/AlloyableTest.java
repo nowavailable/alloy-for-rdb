@@ -1,5 +1,6 @@
 package com.testdatadesigner.tdalloy.core.types;
 
+import java.io.File;
 import java.io.InputStream;
 import java.net.URL;
 import java.util.ArrayList;
@@ -95,6 +96,12 @@ public class AlloyableTest extends TestCase {
     public void testBuildFields() throws Exception {
         // 期待値
         
+    }
+
+    public void testOutputToAls() throws Exception {
+        this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
+        File outputToAls = this.currentAlloyable.outputToAls();
+        System.out.println(outputToAls.getAbsolutePath());
     }
 
 }
