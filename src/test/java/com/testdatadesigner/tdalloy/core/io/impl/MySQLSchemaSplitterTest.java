@@ -1,5 +1,6 @@
 package com.testdatadesigner.tdalloy.core.io.impl;
 
+import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 import junit.framework.TestCase;
 
 import java.io.InputStream;
@@ -10,6 +11,7 @@ import java.util.regex.Pattern;
 public class MySQLSchemaSplitterTest extends TestCase {
     public void setUp() throws Exception {
         super.setUp();
+        Bootstrap.setProps();
     }
 
     public void testPrepare() throws Exception {

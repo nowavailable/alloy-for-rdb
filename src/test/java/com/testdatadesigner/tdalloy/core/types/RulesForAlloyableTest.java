@@ -4,13 +4,20 @@ import java.util.Arrays;
 import java.util.List;
 
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableRails;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
+import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
 import junit.framework.TestCase;
 
 public class RulesForAlloyableTest extends TestCase {
-    IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
+    IRulesForAlloyable namingRule;
+
+    protected void setUp() throws Exception {
+        super.setUp();
+        Bootstrap.setProps();
+        namingRule = RulesForAlloyableFactory.getInstance().getRule();
+    }
+
     public void test正規表現確認() {
         String result = namingRule.foreignKeyName("user_id", "photos");
         assertEquals("user", result);

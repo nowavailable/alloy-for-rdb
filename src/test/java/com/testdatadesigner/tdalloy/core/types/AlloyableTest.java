@@ -14,6 +14,7 @@ import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
 
+import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 import junit.framework.TestCase;
 
 public class AlloyableTest extends TestCase {
@@ -23,7 +24,7 @@ public class AlloyableTest extends TestCase {
     
     protected void setUp() throws Exception {
         super.setUp();
-
+        Bootstrap.setProps();
 //        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
 //        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
 //        ddlSplitter.prepare(in);

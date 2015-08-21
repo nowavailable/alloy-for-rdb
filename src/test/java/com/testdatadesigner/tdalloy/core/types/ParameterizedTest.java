@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 import org.json.JSONObject;
 
 import com.foundationdb.sql.parser.CreateTableNode;
@@ -26,6 +27,7 @@ public class ParameterizedTest extends TestCase {
 
     protected void setUp() throws Exception {
         super.setUp();
+        Bootstrap.setProps();
         InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);

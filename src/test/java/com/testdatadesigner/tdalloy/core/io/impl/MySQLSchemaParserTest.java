@@ -1,5 +1,6 @@
 package com.testdatadesigner.tdalloy.core.io.impl;
 
+import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 import junit.framework.TestCase;
 
 import java.io.InputStream;
@@ -33,6 +34,7 @@ public class MySQLSchemaParserTest extends TestCase {
 //      );
 //  }});
 
+        Bootstrap.setProps();
         ////InputStream in = this.getClass().getResourceAsStream("/structure.sql");
         //////InputStream in = this.getClass().getResourceAsStream("/sampledatas.dump");
         //InputStream in = this.getClass().getResourceAsStream("/wanda_developmant.referance.sql");
