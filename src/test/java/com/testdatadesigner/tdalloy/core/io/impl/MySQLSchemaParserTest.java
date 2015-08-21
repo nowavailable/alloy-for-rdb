@@ -4,22 +4,11 @@ import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 import junit.framework.TestCase;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.List;
 
-import com.foundationdb.sql.parser.ColumnDefinitionNode;
-import com.foundationdb.sql.parser.ConstraintDefinitionNode;
-import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 import com.foundationdb.sql.parser.CreateTableNode;
-import com.foundationdb.sql.parser.FKConstraintDefinitionNode;
-import com.foundationdb.sql.parser.ResultColumn;
-import com.foundationdb.sql.parser.TableElementNode;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
-import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableRails;
-import com.testdatadesigner.tdalloy.core.types.Alloyable;
-import com.testdatadesigner.tdalloy.core.types.Relation;
-import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class MySQLSchemaParserTest extends TestCase {
 

@@ -1,7 +1,6 @@
 package com.testdatadesigner.tdalloy.core.naming;
 
 import java.util.EnumMap;
-import java.util.HashMap;
 
 public final class RulesForAlloyableFactory {  // singleton.
     private final static RulesForAlloyableFactory instance = new RulesForAlloyableFactory();

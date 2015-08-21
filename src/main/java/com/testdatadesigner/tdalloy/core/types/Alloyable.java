@@ -124,9 +124,9 @@ public class Alloyable implements Serializable {
                 for (String polymorphicStr : inferencedPolymorphicSet) {
                     // スキップ対象にadd
                     addToSkip(tableNode.getFullName(), polymorphicStr
-                            + RulesForAlloyableRails.FOREIGN_KEY_SUFFIX);
+                            + RulesForAlloyableRails.foreign_key_suffix());
                     addToSkip(tableNode.getFullName(), polymorphicStr
-                            + RulesForAlloyableRails.POLYMORPHIC_SUFFIX);
+                            + RulesForAlloyableRails.polymorphic_suffix());
                 }
             }
             // 外部キー

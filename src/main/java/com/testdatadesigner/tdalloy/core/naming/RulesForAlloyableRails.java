@@ -10,15 +10,26 @@ import com.testdatadesigner.tdalloy.util.Inflector;
 
 public class RulesForAlloyableRails implements IRulesForAlloyable {
 
-    public static final String FOREIGN_KEY_SUFFIX = "_id";
-    public static final String POLYMORPHIC_SUFFIX = "_type";
-    public static final String COUPLER = "_";
-    static Pattern foreignKeyPattern = Pattern.compile("^(.+)(" + FOREIGN_KEY_SUFFIX + ")$");
-    static Pattern patternsForPolymorphic = Pattern.compile("^(.+)(" + POLYMORPHIC_SUFFIX + ")$");
-    public static final String COLUMN_ATOM_PREFIX = "";
+    static Pattern foreignKeyPattern = Pattern.compile("^(.+)(" + foreign_key_suffix() + ")$");
+    static Pattern patternsForPolymorphic = Pattern.compile("^(.+)(" + polymorphic_suffix() + ")$");
 
     Inflector inflector = Inflector.getInstance();
 
+
+    public static final String foreign_key_suffix() {
+    	return "_id";
+    };
+    public static final String polymorphic_suffix() {
+    	return "_type";
+    };
+    public static final String coupler() {
+    	return "_";
+    }
+    public static final String column_atom_prefix() {
+    	return "";
+    }
+    
+    
     public String singularize(String originalTableName) {
         return inflector.underscore(inflector.singularize(originalTableName));
     }
@@ -66,8 +77,8 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
     
     public Boolean isInferencedPolymorphic(String originalColumnName, List<String> list) {
         return list.stream().anyMatch(
-                str -> str.equals(originalColumnName.replaceAll(FOREIGN_KEY_SUFFIX + "$", "")
-                        .replaceAll(POLYMORPHIC_SUFFIX + "$", "")));
+                str -> str.equals(originalColumnName.replaceAll(foreign_key_suffix() + "$", "")
+                        .replaceAll(polymorphic_suffix() + "$", "")));
     }
 
     public String tableNameFromFKey(String originalColumnName) throws IllegalAccessException {
