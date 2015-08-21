@@ -3,6 +3,12 @@ package com.testdatadesigner.tdalloy.core.naming;
 import java.util.List;
 
 public interface IRulesForAlloyable {
+
+    public String foreign_key_suffix();
+    public String polymorphic_suffix();
+    public String coupler();
+    public String column_atom_prefix();
+
     public String singularize(String originalTableName);
     public String reverse(String atomName);
 

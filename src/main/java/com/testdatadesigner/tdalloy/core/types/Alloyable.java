@@ -5,7 +5,6 @@ import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 import com.google.common.base.Joiner;
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
-import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableRails;
 import com.testdatadesigner.tdalloy.core.type_bulder.*;
 
 import java.io.*;
@@ -124,9 +123,9 @@ public class Alloyable implements Serializable {
                 for (String polymorphicStr : inferencedPolymorphicSet) {
                     // スキップ対象にadd
                     addToSkip(tableNode.getFullName(), polymorphicStr
-                            + RulesForAlloyableRails.foreign_key_suffix());
+                            + namingRule.foreign_key_suffix());
                     addToSkip(tableNode.getFullName(), polymorphicStr
-                            + RulesForAlloyableRails.polymorphic_suffix());
+                            + namingRule.polymorphic_suffix());
                 }
             }
             // 外部キー
@@ -168,10 +167,14 @@ public class Alloyable implements Serializable {
                             allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
                             // as sig
                             Atom polymAbstructAtom =
-                                columnHandler.buildAtomPolymorphicProspected(atomSearchByName,
+                                columnHandler.buildAtomPolymorphicAbstract(atomSearchByName,
                                     tableNode.getFullName(), column.getName());
                             polymAbstructAtom.originTypeName = column.getType().getTypeName();
                             this.atoms.add(polymAbstructAtom);
+                            
+                            // as sig by referrer and their fields
+                            
+
                             // as fields
                             if (buildPolymRelationCount == 0) {
                                 for (String polymorphicStr : allInferencedPolymorphicSet.get(tableNode.getFullName())) {

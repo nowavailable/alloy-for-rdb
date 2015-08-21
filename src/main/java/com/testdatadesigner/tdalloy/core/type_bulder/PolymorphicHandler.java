@@ -8,7 +8,6 @@ import java.util.function.Supplier;
 
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
-import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableRails;
 import com.testdatadesigner.tdalloy.core.types.PseudoAtom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
@@ -73,7 +72,7 @@ public class PolymorphicHandler {
         MultipleRelation valueRelation = new MultipleRelation(Relation.Tipify.RELATION_POLYMOPHIC);
         valueRelation.name =
                 namingRule.columnRelationName(
-                    polymorphicStr + RulesForAlloyableRails.polymorphic_suffix(), ownerTableName);
+                    polymorphicStr + namingRule.polymorphic_suffix(), ownerTableName);
         valueRelation.owner = atomSearchByName.apply(namingRule.tableAtomName(ownerTableName));
         //valueRelation.refToTypes = refToAtoms;
         valueRelation.refTo = polymAbstructAtom;
