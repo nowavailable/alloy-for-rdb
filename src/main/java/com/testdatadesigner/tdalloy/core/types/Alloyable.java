@@ -154,6 +154,7 @@ public class Alloyable implements Serializable {
         for (CreateTableNode tableNode : parsedDDLList) {
             // for polymorphic relations
             int buildPolymRelationCount = 0;
+            int dummySigCount = 0;
 
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
@@ -171,10 +172,6 @@ public class Alloyable implements Serializable {
                                     tableNode.getFullName(), column.getName());
                             polymAbstructAtom.originTypeName = column.getType().getTypeName();
                             this.atoms.add(polymAbstructAtom);
-                            
-                            // as sig by referrer and their fields
-                            
-
                             // as fields
                             if (buildPolymRelationCount == 0) {
                                 for (String polymorphicStr : allInferencedPolymorphicSet.get(tableNode.getFullName())) {
@@ -184,6 +181,27 @@ public class Alloyable implements Serializable {
 
                                     // as basic fact
                                     this.facts.add(polymorphicHandler.buildFactBase(polymophicRelation));
+
+                                    // as sig by referrer and their fields
+                                    List<Atom> dummies = polymorphicHandler.buildDummies(dummySigCount);
+                                    this.atoms.addAll(dummies);
+
+                                    dummySigCount = dummySigCount + 2;
+                                    
+                                    // their dummy columns
+                                    for (Atom dummyAtom : dummies) {
+                                        Relation relation =
+                                        		polymorphicHandler.buildRelationForDummy(atomSearchByName, dummyAtom.originPropertyName, 
+                                        				namingRule.fkeyFromTableName(polymAbstructAtom.getParent().originPropertyName),
+                                        				polymAbstructAtom.getParent().originPropertyName);
+                                        this.relations.add(relation);
+                                        // extend sig
+                                        Atom polymImplAtom = polymorphicHandler.buildDummyExtend(polymorphicStr, dummyAtom, polymAbstructAtom);
+                                        this.atoms.add(polymImplAtom);
+                                        // and their field
+                                        
+                                        // and fact
+    								}
                                 }
                                 buildPolymRelationCount++;
                             }

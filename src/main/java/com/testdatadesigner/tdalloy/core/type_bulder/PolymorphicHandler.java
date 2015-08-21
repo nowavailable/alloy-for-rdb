@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.function.Supplier;
 
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
@@ -15,12 +14,31 @@ import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 
 public class PolymorphicHandler {
+	IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
 
-    public List<PseudoAtom> buildDummies(Supplier<Integer> getNamingSeq, String ownerTableName) {
+    public List<Atom> buildDummies(Integer getNamingSeq) {
         // ダミー作成
-        PseudoAtom dummyRefToAtom_1 = new PseudoAtom(Atom.Tipify.ENTITY, getNamingSeq.get());
-        PseudoAtom dummyRefToAtom_2 = new PseudoAtom(Atom.Tipify.ENTITY, getNamingSeq.get());
+        Atom dummyRefToAtom_1 = new PseudoAtom(getNamingSeq + 1);
+        Atom dummyRefToAtom_2 = new PseudoAtom(getNamingSeq + 1 + 1);
         return Arrays.asList(dummyRefToAtom_1, dummyRefToAtom_2);
+    }
+
+    public Relation buildRelationForDummy(Function<String, Atom> atomSearchByName, String ownerTableName,
+            String fKeyColumnStr, String refTableName) throws IllegalAccessException {
+        // 参照される側
+		Relation relation = new Relation(Relation.Tipify.ABSTRUCT_RELATION_REFERRED);
+		String refTable = refTableName.isEmpty() ? namingRule
+				.tableNameFromFKey(fKeyColumnStr) : refTableName;
+        relation.name = namingRule.foreignKeyNameReversed(ownerTableName, refTable);
+        //relation.name = namingRule.foreignKeyName(fKeyColumnStr, ownerTableName);
+        relation.owner = atomSearchByName.apply(namingRule.tableAtomName(ownerTableName));
+        relation.refTo =
+                atomSearchByName.apply(namingRule.tableAtomNameFromFKey(fKeyColumnStr));
+        return relation;
+    }
+    
+    public Atom buildDummyExtend(String polymorphicStr, Atom dummyAtom, Atom abstructAtom) throws IllegalAccessException {
+    	return new PseudoAtom(namingRule.polymorphicImplAtomName(polymorphicStr, dummyAtom.name), abstructAtom);
     }
 
 //    public List<Atom> buildAtom(Function<String, Atom> atomSearchByName, List<? extends Atom> refToAtoms,

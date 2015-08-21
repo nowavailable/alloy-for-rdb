@@ -34,7 +34,7 @@ public class RelationHandler {
                 atomSearchByName.apply(namingRule.tableAtomNameFromFKey(fKeyColumnStr));
 
         // 参照される側
-        Relation relationReversed = new Relation(Relation.Tipify.RELATION_REVERSED);
+        Relation relationReversed = new Relation(Relation.Tipify.RELATION_REFERRED);
 
         String refTable =
                 refTableName.isEmpty() ? namingRule.tableNameFromFKey(fKeyColumnStr)
@@ -53,7 +53,7 @@ public class RelationHandler {
         for (Relation relation : relations) {
             if (relation.type.equals(Relation.Tipify.RELATION)) {
                 rightStr = relation.owner.name + "<:" + relation.name;
-            } else if (relation.type.equals(Relation.Tipify.RELATION_REVERSED)) {
+            } else if (relation.type.equals(Relation.Tipify.RELATION_REFERRED)) {
                 leftStr = relation.owner.name + "<:" + relation.name;
             }
         }

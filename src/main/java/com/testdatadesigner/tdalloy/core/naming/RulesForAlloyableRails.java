@@ -58,7 +58,7 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
         }
         for (String columnName : columnNames) {
             for (String keyStr : candidate) {
-                Pattern pattern = Pattern.compile("^(" + keyStr + ")(_id)$");
+                Pattern pattern = Pattern.compile("^(" + keyStr + ")(" + FOREIGN_KEY_SUFFIX + ")$");
                 Matcher matcher = pattern.matcher(columnName);
                 if (matcher.find()) {
                     matchedPolymorphic.add(keyStr);
@@ -91,6 +91,10 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
             throw new IllegalAccessException("this is not foreign key.");
         }
         return reverse(matcher.group(1));
+    }
+    
+    public String fkeyFromTableName(String refTableName) throws IllegalAccessException {
+    	return inflector.singularize(refTableName) + FOREIGN_KEY_SUFFIX;
     }
 
     public String foreignKeyName(String originalColumnName, String originalTableName) {
@@ -129,6 +133,10 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
         return originalColumnName;
     }
 
+    public String polymorphicAbstractAtomName(String polymorphicStr, String parentAtomName) {
+        return inflector.upperCamelCase(polymorphicStr) + parentAtomName;
+    }
+
     public String polymorphicImplAtomName(String polymorphicStr, String refToAtomName) {
         return inflector.upperCamelCase(polymorphicStr) + refToAtomName;
     }
@@ -141,5 +149,4 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
         //return originalTableName + COUPLER + inflector.upperCamelCase(originalColumnName);
         return inflector.lowerCamelCase(originalColumnName);
     }
-
 }

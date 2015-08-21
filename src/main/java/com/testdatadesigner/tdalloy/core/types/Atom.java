@@ -50,4 +50,15 @@ public class Atom implements Serializable {
         this.parent = parent;
     }
 
+    public Atom getExtended() {
+        return this.extended;
+    }
+
+    public void setExtended(Atom extended) throws IllegalAccessException {
+        if (!Arrays.asList(Tipify.POLYMORPHIC_ABSTRACT).contains(extended.type)) {
+            throw new IllegalAccessException("No need extended.");
+        }
+        this.extended = extended;
+    }
+
 }
