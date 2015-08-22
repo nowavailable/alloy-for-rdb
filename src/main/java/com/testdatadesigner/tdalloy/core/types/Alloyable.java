@@ -112,15 +112,15 @@ public class Alloyable implements Serializable {
                     columnNames.add(column.getName());
                 }
             }
-            List<List<String>> inferenced = namingRule.inferencedRelations(columnNames);
-            List<String> inferencedPolymorphicSet = inferenced.get(0);
-            List<String> inferencedForeignKeySet = inferenced.get(1);
-            allInferencedPolymorphicSet.put(tableNode.getFullName(), inferencedPolymorphicSet);
+            List<List<String>> guessed = namingRule.guessedRelations(columnNames);
+            List<String> guessedPolymorphicSet = guessed.get(0);
+            List<String> guessedForeignKeySet = guessed.get(1);
+            allInferencedPolymorphicSet.put(tableNode.getFullName(), guessedPolymorphicSet);
 
             // ポリモーフィック
-            if (!inferencedPolymorphicSet.isEmpty()) {
+            if (!guessedPolymorphicSet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
-                for (String polymorphicStr : inferencedPolymorphicSet) {
+                for (String polymorphicStr : guessedPolymorphicSet) {
                     // スキップ対象にadd
                     addToSkip(tableNode.getFullName(), polymorphicStr
                             + namingRule.foreignKeySuffix());
@@ -129,9 +129,9 @@ public class Alloyable implements Serializable {
                 }
             }
             // 外部キー
-            if (!inferencedForeignKeySet.isEmpty()) {
+            if (!guessedForeignKeySet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
-                for (String keyStr : inferencedForeignKeySet) {
+                for (String keyStr : guessedForeignKeySet) {
                     // スキップ
                     if (skipElementListForColumn.contains(tableNode.getFullName()
                             + INTERNAL_SEPARATOR + keyStr)) {
@@ -164,7 +164,7 @@ public class Alloyable implements Serializable {
                      */
                     if (skipElementListForColumn.contains(tableNode.getFullName()
                         + INTERNAL_SEPARATOR + column.getName())) {
-                        if (namingRule.isInferencedPolymorphic(column.getName(),
+                        if (namingRule.isGuessedPolymorphic(column.getName(),
                             allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
                             // as sig
                             Atom polymAbstructAtom =

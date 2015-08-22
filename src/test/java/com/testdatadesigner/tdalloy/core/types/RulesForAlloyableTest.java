@@ -33,11 +33,11 @@ public class RulesForAlloyableTest extends TestCase {
     
     public void testポリモーフィック関連用カラムかどうか() {
         List<String> bag = Arrays.asList("campaign", "photable");
-        Boolean result1 = namingRule.isInferencedPolymorphic("photable_id", bag);
+        Boolean result1 = namingRule.isGuessedPolymorphic("photable_id", bag);
         assertEquals(Boolean.TRUE, result1);
-        Boolean result2 = namingRule.isInferencedPolymorphic("photable_type", bag);
+        Boolean result2 = namingRule.isGuessedPolymorphic("photable_type", bag);
         assertEquals(Boolean.TRUE, result2);
-        Boolean result3 = namingRule.isInferencedPolymorphic("id_of_campaign", bag);
+        Boolean result3 = namingRule.isGuessedPolymorphic("id_of_campaign", bag);
         assertEquals(Boolean.FALSE, result3);
     }
 }

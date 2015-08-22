@@ -51,7 +51,7 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
      * @param columnNames
      * @return 1番目がポリモーフィック関連用カラム群、2番目が外部キーカラム群
      */
-    public List<List<String>> inferencedRelations(List<String> columnNames) {
+    public List<List<String>> guessedRelations(List<String> columnNames) {
         final List<String> matchedPolymorphic = new ArrayList<>();
         List<String> candidate = new ArrayList<>();
         for (String columnName : columnNames) {
@@ -83,10 +83,10 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
         return Arrays.asList(matchedPolymorphic, matchedForeignKey);
     }
     
-    public Boolean isInferencedPolymorphic(String originalColumnName, List<String> list) {
-        return list.stream().anyMatch(
-                str -> str.equals(originalColumnName.replaceAll(FOREIGN_KEY_SUFFIX + "$", "")
-                        .replaceAll(POLYMORPHIC_SUFFIX + "$", "")));
+    public Boolean isGuessedPolymorphic(String originalColumnName, List<String> list) {
+        return list.stream().anyMatch(str -> str.equals(
+                originalColumnName.replaceAll(FOREIGN_KEY_SUFFIX + "$", "")
+                    .replaceAll(POLYMORPHIC_SUFFIX + "$", "")));
     }
 
     public String tableNameFromFKey(String originalColumnName) throws IllegalAccessException {

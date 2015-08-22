@@ -13,8 +13,8 @@ public interface IRulesForAlloyable {
     public String tableize(String atomName);
     public String reverse(String atomName);
 
-    public List<List<String>> inferencedRelations(List<String> columnNames);
-	public Boolean isInferencedPolymorphic(String originalColumnName, List<String> list);
+    public List<List<String>> guessedRelations(List<String> columnNames);
+    public Boolean isGuessedPolymorphic(String originalColumnName, List<String> list);
 
     public String tableNameFromFKey(String originalColumnName) throws IllegalAccessException;
     public String fkeyFromTableName(String refTableName) throws IllegalAccessException;
