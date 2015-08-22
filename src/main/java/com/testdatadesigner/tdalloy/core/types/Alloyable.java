@@ -239,7 +239,7 @@ public class Alloyable implements Serializable {
         File tempFile = File.createTempFile("tdalloyToAlsFromAlloyable", "als");
         tempFile.deleteOnExit();
 
-        RuleForAls ruleForAls = new RuleForAls();
+        NamingRuleForAls ruleForAls = new NamingRuleForAls();
 
         Function<Atom, List<Relation>> atomSearchByRelationOwner = atom -> this.relations.stream()
             .filter(rel -> rel.owner.name.equals(atom.name)).collect(Collectors.toList());

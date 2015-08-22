@@ -3,7 +3,7 @@ package com.testdatadesigner.tdalloy.core.types;
 import java.util.HashMap;
 import java.util.Map;
 
-public class RuleForAls {
+public class NamingRuleForAls {
 
 	private static Map<Relation.Tipify, String> quqntifierMap = new HashMap<Relation.Tipify, String>() {
 		{

@@ -4,7 +4,7 @@ import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.util.Inflector;
 
-public class RuleForAlloyable {
+public class NamingRuleForAlloyable {
 
     public static String tableAtomName(String originalTableName) {
         Inflector inflector = Inflector.getInstance();
