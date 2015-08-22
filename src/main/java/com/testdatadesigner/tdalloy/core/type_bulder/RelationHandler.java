@@ -9,6 +9,7 @@ import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.Atom;
+import com.testdatadesigner.tdalloy.core.types.RuleForAlloyable;
 
 public class RelationHandler {
 
@@ -29,9 +30,9 @@ public class RelationHandler {
         // 外部キー保持側
         Relation relation = new Relation(Relation.Tipify.RELATION);
         relation.name = namingRule.foreignKeyName(fKeyColumnStr, ownerTableName);
-        relation.owner = atomSearchByName.apply(namingRule.tableAtomName(ownerTableName));
+        relation.owner = atomSearchByName.apply(RuleForAlloyable.tableAtomName(ownerTableName));
         relation.refTo =
-                atomSearchByName.apply(namingRule.tableAtomNameFromFKey(fKeyColumnStr));
+                atomSearchByName.apply(RuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStr));
 
         // 参照される側
         Relation relationReversed = new Relation(Relation.Tipify.RELATION_REFERRED);
@@ -39,10 +40,10 @@ public class RelationHandler {
         String refTable =
                 refTableName.isEmpty() ? namingRule.tableNameFromFKey(fKeyColumnStr)
                         : refTableName;
-        relationReversed.owner = atomSearchByName.apply(namingRule.tableAtomName(refTable));
+        relationReversed.owner = atomSearchByName.apply(RuleForAlloyable.tableAtomName(refTable));
         relationReversed.name = namingRule.foreignKeyNameReversed(refTable, ownerTableName);
         relationReversed.refTo =
-                atomSearchByName.apply(namingRule.tableAtomName(ownerTableName));
+                atomSearchByName.apply(RuleForAlloyable.tableAtomName(ownerTableName));
 
         return Arrays.asList(relation, relationReversed);
     }

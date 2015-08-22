@@ -117,41 +117,5 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
         //return refTableName + COUPLER + inflector.upperCamelCase(originalTableName);
         return inflector.pluralize(originalTableName);
     }
-    public String tableAtomNameFromFKey(String originalColumnName)
-            throws IllegalAccessException {
-        return inflector.upperCamelCase(inflector
-                .singularize(tableNameFromFKey(originalColumnName)));
-    }
-
-    public String tableAtomName(String originalTableName) {
-        return inflector.upperCamelCase(inflector.singularize(originalTableName));
-    }
-
-    public String columnAtomName(String originalColumnName, String originalTableName) {
-        //return COLUMN_ATOM_PREFIX + inflector.upperCamelCase(originalTableName) + COUPLER
-        //        + inflector.upperCamelCase(originalColumnName);
-        return inflector.upperCamelCase(originalColumnName);
-    }
-
-    public String columnFieldName(String originalColumnName, String originalTableName) {
-        return originalColumnName;
-    }
-
-    public String columnRelationName(String originalColumnName, String originalTableName) {
-        //return originalTableName + COUPLER + inflector.upperCamelCase(originalColumnName);
-        return inflector.lowerCamelCase(originalColumnName);
-    }
-
-    public String polymorphicAbstractAtomName(String polymorphicStr, String parentAtomName) {
-        return inflector.upperCamelCase(polymorphicStr) + parentAtomName;
-    }
-
-    public String polymorphicImplAtomName(String polymorphicStr, String refToAtomName) {
-        return inflector.upperCamelCase(polymorphicStr) + refToAtomName;
-    }
-
-    public String implementedPolymorphicAtomName(String keystr, String ownerTableName) {
-        return tableAtomName(keystr) + tableAtomName(ownerTableName);
-    }
 
 }

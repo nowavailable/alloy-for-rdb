@@ -6,13 +6,14 @@ import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.Atom;
+import com.testdatadesigner.tdalloy.core.types.RuleForAlloyable;
 
 public class DefaultColumnHandler {
 
     public Relation buildRelation(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) {
         Relation relation = new Relation(Relation.Tipify.VALUE);
-        relation.owner = atomSearchByName.apply(RulesForAlloyableFactory.getInstance().getRule().tableAtomName(ownerTableName));
+        relation.owner = atomSearchByName.apply(RuleForAlloyable.tableAtomName(ownerTableName));
         relation.name = columnName;
         Atom column = new Atom(Atom.Tipify.PROPERTY);
         column.name = "Boundary";
@@ -25,8 +26,8 @@ public class DefaultColumnHandler {
         Atom colomnAtom = new Atom(Atom.Tipify.PROPERTY);
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         colomnAtom.originPropertyName = columnName;
-        colomnAtom.name = namingRule.columnAtomName(columnName, ownerTableName);
-        colomnAtom.setParent(atomSearchByName.apply(namingRule.tableAtomName(ownerTableName)));
+        colomnAtom.name = RuleForAlloyable.columnAtomName(columnName, ownerTableName);
+        colomnAtom.setParent(atomSearchByName.apply(RuleForAlloyable.tableAtomName(ownerTableName)));
         return colomnAtom;
     }
 
