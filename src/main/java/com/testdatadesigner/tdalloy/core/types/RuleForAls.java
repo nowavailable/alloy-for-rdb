@@ -11,7 +11,8 @@ public class RuleForAls {
 			put(Relation.Tipify.RELATION_REFERRED, "some");
 			put(Relation.Tipify.RELATION_POLYMOPHIC, "one");
 			put(Relation.Tipify.ABSTRUCT_RELATION, "one");
-			put(Relation.Tipify.ABSTRUCT_RELATION_REFERRED, "disj one");
+			put(Relation.Tipify.ABSTRUCT_RELATION_REFERRED, "disj set"); // or "disj one" or "disj set"
+			put(Relation.Tipify.ABSTRUCT_RELATION_TYPIFIED, "some");      // or "disj one"
 			put(Relation.Tipify.VALUE, "one");
 		}
 	};

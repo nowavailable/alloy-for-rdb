@@ -123,9 +123,9 @@ public class Alloyable implements Serializable {
                 for (String polymorphicStr : inferencedPolymorphicSet) {
                     // スキップ対象にadd
                     addToSkip(tableNode.getFullName(), polymorphicStr
-                            + namingRule.foreign_key_suffix());
+                            + namingRule.foreignKeySuffix());
                     addToSkip(tableNode.getFullName(), polymorphicStr
-                            + namingRule.polymorphic_suffix());
+                            + namingRule.polymorphicSuffix());
                 }
             }
             // 外部キー
@@ -262,6 +262,10 @@ public class Alloyable implements Serializable {
                 String sigStr = atom.type.equals(Atom.Tipify.POLYMORPHIC_ABSTRACT) ? "abstract sig " : "sig ";
                 sigStrBuff.append(sigStr);
                 sigStrBuff.append(atom.name);
+                if (atom.getExtended() != null) {
+                	sigStrBuff.append(" extends ");
+                	sigStrBuff.append(atom.getExtended().name);
+                }
                 sigStrBuff.append(" {");
                 sigStrBuff.append("\n");
             	/*
@@ -294,6 +298,10 @@ public class Alloyable implements Serializable {
                 writer.write(factStrBuff.toString());
             }
             strBuff.append("}\n");
+
+            strBuff.append("\n");
+            strBuff.append("run {}\n");
+
             writer.write(strBuff.toString());
             strBuff.setLength(0);
         }

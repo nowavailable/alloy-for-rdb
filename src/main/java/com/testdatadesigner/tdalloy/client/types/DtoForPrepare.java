@@ -107,7 +107,7 @@ public class DtoForPrepare {
             relsConcrete.forEach(rel -> {
                 Column column = this.constructColumn();
                 column.name = RulesForAlloyableFactory.getInstance().getRule().singularize(rel.refTo.originPropertyName)
-                                + RulesForAlloyableFactory.getInstance().getRule().foreign_key_suffix();
+                                + RulesForAlloyableFactory.getInstance().getRule().foreignKeySuffix();
                 column.relation = this.constructRelation();
                 column.relation.type = RelationType.MANY_TO_ONE;
                 column.relation.refTo.add(rel.refTo.originPropertyName);

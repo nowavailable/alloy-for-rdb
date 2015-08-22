@@ -21,16 +21,16 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
     Inflector inflector = Inflector.getInstance();
 
 
-    public String foreign_key_suffix() {
+    public String foreignKeySuffix() {
     	return FOREIGN_KEY_SUFFIX;
     }
-    public String polymorphic_suffix() {
+    public String polymorphicSuffix() {
     	return POLYMORPHIC_SUFFIX;
     }
     public String coupler() {
     	return COUPLER;
     }
-    public String column_atom_prefix() {
+    public String columnAtomPrefix() {
     	return COLUMN_ATOM_PREFIX;
     }
     
@@ -39,7 +39,7 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
     }
     
     public String tableize(String atomName) {
-    	return inflector.singularize(inflector.underscore(atomName));
+    	return inflector.pluralize(inflector.underscore(atomName));
     }
 
     public String reverse(String atomName) {
@@ -137,6 +137,11 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
         return originalColumnName;
     }
 
+    public String columnRelationName(String originalColumnName, String originalTableName) {
+        //return originalTableName + COUPLER + inflector.upperCamelCase(originalColumnName);
+        return inflector.lowerCamelCase(originalColumnName);
+    }
+
     public String polymorphicAbstractAtomName(String polymorphicStr, String parentAtomName) {
         return inflector.upperCamelCase(polymorphicStr) + parentAtomName;
     }
@@ -149,8 +154,4 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
         return tableAtomName(keystr) + tableAtomName(ownerTableName);
     }
 
-    public String columnRelationName(String originalColumnName, String originalTableName) {
-        //return originalTableName + COUPLER + inflector.upperCamelCase(originalColumnName);
-        return inflector.lowerCamelCase(originalColumnName);
-    }
 }

@@ -50,7 +50,7 @@ public class PolymorphicHandler {
         MultipleRelation valueRelation = new MultipleRelation(Relation.Tipify.RELATION_POLYMOPHIC);
         valueRelation.name =
                 namingRule.columnRelationName(
-                    polymorphicStr + namingRule.polymorphic_suffix(), ownerTableName);
+                    polymorphicStr + namingRule.polymorphicSuffix(), ownerTableName);
         valueRelation.owner = atomSearchByName.apply(namingRule.tableAtomName(ownerTableName));
         //valueRelation.refToTypes = refToAtoms;
         valueRelation.refTo = polymAbstructAtom;
@@ -94,7 +94,7 @@ public class PolymorphicHandler {
 
     public Fact buildFactForDummies(Relation dummyRelation, Relation parentRelation) {
         String leftStr = dummyRelation.owner.name + "<:" + dummyRelation.name;
-        String rightStr = parentRelation.owner.name + "<:" + parentRelation.name + "." + namingRule.singularize(dummyRelation.owner.name);
+        String rightStr = parentRelation.owner.name + "<:" + parentRelation.name + "." + namingRule.tableize(dummyRelation.owner.name);
         Fact fact = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);
         fact.value = leftStr + " = ~(" + rightStr + ")";
         fact.owners.add(dummyRelation);
