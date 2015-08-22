@@ -175,12 +175,12 @@ public class Alloyable implements Serializable {
                             // as fields
                             if (buildPolymRelationCount == 0) {
                                 for (String polymorphicStr : allInferencedPolymorphicSet.get(tableNode.getFullName())) {
-                                    List<Relation> polymophicRelation =
+                                    List<Relation> polymophicRelations =
                                         polymorphicHandler.buildRelation(atomSearchByName, polymorphicStr, tableNode.getFullName(), polymAbstructAtom);
-                                    this.relations.addAll(polymophicRelation);
+                                    this.relations.addAll(polymophicRelations);
 
                                     // as basic fact
-                                    this.facts.add(polymorphicHandler.buildFactBase(polymophicRelation));
+                                    this.facts.add(polymorphicHandler.buildFactBase(polymophicRelations));
 
                                     // as sig by referrer and their fields
                                     List<Atom> dummies = polymorphicHandler.buildDummies(dummySigCount);
@@ -199,8 +199,13 @@ public class Alloyable implements Serializable {
                                         Atom polymImplAtom = polymorphicHandler.buildDummyExtend(polymorphicStr, dummyAtom, polymAbstructAtom);
                                         this.atoms.add(polymImplAtom);
                                         // and their field
-                                        
+                                        Relation polymRelation = polymorphicHandler.buildTypifiedRelation(polymImplAtom, dummyAtom);
+                                        this.relations.add(polymRelation);
                                         // and fact
+                                        this.facts.add(
+                                        		polymorphicHandler.buildFactForDummies(relation, 
+                                        				polymophicRelations.stream().filter(rel -> rel.type.equals(Relation.Tipify.RELATION_POLYMOPHIC)).
+                                        				collect(Collectors.toList()).get(0)));
     								}
                                 }
                                 buildPolymRelationCount++;

@@ -37,6 +37,10 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
     public String singularize(String originalTableName) {
         return inflector.underscore(inflector.singularize(originalTableName));
     }
+    
+    public String tableize(String atomName) {
+    	return inflector.singularize(inflector.underscore(atomName));
+    }
 
     public String reverse(String atomName) {
         return inflector.underscore(inflector.pluralize(atomName));

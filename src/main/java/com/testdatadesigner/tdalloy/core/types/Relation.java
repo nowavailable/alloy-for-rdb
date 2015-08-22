@@ -16,6 +16,7 @@ public class Relation implements Serializable {
         // TODO: ポリモーフィック関連のための外部キーカラムは？als上では必要ないんだが。。。
         ABSTRUCT_RELATION,          // 便宜上想定した実在しないテーブルリレーション。ポリモーフィック関連などで使用。
         ABSTRUCT_RELATION_REFERRED, // 前記の逆
+        ABSTRUCT_RELATION_TYPIFIED, // 
         //SHORTCUT_RELATION,
         // TODO: 状態sig用。
         //ON_STATE,

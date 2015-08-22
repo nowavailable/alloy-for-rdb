@@ -10,6 +10,7 @@ public interface IRulesForAlloyable {
     public String column_atom_prefix();
 
     public String singularize(String originalTableName);
+    public String tableize(String atomName);
     public String reverse(String atomName);
 
     public List<List<String>> inferencedRelations(List<String> columnNames);

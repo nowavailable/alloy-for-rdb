@@ -36,33 +36,4 @@ public class DefaultColumnHandler {
         colomnAtom.type = Atom.Tipify.POLYMORPHIC_ABSTRACT;
         return colomnAtom;
     }
-    
-//    public List<Atom> buildFactorAtoms(String ownerTableName, String columnName) {
-//        List<String> factors = new ArrayList<String>() {
-//            {
-//                Inflector inflector = Inflector.getInstance();
-//                this.add(new String(ownerTableName + RulesForAlloyable.COUPLER
-//                        + inflector.upperCamelCase(columnName) + "HIGH"));
-//                this.add(new String(ownerTableName + RulesForAlloyable.COUPLER
-//                        + inflector.upperCamelCase(columnName) + "LOW"));
-//            }
-//        };
-//        List<Atom> atoms = new ArrayList<>();
-//        for (String factor : factors) {
-//            Atom atom = new Atom(Atom.Tipify.PROPERTY_FACTOR);
-//            atom.originPropertyName = columnName;
-//            atom.name = factor;
-//            atoms.add(atom);
-//        }
-//        return atoms;
-//    }
-
-//    public Relation buildRelation(Function<String, Atom> atomSearchByName, String ownerTableName,
-//            String columnName, List<Atom> propertyFactorAtoms) {
-//        MultipleRelation colomnRel = new MultipleRelation(Relation.Tipify.VALUE);
-//        colomnRel.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
-//        colomnRel.owner = atomSearchByName.apply(RulesForAlloyable.tableAtomName(ownerTableName));
-//        colomnRel.refToTypes = propertyFactorAtoms;
-//        return colomnRel;
-//    }
 }
