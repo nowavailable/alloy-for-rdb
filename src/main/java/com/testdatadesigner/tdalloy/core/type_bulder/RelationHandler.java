@@ -28,14 +28,14 @@ public class RelationHandler {
 
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         // 外部キー保持側
-        Relation relation = new Relation(Relation.Tipify.RELATION);
+        Relation relation = new Relation(Relation.Typify.RELATION);
         relation.name = namingRule.foreignKeyName(fKeyColumnStr, ownerTableName);
         relation.owner = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
         relation.refTo =
                 atomSearchByName.apply(NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStr));
 
         // 参照される側
-        Relation relationReversed = new Relation(Relation.Tipify.RELATION_REFERRED);
+        Relation relationReversed = new Relation(Relation.Typify.RELATION_REFERRED);
 
         String refTable =
                 refTableName.isEmpty() ? namingRule.tableNameFromFKey(fKeyColumnStr)
@@ -52,9 +52,9 @@ public class RelationHandler {
         String leftStr = new String();
         String rightStr = new String();
         for (Relation relation : relations) {
-            if (relation.type.equals(Relation.Tipify.RELATION)) {
+            if (relation.type.equals(Relation.Typify.RELATION)) {
                 rightStr = relation.owner.name + "<:" + relation.name;
-            } else if (relation.type.equals(Relation.Tipify.RELATION_REFERRED)) {
+            } else if (relation.type.equals(Relation.Typify.RELATION_REFERRED)) {
                 leftStr = relation.owner.name + "<:" + relation.name;
             }
         }

@@ -12,7 +12,7 @@ public class DefaultColumnHandler {
 
     public Relation buildRelation(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) {
-        Relation relation = new Relation(Relation.Tipify.VALUE);
+        Relation relation = new Relation(Relation.Typify.VALUE);
         relation.owner = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
         relation.name = columnName;
         Atom column = new Atom(Atom.Tipify.PROPERTY);

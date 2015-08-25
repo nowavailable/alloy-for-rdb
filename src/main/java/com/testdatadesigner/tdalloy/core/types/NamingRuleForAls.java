@@ -5,15 +5,15 @@ import java.util.Map;
 
 public class NamingRuleForAls {
 
-	private static Map<Relation.Tipify, String> quqntifierMap = new HashMap<Relation.Tipify, String>() {
+	private static Map<Relation.Typify, String> quqntifierMap = new HashMap<Relation.Typify, String>() {
 		{
-			put(Relation.Tipify.RELATION, "one");
-			put(Relation.Tipify.RELATION_REFERRED, "some");
-			put(Relation.Tipify.RELATION_POLYMOPHIC, "one");
-			put(Relation.Tipify.ABSTRUCT_RELATION, "one");
-			put(Relation.Tipify.ABSTRUCT_RELATION_REFERRED, "disj some"); // or "disj one" or "disj set"
-			put(Relation.Tipify.ABSTRUCT_RELATION_TYPIFIED, "some");      // or "disj one" or "disj set"
-			put(Relation.Tipify.VALUE, "one");
+			put(Relation.Typify.RELATION, "one");
+			put(Relation.Typify.RELATION_REFERRED, "some");
+			put(Relation.Typify.RELATION_POLYMOPHIC, "one");
+			put(Relation.Typify.ABSTRACT_RELATION, "one");
+			put(Relation.Typify.ABSTRACT_RELATION_REFERRED, "disj some"); // or "disj one" or "disj set"
+			put(Relation.Typify.ABSTRACT_RELATION_TYPIFIED, "some");      // or "disj one" or "disj set"
+			put(Relation.Typify.VALUE, "one");
 		}
 	};
 	

@@ -11,7 +11,7 @@ public class MultipleRelation extends Relation {
     public List<? extends Atom> refToTypes = new ArrayList<>();
     public List<? extends Atom> reverseOfrefToTypes = new ArrayList<>();
 
-    public MultipleRelation(Tipify type) {
+    public MultipleRelation(Typify type) {
         super(type);
     }
 }

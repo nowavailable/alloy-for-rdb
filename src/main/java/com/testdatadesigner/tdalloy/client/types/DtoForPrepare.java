@@ -101,7 +101,8 @@ public class DtoForPrepare {
                             .stream()
                             .filter(rel -> rel.owner.equals(atom)
                                     && rel.type
-                                            .equals(com.testdatadesigner.tdalloy.core.types.Relation.Tipify.RELATION)
+                                            .equals(
+                                                com.testdatadesigner.tdalloy.core.types.Relation.Typify.RELATION)
                                     && !rel.getClass().equals(MultipleRelation.class))
                             .collect(Collectors.toList());
             relsConcrete.forEach(rel -> {

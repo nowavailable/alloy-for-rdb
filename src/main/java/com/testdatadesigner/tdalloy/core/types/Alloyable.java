@@ -105,7 +105,7 @@ public class Alloyable implements Serializable {
                         ColumnDefinitionNode column = columnSearchByName.apply(resultColumn.getName());
                         Matcher matcher = pattern.matcher(column.getType().toString());
                         relations.stream().
-                            filter(rel -> rel.type.equals(Relation.Tipify.RELATION)).collect(Collectors.toList()).
+                            filter(rel -> rel.type.equals(Relation.Typify.RELATION)).collect(Collectors.toList()).
                             get(0).isNotEmpty = matcher.find();
                         this.relations.addAll(relations);
 
@@ -161,7 +161,7 @@ public class Alloyable implements Serializable {
                     ColumnDefinitionNode column = columnSearchByName.apply(keyStr);
                     Matcher matcher = pattern.matcher(column.getType().toString());
                     relations.stream().
-                        filter(rel -> rel.type.equals(Relation.Tipify.RELATION)).collect(Collectors.toList()).
+                        filter(rel -> rel.type.equals(Relation.Typify.RELATION)).collect(Collectors.toList()).
                         get(0).isNotEmpty = matcher.find();
                     this.relations.addAll(relations);
 
@@ -228,7 +228,8 @@ public class Alloyable implements Serializable {
                                         // and fact
                                         this.facts.add(
                                             polymorphicHandler.buildFactForDummies(relation,
-                                                polymophicRelations.stream().filter(rel -> rel.type.equals(Relation.Tipify.RELATION_POLYMOPHIC)).
+                                                polymophicRelations.stream().filter(rel -> rel.type.equals(
+                                                    Relation.Typify.RELATION_POLYMOPHIC)).
                                                     collect(Collectors.toList()).get(0)));
                                     }
                                 }

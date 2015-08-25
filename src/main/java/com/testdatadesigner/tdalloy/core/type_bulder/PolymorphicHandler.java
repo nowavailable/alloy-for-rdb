@@ -27,7 +27,7 @@ public class PolymorphicHandler {
     public Relation buildRelationForDummy(Function<String, Atom> atomSearchByName, String ownerTableName,
             String fKeyColumnStr, String refTableName) throws IllegalAccessException {
         // 参照される側
-		Relation relation = new Relation(Relation.Tipify.ABSTRUCT_RELATION_REFERRED);
+		Relation relation = new Relation(Relation.Typify.ABSTRACT_RELATION_REFERRED);
 		String refTable = refTableName.isEmpty() ? namingRule
 				.tableNameFromFKey(fKeyColumnStr) : refTableName;
         relation.name = namingRule.foreignKeyNameReversed(ownerTableName, refTable);
@@ -48,7 +48,7 @@ public class PolymorphicHandler {
         List<Relation> relList = new ArrayList<>();
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         // 1/9
-        MultipleRelation valueRelation = new MultipleRelation(Relation.Tipify.RELATION_POLYMOPHIC);
+        MultipleRelation valueRelation = new MultipleRelation(Relation.Typify.RELATION_POLYMOPHIC);
         valueRelation.name =
         		NamingRuleForAlloyable.columnRelationName(
                     polymorphicStr + namingRule.polymorphicSuffix(), ownerTableName);
@@ -59,7 +59,7 @@ public class PolymorphicHandler {
 
         // 5/9
         MultipleRelation polymRelationReversed =
-                new MultipleRelation(Relation.Tipify.ABSTRUCT_RELATION);
+                new MultipleRelation(Relation.Typify.ABSTRACT_RELATION);
         polymRelationReversed.name = "refTo_" + NamingRuleForAlloyable.tableAtomName(ownerTableName);
         polymRelationReversed.refTo =
                 atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
@@ -70,7 +70,7 @@ public class PolymorphicHandler {
     }
     
     public Relation buildTypifiedRelation(Atom extendedAtom, Atom dummyAtom) {
-    	Relation relation = new Relation(Relation.Tipify.ABSTRUCT_RELATION_TYPIFIED);
+    	Relation relation = new Relation(Relation.Typify.ABSTRACT_RELATION_TYPIFIED);
     	relation.name = namingRule.tableize(dummyAtom.name);
     	relation.owner = extendedAtom;
     	relation.refTo = dummyAtom;
@@ -81,9 +81,9 @@ public class PolymorphicHandler {
         String leftStr = new String();
         String rightStr = new String();
         for (Relation relation : relations) {
-            if (relation.type.equals(Relation.Tipify.ABSTRUCT_RELATION)) {
+            if (relation.type.equals(Relation.Typify.ABSTRACT_RELATION)) {
                 rightStr = relation.owner.name + "<:" + relation.name;
-            } else if (relation.type.equals(Relation.Tipify.RELATION_POLYMOPHIC)) {
+            } else if (relation.type.equals(Relation.Typify.RELATION_POLYMOPHIC)) {
                 leftStr = relation.owner.name + "<:" + relation.name;
             }
         }
