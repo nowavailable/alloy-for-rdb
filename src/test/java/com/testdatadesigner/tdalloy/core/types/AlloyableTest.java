@@ -70,7 +70,8 @@ public class AlloyableTest extends TestCase {
             System.out.println(result.name 
                     + seperator + result.type.toString()
                     + seperator + (result.owner == null ? "-" : result.owner.name)
-                    + seperator + (result.refTo == null ? "-" : result.refTo.name));
+                    + seperator + (result.refTo == null ? "-" : result.refTo.name)
+                    + seperator + result.isNotEmpty);
             if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
                 ((MultipleRelation) result).refToTypes.forEach(rel -> {
                     System.out.println("                         refTo: " + rel.name);

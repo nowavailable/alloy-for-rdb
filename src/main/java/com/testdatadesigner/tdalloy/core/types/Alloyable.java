@@ -12,6 +12,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.function.Function;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class Alloyable implements Serializable {
@@ -26,57 +28,64 @@ public class Alloyable implements Serializable {
     private DefaultColumnHandler columnHandler = new DefaultColumnHandler();
     private BooleanColumnHandler booleanColumnHandler = new BooleanColumnHandler();
     private PolymorphicHandler polymorphicHandler = new PolymorphicHandler();
-
-    private List<String> skipElementListForColumn = new ArrayList<>();
-    HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
     static final String INTERNAL_SEPARATOR = "_#_";
 
-    /*
-     * TODO: 自動で生成出来ない部分についての情報フィールド
-     */
+    private List<String> postponeListForColumn = new ArrayList<>();
+    private HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
 
-    Function<String, Atom> atomSearchByName = name -> this.atoms.stream()
-            .filter(s -> s.name.equals(name)).collect(Collectors.toList()).get(0);
+    private Function<String, Atom> atomSearchByName = name -> this.atoms.stream()
+        .filter(s -> s.name.equals(name)).collect(Collectors.toList()).get(0);
 
-    IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
+    private IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
 
-    private void addToSkip(String tableName, String keyStr) {
-        skipElementListForColumn.add(tableName + INTERNAL_SEPARATOR + keyStr);
+
+    private void postpone(String tableName, String keyStr) {
+        postponeListForColumn.add(tableName + INTERNAL_SEPARATOR + keyStr);
     }
 
     /**
      * テーブルの処理。 Constraintsに定義されている外部キーによる関連の処理
      * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。 カラムの処理。
      * という順。
-     * 
+     *
      * @param parsedDDLList
      * @return this
      * @throws IllegalAccessException
      */
     public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList)
-            throws IllegalAccessException {
+        throws IllegalAccessException {
         /*
          * テーブルの処理。
          */
+
+        List<ColumnDefinitionNode> allColumns = new ArrayList<>();
+        Function<String, ColumnDefinitionNode> columnSearchByName = name -> allColumns.stream().
+            filter(col -> col.getName().equals(name)).collect(Collectors.toList()).get(0);
+        Pattern pattern = Pattern.compile(" NOT NULL");
+
         for (CreateTableNode tableNode : parsedDDLList) {
 
             this.atoms.add(tableHandler.build(tableNode.getFullName()));
 
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
-                // 外部キーはスキップ対象に。
+                // 外部キーはあとで処理。
                 if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
                     FKConstraintDefinitionNode constraint =
-                            (FKConstraintDefinitionNode) tableElement;
-                    addToSkip(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList()
-                            .get(0)).getName());
+                        (FKConstraintDefinitionNode) tableElement;
+                    postpone(tableNode.getFullName(),
+                        ((ResultColumn) constraint.getColumnList().get(0)).getName());
                 }
-                // プライマリキーはスキップ対象に
-                if (tableElement.getClass().equals(ConstraintDefinitionNode.class)) {
+                // プライマリキーはあとで処理
+                else if (tableElement.getClass().equals(ConstraintDefinitionNode.class)) {
                     ConstraintDefinitionNode constraint = (ConstraintDefinitionNode) tableElement;
                     if (constraint.getConstraintType().equals(ConstraintType.PRIMARY_KEY)) {
-                        addToSkip(tableNode.getFullName(), ((ResultColumn) constraint
-                                .getColumnList().get(0)).getName());
+                        postpone(tableNode.getFullName(),
+                            ((ResultColumn) constraint.getColumnList().get(0)).getName());
                     }
+                }
+                // それ以外のelementをとりあえずぜんぶ保存
+                else if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
+                    allColumns.add((ColumnDefinitionNode)tableElement);
                 }
             }
         }
@@ -87,16 +96,24 @@ public class Alloyable implements Serializable {
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
                     FKConstraintDefinitionNode constraint =
-                            (FKConstraintDefinitionNode) tableElement;
-                    List<Relation> relations =
+                        (FKConstraintDefinitionNode) tableElement;
+                    for (ResultColumn resultColumn : constraint.getColumnList()) {
+                        List<Relation> relations =
                             relationHandler.build(atomSearchByName, tableNode.getFullName(),
-                                    ((ResultColumn) constraint.getColumnList().get(0)).getName(),
-                                    constraint.getRefTableName().getFullTableName());
-                    this.relations.addAll(relations);
-                    this.facts.add(relationHandler.buildFact(relations));
-                    // スキップ対象にadd
-                    addToSkip(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList()
-                            .get(0)).getName());
+                                resultColumn.getName(), constraint.getRefTableName().getFullTableName());
+                        // カラムの制約
+                        ColumnDefinitionNode column = columnSearchByName.apply(resultColumn.getName());
+                        Matcher matcher = pattern.matcher(column.getType().toString());
+                        relations.stream().
+                            filter(rel -> rel.type.equals(Relation.Tipify.RELATION)).collect(Collectors.toList()).
+                            get(0).isNotEmpty = matcher.find();
+                        this.relations.addAll(relations);
+
+                        this.facts.add(relationHandler.buildFact(relations));
+                    }
+                    // あとでさらに処理する。
+                    postpone(tableNode.getFullName(),
+                        ((ResultColumn) constraint.getColumnList().get(0)).getName());
                 }
             }
         }
@@ -121,29 +138,36 @@ public class Alloyable implements Serializable {
             if (!guessedPolymorphicSet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
                 for (String polymorphicStr : guessedPolymorphicSet) {
-                    // スキップ対象にadd
-                    addToSkip(tableNode.getFullName(), polymorphicStr
-                            + namingRule.foreignKeySuffix());
-                    addToSkip(tableNode.getFullName(), polymorphicStr
-                            + namingRule.polymorphicSuffix());
+                    // あとで処理する
+                    postpone(tableNode.getFullName(),
+                        polymorphicStr + namingRule.foreignKeySuffix());
+                    postpone(tableNode.getFullName(),
+                        polymorphicStr + namingRule.polymorphicSuffix());
                 }
             }
             // 外部キー
             if (!guessedForeignKeySet.isEmpty()) {
                 this.isRailsOriented = Boolean.TRUE;
                 for (String keyStr : guessedForeignKeySet) {
-                    // スキップ
-                    if (skipElementListForColumn.contains(tableNode.getFullName()
-                            + INTERNAL_SEPARATOR + keyStr)) {
+                    // あとで処理するぶんはスキップ
+                    if (postponeListForColumn.contains(tableNode.getFullName()
+                        + INTERNAL_SEPARATOR + keyStr)) {
                         continue;
                     }
                     List<Relation> relations =
-                            relationHandler.build(atomSearchByName, tableNode.getFullName(), keyStr,
-                                    String.valueOf(""));
+                        relationHandler.build(atomSearchByName, tableNode.getFullName(), keyStr,
+                            String.valueOf(""));
+                    // カラムの制約
+                    ColumnDefinitionNode column = columnSearchByName.apply(keyStr);
+                    Matcher matcher = pattern.matcher(column.getType().toString());
+                    relations.stream().
+                        filter(rel -> rel.type.equals(Relation.Tipify.RELATION)).collect(Collectors.toList()).
+                        get(0).isNotEmpty = matcher.find();
                     this.relations.addAll(relations);
+
                     this.facts.add(relationHandler.buildFact(relations));
-                    // スキップ対象にadd
-                    addToSkip(tableNode.getFullName(), keyStr);
+                    // あとでさらに処理する。
+                    postpone(tableNode.getFullName(), keyStr);
                 }
             }
         }
@@ -162,7 +186,7 @@ public class Alloyable implements Serializable {
                     /*
                      * ポリモーフィック関連
                      */
-                    if (skipElementListForColumn.contains(tableNode.getFullName()
+                    if (postponeListForColumn.contains(tableNode.getFullName()
                         + INTERNAL_SEPARATOR + column.getName())) {
                         if (namingRule.isGuessedPolymorphic(column.getName(),
                             allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
@@ -186,14 +210,14 @@ public class Alloyable implements Serializable {
                                     List<Atom> dummies = polymorphicHandler.buildDummies(dummySigCount);
                                     this.atoms.addAll(dummies);
 
-                                    dummySigCount = dummySigCount + 2;
-                                    
+                                    dummySigCount = dummySigCount + dummies.size();
+
                                     // their dummy columns
                                     for (Atom dummyAtom : dummies) {
                                         Relation relation =
-                                        		polymorphicHandler.buildRelationForDummy(atomSearchByName, dummyAtom.originPropertyName, 
-                                        				namingRule.fkeyFromTableName(polymAbstructAtom.getParent().originPropertyName),
-                                        				polymAbstructAtom.getParent().originPropertyName);
+                                            polymorphicHandler.buildRelationForDummy(atomSearchByName, dummyAtom.originPropertyName,
+                                                namingRule.fkeyFromTableName(polymAbstructAtom.getParent().originPropertyName),
+                                                polymAbstructAtom.getParent().originPropertyName);
                                         this.relations.add(relation);
                                         // extend sig
                                         Atom polymImplAtom = polymorphicHandler.buildDummyExtend(polymorphicStr, dummyAtom, polymAbstructAtom);
@@ -203,10 +227,10 @@ public class Alloyable implements Serializable {
                                         this.relations.add(polymRelation);
                                         // and fact
                                         this.facts.add(
-                                        		polymorphicHandler.buildFactForDummies(relation, 
-                                        				polymophicRelations.stream().filter(rel -> rel.type.equals(Relation.Tipify.RELATION_POLYMOPHIC)).
-                                        				collect(Collectors.toList()).get(0)));
-    								}
+                                            polymorphicHandler.buildFactForDummies(relation,
+                                                polymophicRelations.stream().filter(rel -> rel.type.equals(Relation.Tipify.RELATION_POLYMOPHIC)).
+                                                    collect(Collectors.toList()).get(0)));
+                                    }
                                 }
                                 buildPolymRelationCount++;
                             }
@@ -216,13 +240,18 @@ public class Alloyable implements Serializable {
                     /*
                      * その他ふつうのカラム
                      */
+                    Relation relation = null;
                     if (column.getType().getSQLstring().equals("TINYINT")) {
-                        this.relations.add(booleanColumnHandler.build(atomSearchByName,
-                            tableNode.getFullName(), column.getName()));
+                        relation = booleanColumnHandler
+                            .build(atomSearchByName, tableNode.getFullName(), column.getName());
                     } else {
-                        this.relations.add(columnHandler.buildRelation(atomSearchByName,
-                            tableNode.getFullName(), column.getName()));
+                        relation = columnHandler.buildRelation(atomSearchByName,
+                            tableNode.getFullName(), column.getName());
                     }
+                    // カラムの制約
+                    Matcher matcher = pattern.matcher(column.getType().toString());
+                    relation.isNotEmpty = matcher.find();
+                    this.relations.add(relation);
                 }
             }
         }
@@ -263,8 +292,8 @@ public class Alloyable implements Serializable {
                 sigStrBuff.append(sigStr);
                 sigStrBuff.append(atom.name);
                 if (atom.getExtended() != null) {
-                	sigStrBuff.append(" extends ");
-                	sigStrBuff.append(atom.getExtended().name);
+                    sigStrBuff.append(" extends ");
+                    sigStrBuff.append(atom.getExtended().name);
                 }
                 sigStrBuff.append(" {");
                 sigStrBuff.append("\n");

@@ -28,6 +28,9 @@ public class Relation implements Serializable {
     // public String originPropertyName;
     public Boolean ignore = Boolean.FALSE;
 
+    public Boolean isNotEmpty = Boolean.FALSE;
+    public Boolean isUnique = Boolean.FALSE;
+
 
     public Relation() {
         super();
