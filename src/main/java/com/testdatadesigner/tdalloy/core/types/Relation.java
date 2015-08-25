@@ -12,7 +12,7 @@ public class Relation implements Serializable {
         //VALUE_REVERSED,             // カラム値の側から候補キーを見た関係
         RELATION,                   // テーブルリレーション
         RELATION_REFERRED,          // 外部キーを持たれる側から見たテーブルリレーション,
-        RELATION_POLYMOPHIC,        // ポリモーフィック関連のための文字列カラムを表現
+        RELATION_POLYMORPHIC,       // ポリモーフィック関連のための文字列カラムを表現
         // TODO: ポリモーフィック関連のための外部キーカラムは？als上では必要ないんだが。。。
         ABSTRACT_RELATION,          // 便宜上想定した実在しないテーブルリレーション。ポリモーフィック関連などで使用。
         ABSTRACT_RELATION_REFERRED, // 前記の逆

@@ -9,7 +9,7 @@ public class NamingRuleForAls {
 		{
 			put(Relation.Typify.RELATION, "one");
 			put(Relation.Typify.RELATION_REFERRED, "some");
-			put(Relation.Typify.RELATION_POLYMOPHIC, "one");
+			put(Relation.Typify.RELATION_POLYMORPHIC, "one");
 			put(Relation.Typify.ABSTRACT_RELATION, "one");
 			put(Relation.Typify.ABSTRACT_RELATION_REFERRED, "disj some"); // or "disj one" or "disj set"
 			put(Relation.Typify.ABSTRACT_RELATION_TYPIFIED, "some");      // or "disj one" or "disj set"

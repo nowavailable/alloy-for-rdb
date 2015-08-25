@@ -48,7 +48,7 @@ public class PolymorphicHandler {
         List<Relation> relList = new ArrayList<>();
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         // 1/9
-        MultipleRelation valueRelation = new MultipleRelation(Relation.Typify.RELATION_POLYMOPHIC);
+        MultipleRelation valueRelation = new MultipleRelation(Relation.Typify.RELATION_POLYMORPHIC);
         valueRelation.name =
         		NamingRuleForAlloyable.columnRelationName(
                     polymorphicStr + namingRule.polymorphicSuffix(), ownerTableName);
@@ -83,7 +83,7 @@ public class PolymorphicHandler {
         for (Relation relation : relations) {
             if (relation.type.equals(Relation.Typify.ABSTRACT_RELATION)) {
                 rightStr = relation.owner.name + "<:" + relation.name;
-            } else if (relation.type.equals(Relation.Typify.RELATION_POLYMOPHIC)) {
+            } else if (relation.type.equals(Relation.Typify.RELATION_POLYMORPHIC)) {
                 leftStr = relation.owner.name + "<:" + relation.name;
             }
         }

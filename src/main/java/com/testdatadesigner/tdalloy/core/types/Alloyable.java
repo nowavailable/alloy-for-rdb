@@ -229,7 +229,7 @@ public class Alloyable implements Serializable {
                                         this.facts.add(
                                             polymorphicHandler.buildFactForDummies(relation,
                                                 polymophicRelations.stream().filter(rel -> rel.type.equals(
-                                                    Relation.Typify.RELATION_POLYMOPHIC)).
+                                                    Relation.Typify.RELATION_POLYMORPHIC)).
                                                     collect(Collectors.toList()).get(0)));
                                     }
                                 }
