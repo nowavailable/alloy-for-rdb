@@ -1,7 +1,13 @@
 package com.testdatadesigner.tdalloy.core.types;
 
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
@@ -13,8 +19,8 @@ import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
-
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
+
 import junit.framework.TestCase;
 
 public class AlloyableTest extends TestCase {
@@ -106,7 +112,12 @@ public class AlloyableTest extends TestCase {
     public void testOutputToAls() throws Exception {
         this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
         File outputToAls = this.currentAlloyable.outputToAls();
-        System.out.println(outputToAls.getAbsolutePath());
+        try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(outputToAls), "UTF-8"))){
+        	String line = null;
+            while ((line = reader.readLine()) != null) {
+            	System.out.println(line);
+            }
+        }
     }
 
 }
