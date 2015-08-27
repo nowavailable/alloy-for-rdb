@@ -26,9 +26,8 @@ public class Relation implements Serializable {
     public Atom owner;
     public Boolean ignore = Boolean.FALSE;
 
-    public Boolean isNotEmpty = Boolean.FALSE;
+    public Boolean isNotEmpty = null;  //Boolean.FALSE
     public Boolean isUnique = Boolean.FALSE;
-    public Boolean isOneToOne = Boolean.FALSE;
 
 
     public Relation() {

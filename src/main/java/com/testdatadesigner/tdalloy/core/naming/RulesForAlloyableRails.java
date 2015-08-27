@@ -22,16 +22,16 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
 
 
     public String foreignKeySuffix() {
-    	return FOREIGN_KEY_SUFFIX;
+        return FOREIGN_KEY_SUFFIX;
     }
     public String polymorphicSuffix() {
-    	return POLYMORPHIC_SUFFIX;
+        return POLYMORPHIC_SUFFIX;
     }
     public String coupler() {
-    	return COUPLER;
+        return COUPLER;
     }
     public String columnAtomPrefix() {
-    	return COLUMN_ATOM_PREFIX;
+        return COLUMN_ATOM_PREFIX;
     }
     
     public String singularize(String originalTableName) {
@@ -39,7 +39,7 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
     }
     
     public String tableize(String atomName) {
-    	return inflector.pluralize(inflector.underscore(atomName));
+        return inflector.pluralize(inflector.underscore(atomName));
     }
 
     public String reverse(String atomName) {
@@ -98,7 +98,7 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
     }
     
     public String fkeyFromTableName(String refTableName) throws IllegalAccessException {
-    	return inflector.singularize(refTableName) + FOREIGN_KEY_SUFFIX;
+        return inflector.singularize(refTableName) + FOREIGN_KEY_SUFFIX;
     }
 
     public String foreignKeyName(String originalColumnName, String originalTableName) {

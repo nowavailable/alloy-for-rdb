@@ -12,8 +12,8 @@ public class Env {
 
     public String generateUserId() {
         // TODO: generate or get
-    	// セッションへのInterFaceをプロパティとして保持
-    	// セッションはSingleton
+        // セッションへのInterFaceをプロパティとして保持
+        // セッションはSingleton
         return null;
     }
 
@@ -23,7 +23,7 @@ public class Env {
 
     public static Properties getProperties() {
         // TODO:
-    	Properties systemProp = System.getProperties();
+        Properties systemProp = System.getProperties();
         return systemProp;
     }
 }

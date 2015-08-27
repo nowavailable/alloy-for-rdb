@@ -52,7 +52,8 @@ public class AlloyableTest extends TestCase {
                     + seperator
                     + result.type.toString()
                     + seperator
-                    + result.originPropertyName
+                    + (result.originPropertyName.isEmpty() ? "-"
+                            : result.originPropertyName)
                     + seperator
                     + result.isAbstruct.toString()
                     + seperator
@@ -107,9 +108,9 @@ public class AlloyableTest extends TestCase {
         this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
         File outputToAls = this.currentAlloyable.outputToAls();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(outputToAls), "UTF-8"))){
-        	String line = null;
+            String line = null;
             while ((line = reader.readLine()) != null) {
-            	System.out.println(line);
+                System.out.println(line);
             }
         }
     }

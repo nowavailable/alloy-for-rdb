@@ -15,7 +15,7 @@ import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
 
 public class PolymorphicHandler {
-	IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
+    IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
 
     public List<Atom> buildDummies(Integer getNamingSeq) {
         // ダミー作成
@@ -27,9 +27,9 @@ public class PolymorphicHandler {
     public Relation buildRelationForDummy(Function<String, Atom> atomSearchByName, String ownerTableName,
             String fKeyColumnStr, String refTableName) throws IllegalAccessException {
         // 参照される側
-		Relation relation = new Relation(Relation.Typify.ABSTRACT_RELATION_REFERRED);
-		String refTable = refTableName.isEmpty() ? namingRule
-				.tableNameFromFKey(fKeyColumnStr) : refTableName;
+        Relation relation = new Relation(Relation.Typify.ABSTRACT_RELATION_REFERRED);
+        String refTable = refTableName.isEmpty() ? namingRule
+                .tableNameFromFKey(fKeyColumnStr) : refTableName;
         relation.name = namingRule.foreignKeyNameReversed(ownerTableName, refTable);
         //relation.name = namingRule.foreignKeyName(fKeyColumnStr, ownerTableName);
         relation.owner = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
@@ -39,7 +39,7 @@ public class PolymorphicHandler {
     }
     
     public Atom buildDummyExtend(String polymorphicStr, Atom dummyAtom, Atom abstructAtom) throws IllegalAccessException {
-    	return new PseudoAtom(NamingRuleForAlloyable.polymorphicImplAtomName(polymorphicStr, dummyAtom.name), abstructAtom);
+        return new PseudoAtom(NamingRuleForAlloyable.polymorphicImplAtomName(polymorphicStr, dummyAtom.name), abstructAtom);
     }
 
     public List<Relation> buildRelation(Function<String, Atom> atomSearchByName,
@@ -50,7 +50,7 @@ public class PolymorphicHandler {
         // 1/9
         MultipleRelation valueRelation = new MultipleRelation(Relation.Typify.RELATION_POLYMORPHIC);
         valueRelation.name =
-        		NamingRuleForAlloyable.columnRelationName(
+                NamingRuleForAlloyable.columnRelationName(
                     polymorphicStr + namingRule.polymorphicSuffix(), ownerTableName);
         valueRelation.owner = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
         //valueRelation.refToTypes = refToAtoms;
@@ -70,11 +70,11 @@ public class PolymorphicHandler {
     }
     
     public Relation buildTypifiedRelation(Atom extendedAtom, Atom dummyAtom) {
-    	Relation relation = new Relation(Relation.Typify.ABSTRACT_RELATION_TYPIFIED);
-    	relation.name = namingRule.tableize(dummyAtom.name);
-    	relation.owner = extendedAtom;
-    	relation.refTo = dummyAtom;
-		return relation;
+        Relation relation = new Relation(Relation.Typify.ABSTRACT_RELATION_TYPIFIED);
+        relation.name = namingRule.tableize(dummyAtom.name);
+        relation.owner = extendedAtom;
+        relation.refTo = dummyAtom;
+        return relation;
     }
 
     public Fact buildFactBase(List<Relation> relations) {

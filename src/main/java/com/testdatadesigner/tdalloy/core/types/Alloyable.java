@@ -15,6 +15,7 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Alloyable implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -61,7 +62,7 @@ public class Alloyable implements Serializable {
         List<ColumnDefinitionNode> allColumns = new ArrayList<>();
         Function<String, ColumnDefinitionNode> columnSearchByName = name -> allColumns.stream().
             filter(col -> col.getName().equals(name)).collect(Collectors.toList()).get(0);
-        Pattern pattern = Pattern.compile(" NOT NULL");
+        Pattern isNotNullPattern = Pattern.compile(" NOT NULL");
 
         for (CreateTableNode tableNode : parsedDDLList) {
 
@@ -103,7 +104,7 @@ public class Alloyable implements Serializable {
                                 resultColumn.getName(), constraint.getRefTableName().getFullTableName());
                         // カラムの制約
                         ColumnDefinitionNode column = columnSearchByName.apply(resultColumn.getName());
-                        Matcher matcher = pattern.matcher(column.getType().toString());
+                        Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
                         relations.stream().
                             filter(rel -> rel.type.equals(Relation.Typify.RELATION)).collect(Collectors.toList()).
                             get(0).isNotEmpty = matcher.find();
@@ -117,7 +118,6 @@ public class Alloyable implements Serializable {
                 }
             }
         }
-
         /*
          * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。
          */
@@ -159,7 +159,7 @@ public class Alloyable implements Serializable {
                             String.valueOf(""));
                     // カラムの制約
                     ColumnDefinitionNode column = columnSearchByName.apply(keyStr);
-                    Matcher matcher = pattern.matcher(column.getType().toString());
+                    Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
                     relations.stream().
                         filter(rel -> rel.type.equals(Relation.Typify.RELATION)).collect(Collectors.toList()).
                         get(0).isNotEmpty = matcher.find();
@@ -171,7 +171,18 @@ public class Alloyable implements Serializable {
                 }
             }
         }
-
+        /*
+         * 関連のisNotNullを、その参照先に反映。
+         */
+        for (Relation relation : this.relations) {
+            if (relation.type.equals(Relation.Typify.RELATION)) {
+                this.relations.stream()
+                    .filter(rel -> rel.type.equals(Relation.Typify.RELATION_REFERRED))
+                    .filter(rel -> rel.owner.name.equals(relation.refTo.name))
+                    .collect(Collectors.toList())
+                    .forEach(rel ->rel.isNotEmpty = relation.isNotEmpty);
+            }
+        }
         /*
          * カラムの処理（含 ポリモーフィックの、typeのほうの、sig化）。
          */
@@ -199,8 +210,20 @@ public class Alloyable implements Serializable {
                             // as fields
                             if (buildPolymRelationCount == 0) {
                                 for (String polymorphicStr : allInferencedPolymorphicSet.get(tableNode.getFullName())) {
+                                      Boolean isNotEmptyPolymorphicColumn = false;
                                     List<Relation> polymophicRelations =
                                         polymorphicHandler.buildRelation(atomSearchByName, polymorphicStr, tableNode.getFullName(), polymAbstructAtom);
+                                    for (Relation relation : polymophicRelations) {
+                                                            if (relation.type.equals(Relation.Typify.RELATION_POLYMORPHIC)) {
+                                            // カラムの制約
+                                            ColumnDefinitionNode c = columnSearchByName.apply(polymorphicStr + namingRule.polymorphicSuffix());
+                                            Matcher matcher = isNotNullPattern.matcher(c.getType().toString());
+                                            isNotEmptyPolymorphicColumn = matcher.find();
+                                            relation.isNotEmpty = isNotEmptyPolymorphicColumn;
+                                        } else if (relation.type.equals(Relation.Typify.ABSTRACT_RELATION)) {
+                                            relation.isNotEmpty = true;
+                                        }
+                                    }
                                     this.relations.addAll(polymophicRelations);
 
                                     // as basic fact
@@ -218,12 +241,15 @@ public class Alloyable implements Serializable {
                                             polymorphicHandler.buildRelationForDummy(atomSearchByName, dummyAtom.originPropertyName,
                                                 namingRule.fkeyFromTableName(polymAbstructAtom.getParent().originPropertyName),
                                                 polymAbstructAtom.getParent().originPropertyName);
+                                        // カラムの制約
+                                        relation.isNotEmpty = isNotEmptyPolymorphicColumn;
                                         this.relations.add(relation);
                                         // extend sig
                                         Atom polymImplAtom = polymorphicHandler.buildDummyExtend(polymorphicStr, dummyAtom, polymAbstructAtom);
                                         this.atoms.add(polymImplAtom);
                                         // and their field
                                         Relation polymRelation = polymorphicHandler.buildTypifiedRelation(polymImplAtom, dummyAtom);
+                                        polymRelation.isNotEmpty = true;
                                         this.relations.add(polymRelation);
                                         // and fact
                                         this.facts.add(
@@ -250,7 +276,7 @@ public class Alloyable implements Serializable {
                             tableNode.getFullName(), column.getName());
                     }
                     // カラムの制約
-                    Matcher matcher = pattern.matcher(column.getType().toString());
+                    Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
                     relation.isNotEmpty = matcher.find();
                     this.relations.add(relation);
                 }
@@ -298,13 +324,13 @@ public class Alloyable implements Serializable {
                 }
                 sigStrBuff.append(" {");
                 sigStrBuff.append("\n");
-            	/*
-            	 * それを参照しているRELATIONを探してfieldにする。
-            	 */
+                /*
+                 * それを参照しているRELATIONを探してfieldにする。
+                 */
                 List<Relation> relations = atomSearchByRelationOwner.apply(atom);
                 List<String> fields = new ArrayList<String>();
                 for (Relation relation : relations) {
-                    fields.add(relation.name + ": " + ruleForAls.searchQuantifierMap(relation) + " " + relation.refTo.name);
+                    fields.add(relation.name + ": " + ruleForAls.searchQuantifierMap(relation, this.relations) + " " + relation.refTo.name);
                 }
                 sigStrBuff.append(indent);
                 sigStrBuff.append(Joiner.on(",\n" + indent).join(fields));

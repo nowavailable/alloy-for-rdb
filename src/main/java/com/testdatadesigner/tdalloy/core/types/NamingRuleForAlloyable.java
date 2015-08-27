@@ -14,7 +14,7 @@ public class NamingRuleForAlloyable {
     public static String tableAtomNameFromFKey(String originalColumnName)
             throws IllegalAccessException {
         Inflector inflector = Inflector.getInstance();
-    	IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
+        IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         return inflector.upperCamelCase(inflector
                 .singularize(namingRule.tableNameFromFKey(originalColumnName)));
     }
