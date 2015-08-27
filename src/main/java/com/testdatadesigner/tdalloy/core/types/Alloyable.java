@@ -15,7 +15,6 @@ import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 public class Alloyable implements Serializable {
     private static final long serialVersionUID = 1L;
