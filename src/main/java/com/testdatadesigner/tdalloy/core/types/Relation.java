@@ -24,12 +24,11 @@ public class Relation implements Serializable {
 
     public Atom refTo;
     public Atom owner;
-    // public String originOwner; // dbスキーマ上の親（テーブル名）
-    // public String originPropertyName;
     public Boolean ignore = Boolean.FALSE;
 
     public Boolean isNotEmpty = Boolean.FALSE;
     public Boolean isUnique = Boolean.FALSE;
+    public Boolean isOneToOne = Boolean.FALSE;
 
 
     public Relation() {
