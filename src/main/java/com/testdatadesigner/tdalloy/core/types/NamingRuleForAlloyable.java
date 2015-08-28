@@ -33,9 +33,9 @@ public class NamingRuleForAlloyable {
         return inflector.lowerCamelCase(originalColumnName);
     }
 
-    public static String polymorphicAbstractAtomName(String polymorphicStr, String parentAtomName) {
+    public static String polymorphicAbstractAtomName(String polymorphicColumnStr, String originalTableName) {
         Inflector inflector = Inflector.getInstance();
-        return inflector.upperCamelCase(polymorphicStr) + parentAtomName;
+        return tableAtomName(originalTableName) + '_' + inflector.upperCamelCase(polymorphicColumnStr);
     }
 
     public static String polymorphicImplAtomName(String polymorphicStr, String refToAtomName) {

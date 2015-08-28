@@ -2,8 +2,6 @@ package com.testdatadesigner.tdalloy.core.type_bulder;
 
 import java.util.function.Function;
 
-import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
-import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
@@ -24,7 +22,6 @@ public class DefaultColumnHandler {
     public Atom buildAtom(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
         Atom colomnAtom = new Atom(Atom.Tipify.PROPERTY);
-        IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         colomnAtom.originPropertyName = columnName;
         colomnAtom.name = NamingRuleForAlloyable.columnAtomName(columnName, ownerTableName);
         colomnAtom.setParent(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
@@ -34,6 +31,7 @@ public class DefaultColumnHandler {
     public Atom buildAtomPolymorphicAbstract(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
         Atom colomnAtom = buildAtom(atomSearchByName, ownerTableName, columnName);
+        colomnAtom.name = NamingRuleForAlloyable.polymorphicAbstractAtomName(columnName, ownerTableName);
         colomnAtom.type = Atom.Tipify.POLYMORPHIC_ABSTRACT;
         return colomnAtom;
     }
