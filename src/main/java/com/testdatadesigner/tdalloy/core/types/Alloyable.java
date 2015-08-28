@@ -142,9 +142,10 @@ public class Alloyable implements Serializable {
                 for (String polymorphicStr : guessedPolymorphicSet) {
                     // あとで処理する
                     postpone(tableNode.getFullName(),
-                        polymorphicStr + namingRule.foreignKeySuffix());
-                    postpone(tableNode.getFullName(),
-                        polymorphicStr + namingRule.polymorphicSuffix());
+                            polymorphicStr + namingRule.polymorphicSuffix());
+                    // ※ポリモーフィック関連用の、xxx_id は、とりえあず使わない。
+                    //postpone(tableNode.getFullName(),
+                    //    polymorphicStr + namingRule.foreignKeySuffix());
                 }
             }
             // 外部キー
