@@ -32,9 +32,8 @@ public class PolymorphicHandler {
                 .tableNameFromFKey(fKeyColumnStr) : refTableName;
         relation.name = namingRule.foreignKeyNameReversed(ownerTableName, refTable);
         //relation.name = namingRule.foreignKeyName(fKeyColumnStr, ownerTableName);
-        relation.owner = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
-        relation.refTo =
-                atomSearchByName.apply(NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStr));
+        relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
+        relation.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStr)));
         return relation;
     }
     
@@ -52,19 +51,18 @@ public class PolymorphicHandler {
         valueRelation.name =
                 NamingRuleForAlloyable.columnRelationName(
                     polymorphicStr + namingRule.polymorphicSuffix(), ownerTableName);
-        valueRelation.owner = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
+        valueRelation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         //valueRelation.refToTypes = refToAtoms;
-        valueRelation.refTo = polymAbstructAtom;
+        valueRelation.setRefTo(polymAbstructAtom);
         relList.add(valueRelation);
 
         // 5/9
         MultipleRelation polymRelationReversed =
                 new MultipleRelation(Relation.Typify.ABSTRACT_RELATION);
         polymRelationReversed.name = "refTo_" + NamingRuleForAlloyable.tableAtomName(ownerTableName);
-        polymRelationReversed.refTo =
-                atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
+        polymRelationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         //polymRelationReversed.reverseOfrefToTypes = refToAtoms;
-        polymRelationReversed.owner = polymAbstructAtom;
+        polymRelationReversed.setOwner(polymAbstructAtom);
         relList.add(polymRelationReversed);
         return relList;
     }
@@ -72,8 +70,8 @@ public class PolymorphicHandler {
     public Relation buildTypifiedRelation(Atom extendedAtom, Atom dummyAtom) {
         Relation relation = new Relation(Relation.Typify.ABSTRACT_RELATION_TYPIFIED);
         relation.name = namingRule.tableize(dummyAtom.name);
-        relation.owner = extendedAtom;
-        relation.refTo = dummyAtom;
+        relation.setOwner(extendedAtom);
+        relation.setRefTo(dummyAtom);
         return relation;
     }
 
@@ -82,9 +80,9 @@ public class PolymorphicHandler {
         String rightStr = new String();
         for (Relation relation : relations) {
             if (relation.type.equals(Relation.Typify.ABSTRACT_RELATION)) {
-                rightStr = relation.owner.name + "<:" + relation.name;
+                rightStr = relation.getOwner().name + "<:" + relation.name;
             } else if (relation.type.equals(Relation.Typify.RELATION_POLYMORPHIC)) {
-                leftStr = relation.owner.name + "<:" + relation.name;
+                leftStr = relation.getOwner().name + "<:" + relation.name;
             }
         }
         Fact fact = new Fact(Fact.Tipify.RELATION);
@@ -94,8 +92,8 @@ public class PolymorphicHandler {
     }
 
     public Fact buildFactForDummies(Relation dummyRelation, Relation parentRelation) {
-        String leftStr = dummyRelation.owner.name + "<:" + dummyRelation.name;
-        String rightStr = parentRelation.owner.name + "<:" + parentRelation.name + "." + namingRule.tableize(dummyRelation.owner.name);
+        String leftStr = dummyRelation.getOwner().name + "<:" + dummyRelation.name;
+        String rightStr = parentRelation.getOwner().name + "<:" + parentRelation.name + "." + namingRule.tableize(dummyRelation.getOwner().name);
         Fact fact = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);
         fact.value = leftStr + " = ~(" + rightStr + ")";
         fact.owners.add(dummyRelation);

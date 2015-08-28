@@ -33,8 +33,11 @@ public class Alloyable implements Serializable {
     private List<String> postponeListForColumn = new ArrayList<>();
     private HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
 
-    private Function<String, Atom> atomSearchByName = name -> this.atoms.stream()
-        .filter(s -> s.name.equals(name)).collect(Collectors.toList()).get(0);
+	private Function<String, Atom> atomSearchByName = name -> {
+		List<Atom> arr = this.atoms.stream().filter(s -> s.name.equals(name))
+				.collect(Collectors.toList());
+		return arr.isEmpty() ? null : arr.get(0);
+	};
 
     private IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
 
@@ -153,31 +156,38 @@ public class Alloyable implements Serializable {
                         + INTERNAL_SEPARATOR + keyStr)) {
                         continue;
                     }
+                    // ※解析失敗したら、単なる値カラムとして扱う。
                     List<Relation> relations =
                         relationHandler.build(atomSearchByName, tableNode.getFullName(), keyStr,
                             String.valueOf(""));
                     // カラムの制約
                     ColumnDefinitionNode column = columnSearchByName.apply(keyStr);
                     Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
-                    relations.stream().
-                        filter(rel -> rel.type.equals(Relation.Typify.RELATION)).collect(Collectors.toList()).
-                        get(0).isNotEmpty = matcher.find();
+                    List<Relation> rels = relations.stream().
+                        filter(rel -> rel.type.equals(Relation.Typify.RELATION)).collect(Collectors.toList());
+                    if (!rels.isEmpty()) {
+                    	rels.get(0).isNotEmpty = matcher.find();
+                    }
                     this.relations.addAll(relations);
 
-                    this.facts.add(relationHandler.buildFact(relations));
+                    List<Relation> collects = relations.stream().filter(rel -> !rel.type.equals(Relation.Typify.VALUE)).collect(Collectors.toList());
+                    if (!collects.isEmpty()) {
+                    	this.facts.add(relationHandler.buildFact(relations.stream().filter(rel -> !rel.type.equals(Relation.Typify.VALUE)).collect(Collectors.toList())));
+                    }
+                    
                     // あとでさらに処理する。
                     postpone(tableNode.getFullName(), keyStr);
                 }
             }
         }
         /*
-         * 関連のisNotNullを、その参照先に反映。
+         * 外部キーのisNotNullを、その参照先に反映させる。
          */
         for (Relation relation : this.relations) {
             if (relation.type.equals(Relation.Typify.RELATION)) {
                 this.relations.stream()
                     .filter(rel -> rel.type.equals(Relation.Typify.RELATION_REFERRED))
-                    .filter(rel -> rel.owner.name.equals(relation.refTo.name))
+                    .filter(rel -> rel.getOwner().name.equals(relation.getRefTo().name))
                     .collect(Collectors.toList())
                     .forEach(rel ->rel.isNotEmpty = relation.isNotEmpty);
             }
@@ -185,10 +195,10 @@ public class Alloyable implements Serializable {
         /*
          * カラムの処理（含 ポリモーフィックの、typeのほうの、sig化）。
          */
+        int dummySigCount = 0;
         for (CreateTableNode tableNode : parsedDDLList) {
             // for polymorphic relations
             int buildPolymRelationCount = 0;
-            int dummySigCount = 0;
 
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
@@ -213,7 +223,7 @@ public class Alloyable implements Serializable {
                                     List<Relation> polymophicRelations =
                                         polymorphicHandler.buildRelation(atomSearchByName, polymorphicStr, tableNode.getFullName(), polymAbstructAtom);
                                     for (Relation relation : polymophicRelations) {
-                                                            if (relation.type.equals(Relation.Typify.RELATION_POLYMORPHIC)) {
+                                        if (relation.type.equals(Relation.Typify.RELATION_POLYMORPHIC)) {
                                             // カラムの制約
                                             ColumnDefinitionNode c = columnSearchByName.apply(polymorphicStr + namingRule.polymorphicSuffix());
                                             Matcher matcher = isNotNullPattern.matcher(c.getType().toString());
@@ -297,7 +307,7 @@ public class Alloyable implements Serializable {
         NamingRuleForAls ruleForAls = new NamingRuleForAls();
 
         Function<Atom, List<Relation>> atomSearchByRelationOwner = atom -> this.relations.stream()
-            .filter(rel -> rel.owner.name.equals(atom.name)).collect(Collectors.toList());
+            .filter(rel -> rel.getOwner().name.equals(atom.name)).collect(Collectors.toList());
 
         String indent = "  ";
         try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFile), "UTF-8"))){
@@ -329,7 +339,7 @@ public class Alloyable implements Serializable {
                 List<Relation> relations = atomSearchByRelationOwner.apply(atom);
                 List<String> fields = new ArrayList<String>();
                 for (Relation relation : relations) {
-                    fields.add(relation.name + ": " + ruleForAls.searchQuantifierMap(relation, this.relations) + " " + relation.refTo.name);
+                    fields.add(relation.name + ": " + ruleForAls.searchQuantifierMap(relation, this.relations) + " " + relation.getRefTo().name);
                 }
                 sigStrBuff.append(indent);
                 sigStrBuff.append(Joiner.on(",\n" + indent).join(fields));

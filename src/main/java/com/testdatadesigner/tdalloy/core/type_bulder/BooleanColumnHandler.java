@@ -11,12 +11,12 @@ public class BooleanColumnHandler {
     public Relation build(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) {
         Relation relation = new Relation(Relation.Typify.VALUE);
-        relation.owner = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
+        relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         //relation.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
         relation.name = columnName;
         Atom boolenValue = new Atom(Atom.Tipify.BOOLEAN_FACTOR);
         boolenValue.name = "Bool";
-        relation.refTo = boolenValue;
+        relation.setRefTo(boolenValue);
         return relation;
     }
 }

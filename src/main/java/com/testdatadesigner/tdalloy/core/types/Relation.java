@@ -22,8 +22,8 @@ public class Relation implements Serializable {
         //ON_STATE,
     }
 
-    public Atom refTo;
-    public Atom owner;
+    private Atom refTo;
+    private Atom owner;
     public Boolean ignore = Boolean.FALSE;
 
     public Boolean isNotEmpty = null;  //Boolean.FALSE
@@ -38,4 +38,20 @@ public class Relation implements Serializable {
         super();
         this.type = type;
     }
+
+	public Atom getRefTo() {
+		return refTo != null ? refTo : new Atom();
+	}
+
+	public void setRefTo(Atom refTo) {
+		this.refTo = refTo;
+	}
+
+	public Atom getOwner() {
+		return owner != null ? owner : new Atom();
+	}
+
+	public void setOwner(Atom owner) {
+		this.owner = owner;
+	}
 }

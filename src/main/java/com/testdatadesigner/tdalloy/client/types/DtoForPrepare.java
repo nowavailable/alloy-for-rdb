@@ -99,7 +99,7 @@ public class DtoForPrepare {
             List<? extends com.testdatadesigner.tdalloy.core.types.Relation> relsConcrete =
                     alloyable.relations
                             .stream()
-                            .filter(rel -> rel.owner.equals(atom)
+                            .filter(rel -> rel.getOwner().equals(atom)
                                     && rel.type
                                             .equals(
                                                 com.testdatadesigner.tdalloy.core.types.Relation.Typify.RELATION)
@@ -107,11 +107,11 @@ public class DtoForPrepare {
                             .collect(Collectors.toList());
             relsConcrete.forEach(rel -> {
                 Column column = this.constructColumn();
-                column.name = RulesForAlloyableFactory.getInstance().getRule().singularize(rel.refTo.originPropertyName)
+                column.name = RulesForAlloyableFactory.getInstance().getRule().singularize(rel.getRefTo().originPropertyName)
                                 + RulesForAlloyableFactory.getInstance().getRule().foreignKeySuffix();
                 column.relation = this.constructRelation();
                 column.relation.type = RelationType.MANY_TO_ONE;
-                column.relation.refTo.add(rel.refTo.originPropertyName);
+                column.relation.refTo.add(rel.getRefTo().originPropertyName);
                 table.columns.add(column);
             });
 
