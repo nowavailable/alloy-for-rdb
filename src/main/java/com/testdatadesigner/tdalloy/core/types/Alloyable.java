@@ -62,8 +62,10 @@ public class Alloyable implements Serializable {
          */
 
         List<ColumnDefinitionNode> allColumns = new ArrayList<>();
+        List<ColumnDefinitionNode> omitColumns = new ArrayList<>();
         Function<String, ColumnDefinitionNode> columnSearchByName = name -> allColumns.stream().
             filter(col -> col.getName().equals(name)).collect(Collectors.toList()).get(0);
+
         Pattern isNotNullPattern = Pattern.compile(" NOT NULL");
 
         for (CreateTableNode tableNode : parsedDDLList) {
@@ -146,6 +148,8 @@ public class Alloyable implements Serializable {
                     // ※ポリモーフィック関連用の、xxx_id は、とりえあず使わない。
                     //postpone(tableNode.getFullName(),
                     //    polymorphicStr + namingRule.foreignKeySuffix());
+                    omitColumns.add(
+                        (ColumnDefinitionNode) columnSearchByName.apply(polymorphicStr + namingRule.foreignKeySuffix()));
                 }
             }
             // 外部キー
@@ -288,7 +292,10 @@ public class Alloyable implements Serializable {
                     // カラムの制約
                     Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
                     relation.isNotEmpty = matcher.find();
-                    this.relations.add(relation);
+
+                    if (!omitColumns.contains(column)) {
+                        this.relations.add(relation);	
+                    }
                 }
             }
         }
