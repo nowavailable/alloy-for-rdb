@@ -263,7 +263,7 @@ public class Alloyable implements Serializable {
                                         this.atoms.add(polymImplAtom);
                                         // and their field
                                         Relation polymRelation = polymorphicHandler.buildTypifiedRelation(polymImplAtom, dummyAtom);
-                                        polymRelation.isNotEmpty = true;
+                                        polymRelation.isNotEmpty = isNotEmptyPolymorphicColumn;
                                         this.relations.add(polymRelation);
                                         // and fact
                                         this.facts.add(
