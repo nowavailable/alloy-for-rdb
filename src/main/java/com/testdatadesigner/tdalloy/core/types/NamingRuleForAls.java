@@ -29,15 +29,15 @@ public class NamingRuleForAls {
             put(Relation.Typify.RELATION, (rel, allRels) -> 
                 { return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);});
             put(Relation.Typify.RELATION_REFERRED, (rel, allRels) -> 
-                { return DISJ + (oneToOneOrMany.apply(rel, allRels) ? makeOneRelation.apply(rel) : makeMultiRelation.apply(rel)); });
+                { return /*DISJ + */ (oneToOneOrMany.apply(rel, allRels) ? LONE : SET); });
             put(Relation.Typify.RELATION_POLYMORPHIC, (rel, allRels) ->
                 { return makeOneRelation.apply(rel);});
             put(Relation.Typify.ABSTRACT_RELATION, (rel, allRels) -> 
                 { return ONE;});
             put(Relation.Typify.ABSTRACT_RELATION_REFERRED, (rel, allRels) -> 
-                { return DISJ + makeMultiRelation.apply(rel); });
+                { return /*DISJ + */ makeMultiRelation.apply(rel); });
             put(Relation.Typify.ABSTRACT_RELATION_TYPIFIED, (rel, allRels) -> 
-                {return rel.isUnique ? ONE : SOME;});
+                {return rel.isNotEmpty ? ONE : LONE;});
             put(Relation.Typify.VALUE, (rel, allRels) -> 
                 { return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);});
         }
