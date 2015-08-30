@@ -76,7 +76,7 @@ public class RelationHandler {
     
     public Fact buildMultiColumnUniqueFact(String tableSigName, List<Relation> relations, Integer seq) {
         Fact fact = new Fact(Fact.Tipify.ROWS_CONSTRAINT);
-        StringBuffer buff = new StringBuffer();
+        StringBuilder buff = new StringBuilder();
         String label = "uniqIdx" + seq.toString();
         String labelAnother = label + "'";
         buff.append("all disj ");
