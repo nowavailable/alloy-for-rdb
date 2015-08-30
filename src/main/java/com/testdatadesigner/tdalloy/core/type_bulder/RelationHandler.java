@@ -1,9 +1,11 @@
 package com.testdatadesigner.tdalloy.core.type_bulder;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
 
+import com.google.common.base.Joiner;
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.Fact;
@@ -37,6 +39,7 @@ public class RelationHandler {
             return Arrays.asList(relation);
         } else {
             relation = new Relation(Relation.Typify.RELATION);
+            relation.originColumnName = fKeyColumnStr;
             relation.name = namingRule.foreignKeyName(fKeyColumnStr, ownerTableName);
             relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
             relation.setRefTo(refSig);
@@ -67,6 +70,37 @@ public class RelationHandler {
         }
         Fact fact = new Fact(Fact.Tipify.RELATION);
         fact.value = leftStr + " = ~(" + rightStr + ")";
+        fact.owners.addAll(relations);
+        return fact;
+    } 
+    
+    public Fact buildMultiColumnUniqueFact(String tableSigName, List<Relation> relations, Integer seq) {
+        Fact fact = new Fact(Fact.Tipify.ROWS_CONSTRAINT);
+        StringBuffer buff = new StringBuffer();
+        String label = "uniqIdx" + seq.toString();
+        String labelAnother = label + "'";
+        buff.append("all disj ");
+        buff.append(label);
+        buff.append(",");
+        buff.append(labelAnother);
+        buff.append(": ");
+        buff.append(tableSigName);
+        buff.append(" | ");
+        buff.append(label);
+        buff.append(".(");
+        
+        List<String> fields = new ArrayList<String>();
+        for (Relation relation : relations) {
+        	fields.add(tableSigName + "<:" + relation.name);
+		}
+        buff.append(Joiner.on(" + ").join(fields));
+        buff.append(") != ");
+        buff.append(labelAnother);
+        buff.append(".(");
+        buff.append(Joiner.on(" + ").join(fields));
+        buff.append(")");
+        
+        fact.value =  buff.toString();
         fact.owners.addAll(relations);
         return fact;
     }

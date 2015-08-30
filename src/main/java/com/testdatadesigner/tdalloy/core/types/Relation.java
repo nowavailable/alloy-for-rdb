@@ -24,6 +24,7 @@ public class Relation implements Serializable {
 
     private Atom refTo;
     private Atom owner;
+    public String originColumnName;
     public Boolean ignore = Boolean.FALSE;
 
     public Boolean isNotEmpty = Boolean.FALSE;

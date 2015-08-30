@@ -8,13 +8,20 @@ import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.type_bulder.*;
 
 import java.io.*;
+import java.lang.reflect.Array;
+import java.nio.file.DirectoryStream.Filter;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
+import java.util.function.BiFunction;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 public class Alloyable implements Serializable {
     private static final long serialVersionUID = 1L;
@@ -65,7 +72,7 @@ public class Alloyable implements Serializable {
         List<ColumnDefinitionNode> omitColumns = new ArrayList<>();
         Function<String, ColumnDefinitionNode> columnSearchByName = name -> allColumns.stream().
             filter(col -> col.getName().equals(name)).collect(Collectors.toList()).get(0);
-
+        Map<String, List<String>> uniqueConstraints = new LinkedHashMap<>();
         Pattern isNotNullPattern = Pattern.compile(" NOT NULL");
 
         for (CreateTableNode tableNode : parsedDDLList) {
@@ -80,12 +87,22 @@ public class Alloyable implements Serializable {
                     postpone(tableNode.getFullName(),
                         ((ResultColumn) constraint.getColumnList().get(0)).getName());
                 }
-                // プライマリキーはあとで処理
                 else if (tableElement.getClass().equals(ConstraintDefinitionNode.class)) {
+                    // プライマリキーはあとで処理
                     ConstraintDefinitionNode constraint = (ConstraintDefinitionNode) tableElement;
                     if (constraint.getConstraintType().equals(ConstraintType.PRIMARY_KEY)) {
                         postpone(tableNode.getFullName(),
                             ((ResultColumn) constraint.getColumnList().get(0)).getName());
+                    // （複合カラム）ユニーク制約はテーブル名をkeyにしたMapに
+                    } else if (constraint.getConstraintType().equals(ConstraintType.UNIQUE)) {
+                    	ResultColumnList columnList = constraint.getColumnList();
+                    	if (columnList.size() > 1) {
+                    		List<String> columnNameList = new ArrayList<>();
+                    		for (ResultColumn resultColumn : columnList) {
+                    			columnNameList.add(resultColumn.getName());
+							}
+							uniqueConstraints.put(tableNode.getFullName(), columnNameList);
+						}
                     }
                 }
                 // それ以外のelementをとりあえずぜんぶ保存
@@ -185,6 +202,7 @@ public class Alloyable implements Serializable {
                 }
             }
         }
+
         /*
          * 外部キーのisNotNullを、その参照先に反映させる。
          */
@@ -197,6 +215,7 @@ public class Alloyable implements Serializable {
                     .forEach(rel ->rel.isNotEmpty = relation.isNotEmpty);
             }
         }
+
         /*
          * カラムの処理（含 ポリモーフィックの、typeのほうの、sig化）。
          */
@@ -298,6 +317,27 @@ public class Alloyable implements Serializable {
                     }
                 }
             }
+        }
+
+        /*
+         * 複合カラムユニークインデックスのためのfactを生成
+         */
+        int uniqueIdxCounter = 0;
+        for (String tableName : uniqueConstraints.keySet()) {
+        	String tableSigName = NamingRuleForAlloyable.tableAtomName(tableName);
+        	List<String> list = uniqueConstraints.get(tableName);
+			List<Relation> relations = list
+					.stream()
+					.map(s -> {
+						return this.relations.stream()
+								.filter(rel -> rel.originColumnName != null && rel.getOwner() != null
+										&& rel.originColumnName.equals(s)
+										&& rel.getOwner().name.equals(tableSigName))
+								.collect(Collectors.toList()).get(0);
+					}).collect(Collectors.toList());
+			Fact multiColumnUniqueFact = relationHandler.buildMultiColumnUniqueFact(tableSigName, relations, uniqueIdxCounter);
+			this.facts.add(multiColumnUniqueFact);
+        	uniqueIdxCounter ++;
         }
         return this;
     }

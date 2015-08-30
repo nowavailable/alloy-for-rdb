@@ -30,6 +30,7 @@ public class AlloyableTest extends TestCase {
 //        ddlSplitter.prepare(in);
 //        List<String> results = ddlSplitter.getRawTables();
         URL resInfo = this.getClass().getResource("/naming_rule.dump");
+//        URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
         String filePath = resInfo.getFile();
         List<String> results = IOGatewayInner.readSchemesFromDDL(filePath);
 
@@ -71,7 +72,7 @@ public class AlloyableTest extends TestCase {
             System.out.println(result.name 
                     + seperator + result.type.toString()
                     + seperator + (result.getOwner() == null ? "-" : result.getOwner().name)
-                    + seperator + (result.getRefTo() == null ? "-" : result.getRefTo().name)
+                    + seperator + (result.getRefTo() == null ? "-" : result.getRefTo().name) + '(' + result.originColumnName + ')'
                     + seperator + result.isNotEmpty);
             if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
                 ((MultipleRelation) result).refToTypes.forEach(rel -> {

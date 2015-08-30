@@ -48,6 +48,7 @@ public class PolymorphicHandler {
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         // 1/9
         MultipleRelation valueRelation = new MultipleRelation(Relation.Typify.RELATION_POLYMORPHIC);
+        valueRelation.originColumnName = polymorphicStr + namingRule.polymorphicSuffix();
         valueRelation.name =
                 NamingRuleForAlloyable.columnRelationName(
                     polymorphicStr + namingRule.polymorphicSuffix(), ownerTableName);
@@ -59,6 +60,7 @@ public class PolymorphicHandler {
         // 5/9
         MultipleRelation polymRelationReversed =
                 new MultipleRelation(Relation.Typify.ABSTRACT_RELATION);
+        polymRelationReversed.originColumnName = polymorphicStr + namingRule.polymorphicSuffix();
         polymRelationReversed.name = "refTo_" + NamingRuleForAlloyable.tableAtomName(ownerTableName);
         polymRelationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         //polymRelationReversed.reverseOfrefToTypes = refToAtoms;

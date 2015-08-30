@@ -11,6 +11,7 @@ public class BooleanColumnHandler {
     public Relation build(Function<String, Atom> atomSearchByName, String ownerTableName,
             String columnName) {
         Relation relation = new Relation(Relation.Typify.VALUE);
+        relation.originColumnName = columnName;
         relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         //relation.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
         relation.name = columnName;
