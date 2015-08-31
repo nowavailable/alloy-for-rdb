@@ -76,31 +76,31 @@ public class RelationHandler {
     
     public Fact buildMultiColumnUniqueFact(String tableSigName, List<Relation> relations, Integer seq) {
         Fact fact = new Fact(Fact.Tipify.ROWS_CONSTRAINT);
-        StringBuilder buff = new StringBuilder();
+        StringBuilder builder = new StringBuilder();
         String label = "uniqIdx" + seq.toString();
         String labelAnother = label + "'";
-        buff.append("all disj ");
-        buff.append(label);
-        buff.append(",");
-        buff.append(labelAnother);
-        buff.append(": ");
-        buff.append(tableSigName);
-        buff.append(" | ");
-        buff.append(label);
-        buff.append(".(");
+        builder.append("all disj ");
+        builder.append(label);
+        builder.append(",");
+        builder.append(labelAnother);
+        builder.append(": ");
+        builder.append(tableSigName);
+        builder.append(" | ");
+        builder.append(label);
+        builder.append(".(");
         
         List<String> fields = new ArrayList<String>();
         for (Relation relation : relations) {
         	fields.add(tableSigName + "<:" + relation.name);
 		}
-        buff.append(Joiner.on(" + ").join(fields));
-        buff.append(") != ");
-        buff.append(labelAnother);
-        buff.append(".(");
-        buff.append(Joiner.on(" + ").join(fields));
-        buff.append(")");
+        builder.append(Joiner.on(" + ").join(fields));
+        builder.append(") != ");
+        builder.append(labelAnother);
+        builder.append(".(");
+        builder.append(Joiner.on(" + ").join(fields));
+        builder.append(")");
         
-        fact.value =  buff.toString();
+        fact.value =  builder.toString();
         fact.owners.addAll(relations);
         return fact;
     }

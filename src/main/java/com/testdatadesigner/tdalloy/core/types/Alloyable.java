@@ -404,11 +404,11 @@ public class Alloyable implements Serializable {
             writer.write(strBuff.toString());
             strBuff.setLength(0);
             for (Fact fact : this.facts) {
-                StringBuffer factStrBuff = new StringBuffer();
-                factStrBuff.append(indent);
-                factStrBuff.append(fact.value);
-                factStrBuff.append("\n");
-                writer.write(factStrBuff.toString());
+                StringBuilder builder = new StringBuilder();
+                builder.append(indent);
+                builder.append(fact.value);
+                builder.append("\n");
+                writer.write(builder.toString());
             }
             strBuff.append("}\n");
 
