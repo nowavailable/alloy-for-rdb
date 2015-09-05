@@ -3,16 +3,16 @@ package com.testdatadesigner.tdalloy.core.naming;
 import java.util.EnumMap;
 
 public final class RulesForAlloyableFactory {  // singleton.
-    private final static RulesForAlloyableFactory instance = new RulesForAlloyableFactory();
+    private final static RulesForAlloyableFactory INSTANCE = new RulesForAlloyableFactory();
     private IRulesForAlloyable rule = null;
 
-    private String propKeyOfNamingRule = "tables_and_columns";
-    private enum KeysOfNamingRule {DEFAULT, RAILS};
-    public EnumMap<KeysOfNamingRule, String> KEY_OF_NAMING_RULE =
-        new EnumMap<KeysOfNamingRule, String>(KeysOfNamingRule.class) {
+    private String propKeyOfNamingConvention = "naming_convention";
+    private enum KeysOfNamingConvention {DEFAULT, RAILS};
+    public EnumMap<KeysOfNamingConvention, String> KEY_OF_NAMING_RULE =
+        new EnumMap<KeysOfNamingConvention, String>(KeysOfNamingConvention.class) {
             {
-                put(KeysOfNamingRule.DEFAULT, "rails");
-                put(KeysOfNamingRule.RAILS, "rails");
+                put(KeysOfNamingConvention.DEFAULT, "rails");
+                put(KeysOfNamingConvention.RAILS, "rails");
             }
         };
 
@@ -20,12 +20,13 @@ public final class RulesForAlloyableFactory {  // singleton.
     }
 
     public static RulesForAlloyableFactory getInstance() {
-        return instance;
+        return INSTANCE;
     }
 
     public IRulesForAlloyable getRule() {
         if (this.rule == null) {
-            if (System.getProperty(propKeyOfNamingRule).equals(KEY_OF_NAMING_RULE.get(KeysOfNamingRule.RAILS))) {
+            if (System.getProperty(propKeyOfNamingConvention).equals(KEY_OF_NAMING_RULE.get(
+                KeysOfNamingConvention.RAILS))) {
                 this.rule = new RulesForAlloyableRails();
             } else {
                 this.rule = new RulesForAlloyableRails();

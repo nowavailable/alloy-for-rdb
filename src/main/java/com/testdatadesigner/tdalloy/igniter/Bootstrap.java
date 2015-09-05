@@ -12,7 +12,7 @@ public class Bootstrap {
     public static void setProps() throws IOException {
         Properties properties = new Properties();
         try (Reader reader = new InputStreamReader(Bootstrap.class.getResourceAsStream(
-            "/naming_rules.properties"))) {
+            "/tdalloy.properties"))) {
             properties.load(reader);
             for (Object key : properties.keySet()) {
                 System.setProperty((String) key, properties.getProperty((String) key));

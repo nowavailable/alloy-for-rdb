@@ -9,6 +9,6 @@ public class BootstrapTest extends TestCase {
 
     public void testSetProps() throws Exception {
         Bootstrap.setProps();
-        assertEquals(System.getProperty("tables_and_columns"), "rails");
+        assertEquals(System.getProperty("naming_convention"), "rails");
     }
 }
