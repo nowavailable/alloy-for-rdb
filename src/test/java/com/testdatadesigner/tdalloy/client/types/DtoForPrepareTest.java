@@ -17,8 +17,9 @@ import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
-
+import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
+
 import junit.framework.TestCase;
 
 public class DtoForPrepareTest extends TestCase {
@@ -37,8 +38,8 @@ public class DtoForPrepareTest extends TestCase {
         IRdbSchemmaParser parser = new MySQLSchemaParser();
         this.resultList = parser.inboundParse(results);
         
-        this.currentAlloyable = new Alloyable();
-        this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
+        AlloyableHandler alloyableHandler = new AlloyableHandler(new Alloyable());
+        this.currentAlloyable = alloyableHandler.buildFromDDL(this.resultList);
     }
 
     protected void tearDown() throws Exception {

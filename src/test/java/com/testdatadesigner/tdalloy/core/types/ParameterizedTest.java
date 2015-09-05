@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
+
 import org.json.JSONObject;
 
 import com.foundationdb.sql.parser.CreateTableNode;
@@ -24,6 +25,7 @@ public class ParameterizedTest extends TestCase {
 
     List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
     Alloyable currentAlloyable;
+    AlloyableHandler alloyableHandler;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -37,6 +39,7 @@ public class ParameterizedTest extends TestCase {
         this.resultList = parser.inboundParse(results);
         
         this.currentAlloyable = new Alloyable();
+        this.alloyableHandler = new AlloyableHandler(this.currentAlloyable);
     }
 
     protected void tearDown() throws Exception {
@@ -44,11 +47,9 @@ public class ParameterizedTest extends TestCase {
     }
     
     public void testAlloyableToInversed() throws IllegalAccessException {
-        this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
         Parameterized parameterized = new Parameterized();
 
-
-         
-     }
+    }
 
 }

@@ -41,7 +41,10 @@ public class Relation implements Serializable {
     }
 
 	public Atom getRefTo() {
-		return refTo != null ? refTo : new Atom();
+		if (refTo != null) {
+			throw new IllegalAccessError();
+		}
+		return refTo;
 	}
 
 	public void setRefTo(Atom refTo) {
@@ -49,7 +52,10 @@ public class Relation implements Serializable {
 	}
 
 	public Atom getOwner() {
-		return owner != null ? owner : new Atom();
+		if (refTo != null) {
+			throw new IllegalAccessError();
+		}
+		return owner; //!= null ? owner : new Atom();
 	}
 
 	public void setOwner(Atom owner) {

@@ -21,6 +21,7 @@ public class AlloyableTest extends TestCase {
 
     List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
     Alloyable currentAlloyable;
+    AlloyableHandler alloyableHandler;
     
     protected void setUp() throws Exception {
         super.setUp();
@@ -38,6 +39,7 @@ public class AlloyableTest extends TestCase {
         this.resultList = parser.inboundParse(results);
         
         this.currentAlloyable = new Alloyable();
+        this.alloyableHandler = new AlloyableHandler(currentAlloyable);
     }
 
     protected void tearDown() throws Exception {
@@ -45,7 +47,7 @@ public class AlloyableTest extends TestCase {
     }
 
     public void testBuildAll() throws Exception {
-        this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
         String seperator = "  ";
         // String separator = "\t";
         for (Atom result : this.currentAlloyable.atoms) {
@@ -71,8 +73,8 @@ public class AlloyableTest extends TestCase {
         for (Relation result : this.currentAlloyable.relations) {
             System.out.println(result.name 
                     + seperator + result.type.toString()
-                    + seperator + (result.getOwner() == null ? "-" : result.getOwner().name)
-                    + seperator + (result.getRefTo() == null ? "-" : result.getRefTo().name) + '(' + result.originColumnName + ')'
+                    + seperator + (AlloyableHandler.getOwner(result) == null ? "-" : AlloyableHandler.getOwner(result).name)
+                    + seperator + (AlloyableHandler.getRefTo(result) == null ? "-" : AlloyableHandler.getRefTo(result).name) + '(' + result.originColumnName + ')'
                     + seperator + result.isNotEmpty);
             if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
                 ((MultipleRelation) result).refToTypes.forEach(rel -> {
@@ -106,8 +108,8 @@ public class AlloyableTest extends TestCase {
     }
 
     public void testOutputToAls() throws Exception {
-        this.currentAlloyable = this.currentAlloyable.buildFromDDL(this.resultList);
-        File outputToAls = this.currentAlloyable.outputToAls();
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+        File outputToAls = this.alloyableHandler.outputToAls();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(outputToAls), "UTF-8"))){
             String line = null;
             while ((line = reader.readLine()) != null) {

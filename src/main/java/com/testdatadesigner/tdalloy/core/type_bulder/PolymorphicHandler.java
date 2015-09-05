@@ -7,6 +7,7 @@ import java.util.function.Function;
 
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
+import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.PseudoAtom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
@@ -81,10 +82,11 @@ public class PolymorphicHandler {
         String leftStr = new String();
         String rightStr = new String();
         for (Relation relation : relations) {
+        	Atom owner = AlloyableHandler.getOwner(relation);
             if (relation.type.equals(Relation.Typify.ABSTRACT_RELATION)) {
-                rightStr = relation.getOwner().name + "<:" + relation.name;
+                rightStr = owner.name + "<:" + relation.name;
             } else if (relation.type.equals(Relation.Typify.RELATION_POLYMORPHIC)) {
-                leftStr = relation.getOwner().name + "<:" + relation.name;
+                leftStr = owner.name + "<:" + relation.name;
             }
         }
         Fact fact = new Fact(Fact.Tipify.RELATION);
@@ -94,8 +96,10 @@ public class PolymorphicHandler {
     }
 
     public Fact buildFactForDummies(Relation dummyRelation, Relation parentRelation) {
-        String leftStr = dummyRelation.getOwner().name + "<:" + dummyRelation.name;
-        String rightStr = parentRelation.getOwner().name + "<:" + parentRelation.name + "." + namingRule.tableize(dummyRelation.getOwner().name);
+    	Atom dummyRelationOwner = AlloyableHandler.getOwner(dummyRelation);
+    	Atom parentRelationOwner = AlloyableHandler.getOwner(parentRelation);
+        String leftStr = dummyRelationOwner.name + "<:" + dummyRelation.name;
+        String rightStr = parentRelationOwner.name + "<:" + parentRelation.name + "." + namingRule.tableize(dummyRelationOwner.name);
         Fact fact = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);
         fact.value = leftStr + " = ~(" + rightStr + ")";
         fact.owners.add(dummyRelation);
