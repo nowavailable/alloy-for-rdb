@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
-import com.testdatadesigner.tdalloy.core.types.IAlloyable;
+import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
 import com.testdatadesigner.tdalloy.core.types.Atom;
@@ -61,16 +61,16 @@ public class DtoForPrepare {
      * 
      * @param alloyable
      */
-    public void buiildFromAlloyable(IAlloyable alloyable) {
+    public void buiildFromAlloyable(Alloyable alloyable) {
         List<Atom> tableAtoms =
-                alloyable.getAtoms().stream().filter(atom -> atom.type.equals(Atom.Tipify.ENTITY))
+                alloyable.atoms.stream().filter(atom -> atom.type.equals(Atom.Tipify.ENTITY))
                         .collect(Collectors.toList());
         tableAtoms.forEach(atom -> {
             Table table = this.constructTable();
             table.name = atom.originPropertyName;
             // カラム
             List<Atom> columnAtoms =
-                    alloyable.getAtoms()
+                    alloyable.atoms
                             .stream()
                             .filter(a -> a.getParent() != null && a.getParent().equals(atom)
                                     && (a.type.equals(Atom.Tipify.PROPERTY)))
@@ -81,7 +81,7 @@ public class DtoForPrepare {
                 table.columns.add(column);
             });
             List<Atom> polymColumnAtoms =
-                    alloyable.getAtoms()
+                    alloyable.atoms
                             .stream()
                             .filter(a -> a.getParent() != null
                                     && a.getParent().equals(atom)
@@ -98,7 +98,7 @@ public class DtoForPrepare {
             });
             // 外部キー
             List<? extends com.testdatadesigner.tdalloy.core.types.Relation> relsConcrete =
-                    alloyable.getRelations()
+                    alloyable.relations
                             .stream()
                             .filter(rel -> AlloyableHandler.getOwner(rel).equals(atom)
                                     && rel.type

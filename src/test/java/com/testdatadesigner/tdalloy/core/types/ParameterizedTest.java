@@ -15,7 +15,7 @@ import junit.framework.TestCase;
 public class ParameterizedTest extends TestCase {
 
     List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
-    IAlloyable currentAlloyable;
+    Alloyable currentAlloyable;
     AlloyableHandler alloyableHandler;
 
     protected void setUp() throws Exception {

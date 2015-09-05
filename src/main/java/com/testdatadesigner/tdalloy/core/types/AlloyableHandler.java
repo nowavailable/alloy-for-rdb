@@ -34,7 +34,7 @@ import com.testdatadesigner.tdalloy.core.type_bulder.TableHandler;
 
 public class AlloyableHandler {
 
-	public IAlloyable alloyable;
+	public Alloyable alloyable;
     private TableHandler tableHandler = new TableHandler();
     private RelationHandler relationHandler = new RelationHandler();
     private DefaultColumnHandler columnHandler = new DefaultColumnHandler();
@@ -43,14 +43,14 @@ public class AlloyableHandler {
     private List<String> postponeListForColumn = new ArrayList<>();
     private HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
 	private Function<String, Atom> atomSearchByName = name -> {
-		List<Atom> arr = this.alloyable.getAtoms().stream().filter(s -> s.name.equals(name))
+		List<Atom> arr = this.alloyable.atoms.stream().filter(s -> s.name.equals(name))
 				.collect(Collectors.toList());
 		return arr.isEmpty() ? null : arr.get(0);
 	};
     private IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
     static final String INTERNAL_SEPARATOR = "_#_";
 
-    public AlloyableHandler(IAlloyable alloyable) {
+    public AlloyableHandler(Alloyable alloyable) {
 		this.alloyable = alloyable;
 	}
 
@@ -60,10 +60,10 @@ public class AlloyableHandler {
      * という順。
      *
      * @param parsedDDLList
-     * @return IAlloyable
+     * @return Alloyable
      * @throws IllegalAccessException
      */
-    public IAlloyable buildFromDDL(List<CreateTableNode> parsedDDLList)
+    public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList)
         throws IllegalAccessException {
         /*
          * テーブルの処理。
@@ -78,7 +78,7 @@ public class AlloyableHandler {
 
         for (CreateTableNode tableNode : parsedDDLList) {
 
-            this.alloyable.getAtoms().add(tableHandler.build(tableNode.getFullName()));
+            this.alloyable.atoms.add(tableHandler.build(tableNode.getFullName()));
 
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 // 外部キーはあとで処理。
@@ -130,9 +130,9 @@ public class AlloyableHandler {
                         relations.stream().
                             filter(rel -> rel.type.equals(Relation.Typify.RELATION)).collect(Collectors.toList()).
                             get(0).isNotEmpty = matcher.find();
-                        this.alloyable.getRelations().addAll(relations);
+                        this.alloyable.relations.addAll(relations);
 
-                        this.alloyable.getFacts().add(relationHandler.buildFact(relations));
+                        this.alloyable.facts.add(relationHandler.buildFact(relations));
                     }
                     // あとでさらに処理する。
                     postpone(tableNode.getFullName(),
@@ -158,7 +158,7 @@ public class AlloyableHandler {
 
             // ポリモーフィック
             if (!guessedPolymorphicSet.isEmpty()) {
-                this.alloyable.getIsRailsOriented().equals(Boolean.TRUE);
+                this.alloyable.isRailsOriented.equals(Boolean.TRUE);
                 for (String polymorphicStr : guessedPolymorphicSet) {
                     // あとで処理する
                     postpone(tableNode.getFullName(),
@@ -172,7 +172,7 @@ public class AlloyableHandler {
             }
             // 外部キー
             if (!guessedForeignKeySet.isEmpty()) {
-                this.alloyable.getIsRailsOriented().equals(Boolean.TRUE);
+                this.alloyable.isRailsOriented.equals(Boolean.TRUE);
                 for (String keyStr : guessedForeignKeySet) {
                     // あとで処理するぶんはスキップ
                     if (postponeListForColumn.contains(tableNode.getFullName()
@@ -191,11 +191,11 @@ public class AlloyableHandler {
                     if (!rels.isEmpty()) {
                     	rels.get(0).isNotEmpty = matcher.find();
                     }
-                    this.alloyable.getRelations().addAll(relations);
+                    this.alloyable.relations.addAll(relations);
 
                     List<Relation> collects = relations.stream().filter(rel -> !rel.type.equals(Relation.Typify.VALUE)).collect(Collectors.toList());
                     if (!collects.isEmpty()) {
-                    	this.alloyable.getFacts().add(relationHandler.buildFact(relations.stream().filter(rel -> !rel.type.equals(Relation.Typify.VALUE)).collect(Collectors.toList())));
+                    	this.alloyable.facts.add(relationHandler.buildFact(relations.stream().filter(rel -> !rel.type.equals(Relation.Typify.VALUE)).collect(Collectors.toList())));
                     }
                     
                     // あとでさらに処理する。
@@ -207,9 +207,9 @@ public class AlloyableHandler {
         /*
          * 外部キーのisNotNullを、その参照先に反映させる。
          */
-        for (Relation relation : this.alloyable.getRelations()) {
+        for (Relation relation : this.alloyable.relations) {
             if (relation.type.equals(Relation.Typify.RELATION)) {
-                this.alloyable.getRelations().stream()
+                this.alloyable.relations.stream()
                     .filter(rel -> rel.type.equals(Relation.Typify.RELATION_REFERRED))
                     .filter(rel -> AlloyableHandler.getOwner(rel).name.equals(AlloyableHandler.getRefTo(relation).name))
                     .collect(Collectors.toList())
@@ -240,7 +240,7 @@ public class AlloyableHandler {
                                 columnHandler.buildAtomPolymorphicAbstract(atomSearchByName,
                                     tableNode.getFullName(), column.getName());
                             polymAbstructAtom.originTypeName = column.getType().getTypeName();
-                            this.alloyable.getAtoms().add(polymAbstructAtom);
+                            this.alloyable.atoms.add(polymAbstructAtom);
                             // as fields
                             if (buildPolymRelationCount == 0) {
                                 for (String polymorphicStr : allInferencedPolymorphicSet.get(tableNode.getFullName())) {
@@ -258,14 +258,14 @@ public class AlloyableHandler {
                                             relation.isNotEmpty = true;
                                         }
                                     }
-                                    this.alloyable.getRelations().addAll(polymophicRelations);
+                                    this.alloyable.relations.addAll(polymophicRelations);
 
                                     // as basic fact
-                                    this.alloyable.getFacts().add(polymorphicHandler.buildFactBase(polymophicRelations));
+                                    this.alloyable.facts.add(polymorphicHandler.buildFactBase(polymophicRelations));
 
                                     // as sig by referrer and their fields
                                     List<Atom> dummies = polymorphicHandler.buildDummies(dummySigCount);
-                                    this.alloyable.getAtoms().addAll(dummies);
+                                    this.alloyable.atoms.addAll(dummies);
 
                                     dummySigCount = dummySigCount + dummies.size();
 
@@ -277,16 +277,16 @@ public class AlloyableHandler {
                                                 polymAbstructAtom.getParent().originPropertyName);
                                         // カラムの制約
                                         relation.isNotEmpty = isNotEmptyPolymorphicColumn;
-                                        this.alloyable.getRelations().add(relation);
+                                        this.alloyable.relations.add(relation);
                                         // extend sig
                                         Atom polymImplAtom = polymorphicHandler.buildDummyExtend(polymorphicStr, dummyAtom, polymAbstructAtom);
-                                        this.alloyable.getAtoms().add(polymImplAtom);
+                                        this.alloyable.atoms.add(polymImplAtom);
                                         // and their field
                                         Relation polymRelation = polymorphicHandler.buildTypifiedRelation(polymImplAtom, dummyAtom);
                                         polymRelation.isNotEmpty = isNotEmptyPolymorphicColumn;
-                                        this.alloyable.getRelations().add(polymRelation);
+                                        this.alloyable.relations.add(polymRelation);
                                         // and fact
-                                        this.alloyable.getFacts().add(
+                                        this.alloyable.facts.add(
                                             polymorphicHandler.buildFactForDummies(relation,
                                                 polymophicRelations.stream().filter(rel -> rel.type.equals(
                                                     Relation.Typify.RELATION_POLYMORPHIC)).
@@ -314,7 +314,7 @@ public class AlloyableHandler {
                     relation.isNotEmpty = matcher.find();
 
                     if (!omitColumns.contains(column)) {
-                        this.alloyable.getRelations().add(relation);	
+                        this.alloyable.relations.add(relation);	
                     }
                 }
             }
@@ -330,14 +330,14 @@ public class AlloyableHandler {
 			List<Relation> relations = list
 					.stream()
 					.map(s -> {
-						return this.alloyable.getRelations().stream()
+						return this.alloyable.relations.stream()
 								.filter(rel -> rel.originColumnName != null && AlloyableHandler.getOwner(rel) != null
 										&& rel.originColumnName.equals(s)
 										&& AlloyableHandler.getOwner(rel).name.equals(tableSigName))
 								.collect(Collectors.toList()).get(0);
 					}).collect(Collectors.toList());
 			Fact multiColumnUniqueFact = relationHandler.buildMultiColumnUniqueFact(tableSigName, relations, uniqueIdxCounter);
-			this.alloyable.getFacts().add(multiColumnUniqueFact);
+			this.alloyable.facts.add(multiColumnUniqueFact);
         	uniqueIdxCounter ++;
         }
         return this.alloyable;
@@ -359,7 +359,7 @@ public class AlloyableHandler {
 
         NamingRuleForAls ruleForAls = new NamingRuleForAls();
 
-        Function<Atom, List<Relation>> atomSearchByRelationOwner = atom -> this.alloyable.getRelations().stream()
+        Function<Atom, List<Relation>> atomSearchByRelationOwner = atom -> this.alloyable.relations.stream()
             .filter(rel -> AlloyableHandler.getOwner(rel).name.equals(atom.name)).collect(Collectors.toList());
 
         String indent = "  ";
@@ -372,7 +372,7 @@ public class AlloyableHandler {
             writer.write(strBuff.toString());
             strBuff.setLength(0);
 
-            for (Atom atom : this.alloyable.getAtoms()) {
+            for (Atom atom : this.alloyable.atoms) {
                 StringBuffer sigStrBuff = new StringBuffer();
                 /*
                  * sig にする。
@@ -393,7 +393,7 @@ public class AlloyableHandler {
                 List<String> fields = new ArrayList<String>();
                 for (Relation relation : relations) {
                 	Atom refTo = AlloyableHandler.getRefTo(relation);
-                    fields.add(relation.name + ": " + ruleForAls.searchQuantifierMap(relation, this.alloyable.getRelations()) + " " + refTo.name);
+                    fields.add(relation.name + ": " + ruleForAls.searchQuantifierMap(relation, this.alloyable.relations) + " " + refTo.name);
                 }
                 sigStrBuff.append(indent);
                 sigStrBuff.append(Joiner.on(",\n" + indent).join(fields));
@@ -409,7 +409,7 @@ public class AlloyableHandler {
             strBuff.append("fact {\n");
             writer.write(strBuff.toString());
             strBuff.setLength(0);
-            for (Fact fact : this.alloyable.getFacts()) {
+            for (Fact fact : this.alloyable.facts) {
                 StringBuilder builder = new StringBuilder();
                 builder.append(indent);
                 builder.append(fact.value);
