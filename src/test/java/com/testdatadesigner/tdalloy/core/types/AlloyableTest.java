@@ -20,7 +20,7 @@ import junit.framework.TestCase;
 public class AlloyableTest extends TestCase {
 
     List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
-    Alloyable currentAlloyable;
+    IAlloyable currentAlloyable;
     AlloyableHandler alloyableHandler;
     
     protected void setUp() throws Exception {
@@ -50,7 +50,7 @@ public class AlloyableTest extends TestCase {
         this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
         String seperator = "  ";
         // String separator = "\t";
-        for (Atom result : this.currentAlloyable.atoms) {
+        for (Atom result : this.currentAlloyable.getAtoms()) {
             System.out.println(result.name
                     + seperator
                     + result.type.toString()
@@ -70,7 +70,7 @@ public class AlloyableTest extends TestCase {
                             : result.getExtended().name));
         }
         System.out.println("-------------------------");
-        for (Relation result : this.currentAlloyable.relations) {
+        for (Relation result : this.currentAlloyable.getRelations()) {
             System.out.println(result.name 
                     + seperator + result.type.toString()
                     + seperator + (AlloyableHandler.getOwner(result) == null ? "-" : AlloyableHandler.getOwner(result).name)
@@ -86,7 +86,7 @@ public class AlloyableTest extends TestCase {
             }
         }
         System.out.println("-------------------------");
-        for (Fact result : this.currentAlloyable.facts) {
+        for (Fact result : this.currentAlloyable.getFacts()) {
             System.out.println(result.value + seperator
                     + result.owners.stream().map(r -> r.name).collect(Collectors.joining(",")));
         }

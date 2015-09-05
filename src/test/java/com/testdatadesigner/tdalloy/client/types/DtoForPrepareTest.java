@@ -18,6 +18,7 @@ import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
+import com.testdatadesigner.tdalloy.core.types.IAlloyable;
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
 import junit.framework.TestCase;
@@ -25,7 +26,7 @@ import junit.framework.TestCase;
 public class DtoForPrepareTest extends TestCase {
 
     List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
-    Alloyable currentAlloyable;
+    IAlloyable currentAlloyable;
 
     protected void setUp() throws Exception {
         super.setUp();

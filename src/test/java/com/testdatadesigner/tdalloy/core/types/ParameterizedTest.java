@@ -2,18 +2,9 @@ package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.InputStream;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
-
-import org.json.JSONObject;
-
 import com.foundationdb.sql.parser.CreateTableNode;
-import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
@@ -24,7 +15,7 @@ import junit.framework.TestCase;
 public class ParameterizedTest extends TestCase {
 
     List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
-    Alloyable currentAlloyable;
+    IAlloyable currentAlloyable;
     AlloyableHandler alloyableHandler;
 
     protected void setUp() throws Exception {
