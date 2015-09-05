@@ -17,7 +17,7 @@ import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
 import junit.framework.TestCase;
 
-public class AlloyableTest extends TestCase {
+public class AlloyableHandlerTest extends TestCase {
 
     List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
     Alloyable currentAlloyable;
