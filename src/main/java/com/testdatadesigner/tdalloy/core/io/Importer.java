@@ -1,12 +1,12 @@
 package com.testdatadesigner.tdalloy.core.io;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
+//import java.util.function.Consumer;
 
 import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.CreateTableNode;
@@ -18,14 +18,14 @@ import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 /**
  * + データスキーマインポートファイルのI/O + 結果出力ファイルのI/O + 結果出力前オブジェクトの状態操作
  */
-public class Parser {
+public class Importer {
 
     public enum Database {MYSQL};
     public Database database;
     
     // TODO: ネーミングルールの指定と保持メソッド
     
-    public void parseDDL(String path, Database database) throws ImportError {
+    public void iceBreak(String path, Database database) throws ImportError {
     	/*
     	 * データベースの種別を処理
     	 */
@@ -67,7 +67,8 @@ public class Parser {
 		}
     }
     
-    public OutputStream getAls(Alloyable alloyable) {
-        return null;
+    public BufferedReader takeOut(Alloyable alloyable) throws IOException {
+    	AlloyableHandler alloyableHandler = new AlloyableHandler(alloyable);
+    	return alloyableHandler.outputToAls();
     }
 }
