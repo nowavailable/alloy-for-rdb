@@ -26,7 +26,7 @@ public class PolymorphicHandler {
     }
 
     public Relation buildRelationForDummy(Function<String, Atom> atomSearchByName, String ownerTableName,
-            String fKeyColumnStr, String refTableName) throws IllegalAccessException {
+            String fKeyColumnStr, String refTableName) throws IllegalAccessException  {
         // 参照される側
         Relation relation = new Relation(Relation.Typify.ABSTRACT_RELATION_REFERRED);
         String refTable = refTableName.isEmpty() ? namingRule

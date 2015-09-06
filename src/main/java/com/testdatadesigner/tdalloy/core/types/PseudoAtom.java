@@ -12,7 +12,7 @@ public class PseudoAtom extends Atom {
     public PseudoAtom(String name, Atom abstructAtom) throws IllegalAccessException {
         super(Atom.Tipify.POLYMOPHIC_IMPLIMENT);
         if (!abstructAtom.type.equals(Atom.Tipify.POLYMORPHIC_ABSTRACT)) {
-            throw new IllegalAccessError();
+            throw new IllegalAccessException();
         }
         this.name = name;
         this.setExtended(abstructAtom);

@@ -1,6 +1,7 @@
-package com.testdatadesigner.tdalloy.igniter;
+package com.testdatadesigner.tdalloy.core.io;
 
-import com.testdatadesigner.tdalloy.igniter.impl.MapDbInfo;
+import com.testdatadesigner.tdalloy.core.io.impl.MapDbInfo;
+
 import java.util.EnumMap;
 
 public final class KVSInfoFactory {  // singleton.

@@ -1,10 +1,15 @@
 package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.InputStream;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
+
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 import com.foundationdb.sql.parser.CreateTableNode;
+import com.testdatadesigner.tdalloy.core.io.IOGateway;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
@@ -17,6 +22,7 @@ public class ParameterizedTest extends TestCase {
     List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
     Alloyable currentAlloyable;
     AlloyableHandler alloyableHandler;
+	private Consumer<Serializable> setWarning;
 
     protected void setUp() throws Exception {
         super.setUp();
@@ -31,6 +37,12 @@ public class ParameterizedTest extends TestCase {
         
         this.currentAlloyable = new Alloyable();
         this.alloyableHandler = new AlloyableHandler(this.currentAlloyable);
+
+        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
+        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
+        setWarning = o -> { 
+        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
+
     }
 
     protected void tearDown() throws Exception {
@@ -38,7 +50,7 @@ public class ParameterizedTest extends TestCase {
     }
     
     public void testAlloyableToInversed() throws IllegalAccessException {
-        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList, setWarning);
         Parameterized parameterized = new Parameterized();
 
     }

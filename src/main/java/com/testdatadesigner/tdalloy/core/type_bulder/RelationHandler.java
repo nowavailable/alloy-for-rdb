@@ -24,7 +24,7 @@ public class RelationHandler {
      * @param fKeyColumnStr 外部キーカラム名
      * @param refTableName 参照される側テーブル名
      * @return List<Relation> 外部キー保持側Relation, 参照される側Relation、のペア。
-     * @throws IllegalAccessException
+     * @throws IllegalAccessException 
      */
     public List<Relation> build(Function<String, Atom> atomSearchByName, String ownerTableName,
             String fKeyColumnStr, String refTableName) throws IllegalAccessException {

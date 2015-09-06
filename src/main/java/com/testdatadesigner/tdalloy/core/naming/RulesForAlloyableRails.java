@@ -97,7 +97,7 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
         return reverse(matcher.group(1));
     }
     
-    public String fkeyFromTableName(String refTableName) throws IllegalAccessException {
+    public String fkeyFromTableName(String refTableName) {
         return inflector.singularize(refTableName) + FOREIGN_KEY_SUFFIX;
     }
 

@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.igniter;
+package com.testdatadesigner.tdalloy.core.io;
 
 import org.mapdb.HTreeMap;
 import java.io.Serializable;

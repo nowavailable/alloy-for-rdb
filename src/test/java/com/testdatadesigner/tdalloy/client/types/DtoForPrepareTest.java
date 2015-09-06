@@ -1,9 +1,12 @@
 package com.testdatadesigner.tdalloy.client.types;
 
-import java.io.InputStream;
+import java.io.Serializable;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.foundationdb.sql.parser.CreateTableNode;
@@ -12,6 +15,7 @@ import com.testdatadesigner.tdalloy.client.types.DtoForPrepare;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Column;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Relation;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Table;
+import com.testdatadesigner.tdalloy.core.io.IOGateway;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
@@ -28,18 +32,27 @@ public class DtoForPrepareTest extends TestCase {
     Alloyable currentAlloyable;
 
     protected void setUp() throws Exception {
+        
         super.setUp();
         Bootstrap.setProps();
-        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
+        URL resInfo = this.getClass().getResource("/naming_rule.dump");
+        //URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
+        String filePath = resInfo.getFile();
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-        ddlSplitter.prepare(in);
-        List<String> results = ddlSplitter.getRawTables();
+        List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
 
         IRdbSchemmaParser parser = new MySQLSchemaParser();
         this.resultList = parser.inboundParse(results);
-        
+
+
+        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
+        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
+        Consumer<Serializable> setWarning = o -> { 
+        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
+
         AlloyableHandler alloyableHandler = new AlloyableHandler(new Alloyable());
-        this.currentAlloyable = alloyableHandler.buildFromDDL(this.resultList);
+        this.currentAlloyable = alloyableHandler.buildFromDDL(this.resultList, setWarning);
+        
     }
 
     protected void tearDown() throws Exception {

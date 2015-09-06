@@ -1,10 +1,13 @@
-package com.testdatadesigner.tdalloy.igniter.impl;
+package com.testdatadesigner.tdalloy.core.io.impl;
 
 import java.util.List;
-import com.testdatadesigner.tdalloy.igniter.IKVSInfo;
+
+import com.testdatadesigner.tdalloy.core.io.IKVSInfo;
+
 import org.mapdb.DB;
 import org.mapdb.DBMaker;
 import org.mapdb.HTreeMap;
+
 import java.io.Serializable;
 
 public class MapDbInfo implements IKVSInfo {

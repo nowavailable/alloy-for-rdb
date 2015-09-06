@@ -42,7 +42,7 @@ public class Relation implements Serializable {
 
 	public Atom getRefTo() {
 		if (this.refTo == null) {
-			throw new IllegalAccessError();
+			throw new ParseError(this.name + ":" + this.type.toString() +  " does not have owner.");
 		}
 		return this.refTo;
 	}
@@ -53,7 +53,7 @@ public class Relation implements Serializable {
 
 	public Atom getOwner() {
 		if (this.owner == null) {
-			throw new IllegalAccessError();
+			throw new ParseError(this.name + ":" + this.type.toString() +  " does not have owner.");
 		}
 		return this.owner;
 	}

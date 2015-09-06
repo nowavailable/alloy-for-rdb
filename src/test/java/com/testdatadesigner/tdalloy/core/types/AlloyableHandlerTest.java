@@ -4,15 +4,20 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.foundationdb.sql.parser.CreateTableNode;
-import com.testdatadesigner.tdalloy.core.io.IOGatewayInner;
+import com.testdatadesigner.tdalloy.core.io.IOGateway;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
+import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
+import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
 import junit.framework.TestCase;
@@ -22,24 +27,27 @@ public class AlloyableHandlerTest extends TestCase {
     List<CreateTableNode> resultList = new ArrayList<CreateTableNode>();
     Alloyable currentAlloyable;
     AlloyableHandler alloyableHandler;
+	Consumer<Serializable> setWarning;
     
     protected void setUp() throws Exception {
         super.setUp();
         Bootstrap.setProps();
-//        InputStream in = this.getClass().getResourceAsStream("/naming_rule.dump");
-//        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-//        ddlSplitter.prepare(in);
-//        List<String> results = ddlSplitter.getRawTables();
         URL resInfo = this.getClass().getResource("/naming_rule.dump");
-//        URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
+        //URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
         String filePath = resInfo.getFile();
-        List<String> results = IOGatewayInner.readSchemesFromDDL(filePath);
+        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+        List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
 
         IRdbSchemmaParser parser = new MySQLSchemaParser();
         this.resultList = parser.inboundParse(results);
         
         this.currentAlloyable = new Alloyable();
         this.alloyableHandler = new AlloyableHandler(currentAlloyable);
+
+        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
+        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
+        setWarning = o -> { 
+        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
     }
 
     protected void tearDown() throws Exception {
@@ -47,7 +55,7 @@ public class AlloyableHandlerTest extends TestCase {
     }
 
     public void testBuildAll() throws Exception {
-        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList, setWarning);
         String seperator = "  ";
         // String separator = "\t";
         for (Atom result : this.currentAlloyable.atoms) {
@@ -108,7 +116,7 @@ public class AlloyableHandlerTest extends TestCase {
     }
 
     public void testOutputToAls() throws Exception {
-        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList, setWarning);
         File outputToAls = this.alloyableHandler.outputToAls();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(outputToAls), "UTF-8"))){
             String line = null;

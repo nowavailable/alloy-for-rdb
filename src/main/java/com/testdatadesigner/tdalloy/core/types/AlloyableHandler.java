@@ -5,11 +5,14 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
+import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -59,12 +62,12 @@ public class AlloyableHandler {
      * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。 カラムの処理。
      * という順。
      *
-     * @param parsedDDLList
+     * @param parsedDDLList,setWarning
      * @return Alloyable
      * @throws IllegalAccessException
      */
-    public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList)
-        throws IllegalAccessException {
+    public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList, Consumer<Serializable> setWarning) 
+    		throws IllegalAccessException {
         /*
          * テーブルの処理。
          */
@@ -211,7 +214,7 @@ public class AlloyableHandler {
             if (relation.type.equals(Relation.Typify.RELATION)) {
                 this.alloyable.relations.stream()
                     .filter(rel -> rel.type.equals(Relation.Typify.RELATION_REFERRED))
-                    .filter(rel -> AlloyableHandler.getOwner(rel).name.equals(AlloyableHandler.getRefTo(relation).name))
+                    .filter(rel -> AlloyableHandler.getOwnerWithWarn(rel, setWarning).name.equals(AlloyableHandler.getRefToWithWarn(relation, setWarning).name))
                     .collect(Collectors.toList())
                     .forEach(rel ->rel.isNotEmpty = relation.isNotEmpty);
             }
@@ -331,9 +334,9 @@ public class AlloyableHandler {
 					.stream()
 					.map(s -> {
 						return this.alloyable.relations.stream()
-								.filter(rel -> rel.originColumnName != null && AlloyableHandler.getOwner(rel) != null
+								.filter(rel -> rel.originColumnName != null && AlloyableHandler.getOwnerWithWarn(rel, setWarning) != null
 										&& rel.originColumnName.equals(s)
-										&& AlloyableHandler.getOwner(rel).name.equals(tableSigName))
+										&& AlloyableHandler.getOwnerWithWarn(rel, setWarning).name.equals(tableSigName))
 								.collect(Collectors.toList()).get(0);
 					}).collect(Collectors.toList());
 			Fact multiColumnUniqueFact = relationHandler.buildMultiColumnUniqueFact(tableSigName, relations, uniqueIdxCounter);
@@ -427,13 +430,12 @@ public class AlloyableHandler {
         return tempFile;
     }
 
+
     public static Atom getOwner(Relation relation) {
     	Atom owner;
     	try {
     		owner = relation.getOwner();
-		} catch (IllegalAccessError e) {
-			// 
-			
+		} catch (ParseError e) {
 			owner = new Atom();
 		}
 		return owner;
@@ -443,11 +445,32 @@ public class AlloyableHandler {
     	Atom refTo;
     	try {
     		refTo = relation.getRefTo();
-		} catch (IllegalAccessError e) {
-			// 
-			
+		} catch (ParseError e) {
 			refTo = new Atom();
 		}
 		return refTo;
 	}
+
+	public static Atom getOwnerWithWarn(Relation relation, Consumer<Serializable> setWarning) {
+    	Atom owner;
+    	try {
+    		owner = relation.getOwner();
+		} catch (ParseError e) {
+			owner = new Atom();
+			setWarning.accept(e);
+		}
+		return owner;
+	}
+
+	public static Atom getRefToWithWarn(Relation relation, Consumer<Serializable> setWarning) {
+    	Atom refTo;
+    	try {
+    		refTo = relation.getRefTo();
+		} catch (ParseError e) {
+			refTo = new Atom();
+			setWarning.accept(e);
+		}
+		return refTo;
+	}
+	
 }
