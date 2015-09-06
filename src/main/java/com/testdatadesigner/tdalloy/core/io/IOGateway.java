@@ -1,11 +1,13 @@
 package com.testdatadesigner.tdalloy.core.io;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.EnumMap;
@@ -36,10 +38,12 @@ public class IOGateway {
     	return KVSInfoFactory.getInstance().getKvsInfo().getMap();
     }
     
-    public static BufferedWriter getTempFileWriter() throws IOException {
-        File tempFile = File.createTempFile("tdalloyToAlsFromAlloyable", "als");
-        tempFile.deleteOnExit();
+    public static BufferedWriter getTempFileWriter(File tempFile) throws IOException {
     	return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFile), "UTF-8"));
+    }
+    
+    public static BufferedReader getTempFileReader(File tempFile) throws IOException {
+        return new BufferedReader(new InputStreamReader(new FileInputStream(tempFile), "UTF-8"));
     }
 
 }

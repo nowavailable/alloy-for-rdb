@@ -1,17 +1,15 @@
 package com.testdatadesigner.tdalloy.core.types;
 
+import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -27,6 +25,7 @@ import com.foundationdb.sql.parser.ResultColumnList;
 import com.foundationdb.sql.parser.TableElementNode;
 import com.foundationdb.sql.parser.ConstraintDefinitionNode.ConstraintType;
 import com.google.common.base.Joiner;
+import com.testdatadesigner.tdalloy.core.io.IOGateway;
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
@@ -356,7 +355,7 @@ public class AlloyableHandler {
      * @return String
      * @throws IOException
      */
-    public File outputToAls() throws IOException {
+    public BufferedReader outputToAls() throws IOException {
         File tempFile = File.createTempFile("tdalloyToAlsFromAlloyable", "als");
         tempFile.deleteOnExit();
 
@@ -366,7 +365,7 @@ public class AlloyableHandler {
             .filter(rel -> AlloyableHandler.getOwner(rel).name.equals(atom.name)).collect(Collectors.toList());
 
         String indent = "  ";
-        try(BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFile), "UTF-8"))){
+        try(BufferedWriter writer = IOGateway.getTempFileWriter(tempFile)){
             StringBuffer strBuff = new StringBuffer();
 
             strBuff.append("open util/boolean\n");
@@ -427,7 +426,7 @@ public class AlloyableHandler {
             writer.write(strBuff.toString());
             strBuff.setLength(0);
         }
-        return tempFile;
+    	return IOGateway.getTempFileReader(tempFile);
     }
 
 
