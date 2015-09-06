@@ -40,28 +40,27 @@ public class Parser {
     	 * DDLを読み込み
     	 */
         List<String> results = null;
+        List<CreateTableNode> parsed = null;
 		try {
 			results = IOGateway.readSchemesFromDDL(path, ddlSplitter);
+			parsed = parser.inboundParse(results);
 		} catch (IOException e) {
 			throw new ImportError();
-		}
-        List<CreateTableNode> parsed = null;
-        try {
-			parsed = parser.inboundParse(results);
 		} catch (StandardException e) {
 			throw new ImportError();
 		}
         /*
-         * Alloyableオブジェクトに変換
+         * Alloy互換オブジェクトに変換
          */
         Map<String, List<Serializable>> map = IOGateway.getKVSMap();
         map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.ALLOYABLE_ON_BUILD), new ArrayList<Serializable>());
-        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
-        Consumer<Serializable> setWarning = o -> { 
-        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
+        //※参照、被参照の関係に不整合があった場合ワーニングとして永続化
+        //map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
+        //Consumer<Serializable> setWarning = o -> { 
+        //	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
         AlloyableHandler alloyableHandler = new AlloyableHandler(new Alloyable());
         try {
-			Alloyable currentAlloyable = alloyableHandler.buildFromDDL(parsed, setWarning);
+			Alloyable currentAlloyable = alloyableHandler.buildFromDDL(parsed);
 			map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.ALLOYABLE_ON_BUILD)).add(currentAlloyable);
 		} catch (IllegalAccessException e) {
 			throw new ImportError();

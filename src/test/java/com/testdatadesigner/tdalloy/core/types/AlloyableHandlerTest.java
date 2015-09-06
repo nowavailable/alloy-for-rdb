@@ -44,10 +44,10 @@ public class AlloyableHandlerTest extends TestCase {
         this.currentAlloyable = new Alloyable();
         this.alloyableHandler = new AlloyableHandler(currentAlloyable);
 
-        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
-        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
-        setWarning = o -> { 
-        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
+//        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
+//        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
+//        setWarning = o -> { 
+//        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
     }
 
     protected void tearDown() throws Exception {
@@ -55,7 +55,7 @@ public class AlloyableHandlerTest extends TestCase {
     }
 
     public void testBuildAll() throws Exception {
-        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList, setWarning);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
         String seperator = "  ";
         // String separator = "\t";
         for (Atom result : this.currentAlloyable.atoms) {
@@ -116,7 +116,7 @@ public class AlloyableHandlerTest extends TestCase {
     }
 
     public void testOutputToAls() throws Exception {
-        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList, setWarning);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
         File outputToAls = this.alloyableHandler.outputToAls();
         try(BufferedReader reader = new BufferedReader(new InputStreamReader(new FileInputStream(outputToAls), "UTF-8"))){
             String line = null;

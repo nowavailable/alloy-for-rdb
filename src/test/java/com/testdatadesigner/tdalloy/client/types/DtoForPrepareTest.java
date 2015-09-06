@@ -45,13 +45,14 @@ public class DtoForPrepareTest extends TestCase {
         this.resultList = parser.inboundParse(results);
 
 
-        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
-        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
-        Consumer<Serializable> setWarning = o -> { 
-        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
+//        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
+//        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
+//        Consumer<Serializable> setWarning = o -> { 
+//        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
 
         AlloyableHandler alloyableHandler = new AlloyableHandler(new Alloyable());
-        this.currentAlloyable = alloyableHandler.buildFromDDL(this.resultList, setWarning);
+//        this.currentAlloyable = alloyableHandler.buildFromDDL(this.resultList, setWarning);
+        this.currentAlloyable = alloyableHandler.buildFromDDL(this.resultList);
         
     }
 

@@ -38,10 +38,10 @@ public class ParameterizedTest extends TestCase {
         this.currentAlloyable = new Alloyable();
         this.alloyableHandler = new AlloyableHandler(this.currentAlloyable);
 
-        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
-        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
-        setWarning = o -> { 
-        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
+//        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
+//        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
+//        setWarning = o -> { 
+//        	map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD)).add(o);};
 
     }
 
@@ -50,7 +50,7 @@ public class ParameterizedTest extends TestCase {
     }
     
     public void testAlloyableToInversed() throws IllegalAccessException {
-        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList, setWarning);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
         Parameterized parameterized = new Parameterized();
 
     }

@@ -1,11 +1,16 @@
 package com.testdatadesigner.tdalloy.core.io;
 
 import java.io.BufferedInputStream;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.OutputStreamWriter;
 import java.io.Serializable;
 import java.util.EnumMap;
 import java.util.List;
+
 import org.mapdb.HTreeMap;
 
 public class IOGateway {
@@ -29,6 +34,12 @@ public class IOGateway {
     
     public static HTreeMap<String, List<Serializable>> getKVSMap() {
     	return KVSInfoFactory.getInstance().getKvsInfo().getMap();
+    }
+    
+    public static BufferedWriter getTempFileWriter() throws IOException {
+        File tempFile = File.createTempFile("tdalloyToAlsFromAlloyable", "als");
+        tempFile.deleteOnExit();
+    	return new BufferedWriter(new OutputStreamWriter(new FileOutputStream(tempFile), "UTF-8"));
     }
 
 }

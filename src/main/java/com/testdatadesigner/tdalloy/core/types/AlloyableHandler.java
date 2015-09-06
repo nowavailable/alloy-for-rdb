@@ -66,7 +66,7 @@ public class AlloyableHandler {
      * @return Alloyable
      * @throws IllegalAccessException
      */
-    public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList, Consumer<Serializable> setWarning) 
+    public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList) //, Consumer<Serializable> setWarning 
     		throws IllegalAccessException {
         /*
          * テーブルの処理。
@@ -214,7 +214,7 @@ public class AlloyableHandler {
             if (relation.type.equals(Relation.Typify.RELATION)) {
                 this.alloyable.relations.stream()
                     .filter(rel -> rel.type.equals(Relation.Typify.RELATION_REFERRED))
-                    .filter(rel -> AlloyableHandler.getOwnerWithWarn(rel, setWarning).name.equals(AlloyableHandler.getRefToWithWarn(relation, setWarning).name))
+                    .filter(rel -> AlloyableHandler.getOwner(rel).name.equals(AlloyableHandler.getRefTo(relation).name))
                     .collect(Collectors.toList())
                     .forEach(rel ->rel.isNotEmpty = relation.isNotEmpty);
             }
@@ -334,9 +334,9 @@ public class AlloyableHandler {
 					.stream()
 					.map(s -> {
 						return this.alloyable.relations.stream()
-								.filter(rel -> rel.originColumnName != null && AlloyableHandler.getOwnerWithWarn(rel, setWarning) != null
+								.filter(rel -> rel.originColumnName != null && AlloyableHandler.getOwner(rel) != null
 										&& rel.originColumnName.equals(s)
-										&& AlloyableHandler.getOwnerWithWarn(rel, setWarning).name.equals(tableSigName))
+										&& AlloyableHandler.getOwner(rel).name.equals(tableSigName))
 								.collect(Collectors.toList()).get(0);
 					}).collect(Collectors.toList());
 			Fact multiColumnUniqueFact = relationHandler.buildMultiColumnUniqueFact(tableSigName, relations, uniqueIdxCounter);
