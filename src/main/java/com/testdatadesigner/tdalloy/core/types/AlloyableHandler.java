@@ -388,7 +388,7 @@ public class AlloyableHandler {
                     Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
                     relation.isNotEmpty = matcher.find();
 
-                    if (isOmitted.test(tableNode.getFullName(), column)) {
+                    if (!isOmitted.test(tableNode.getFullName(), column)) {
                         this.alloyable.relations.add(relation);	
                     }
                 }
