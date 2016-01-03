@@ -82,7 +82,7 @@ public class AlloyableHandler {
         BiFunction<String, String, ColumnDefinitionNode> columnSearchByName = (tabName, colName) -> allColumns.get(tabName).stream().
                 filter(col -> col.getColumnName().equals(colName)).
                 collect(Collectors.toList()).get(0);
-        BiPredicate<String, ColumnDefinitionNode> isOmitted = (tabName, col) -> omitColumns.get(tabName) == null || 
+        BiPredicate<String, ColumnDefinitionNode> isOmitted = (tabName, col) -> omitColumns.get(tabName) != null && 
         		omitColumns.get(tabName).contains(col);
         BiConsumer<String, ColumnDefinitionNode> omit = (tabName, col) -> {
 	    	if (omitColumns.get(tabName) == null) {
