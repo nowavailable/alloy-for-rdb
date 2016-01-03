@@ -89,10 +89,11 @@ public class RulesForAlloyableRails implements IRulesForAlloyable {
                     .replaceAll(POLYMORPHIC_SUFFIX + "$", "")));
     }
 
-    public String tableNameFromFKey(String originalColumnName) throws IllegalAccessException {
+    public String tableNameFromFKey(String originalColumnName) {
         Matcher matcher = foreignKeyPattern.matcher(originalColumnName);
         if (!matcher.find()) {
-            throw new IllegalAccessException("this is not foreign key.");
+            //throw new IllegalAccessException("this is not foreign key.");
+            return originalColumnName;
         }
         return reverse(matcher.group(1));
     }

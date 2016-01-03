@@ -28,7 +28,8 @@ public class AlloyableHandlerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         Bootstrap.setProps();
-        URL resInfo = this.getClass().getResource("/naming_rule.dump");
+        URL resInfo = this.getClass().getResource("/naming_rule_with_composite.sql");
+        //URL resInfo = this.getClass().getResource("/naming_rule.dump");
         //URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
         String filePath = resInfo.getFile();
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();

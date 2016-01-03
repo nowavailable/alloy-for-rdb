@@ -6,10 +6,15 @@ import java.io.File;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.function.BiConsumer;
+import java.util.function.BiFunction;
+import java.util.function.BiPredicate;
 import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
@@ -71,32 +76,67 @@ public class AlloyableHandler {
          * テーブルの処理。
          */
 
-        List<ColumnDefinitionNode> allColumns = new ArrayList<>();
-        List<ColumnDefinitionNode> omitColumns = new ArrayList<>();
-        Function<String, ColumnDefinitionNode> columnSearchByName = name -> allColumns.stream().
-            filter(col -> col.getName().equals(name)).collect(Collectors.toList()).get(0);
-        Map<String, List<String>> uniqueConstraints = new LinkedHashMap<>();
+        Map<String, List<ColumnDefinitionNode>> allColumns = new HashMap<String, List<ColumnDefinitionNode>>();
+        Map<String, List<ColumnDefinitionNode>> omitColumns = new HashMap<String, List<ColumnDefinitionNode>>();
+
+        BiFunction<String, String, ColumnDefinitionNode> columnSearchByName = (tabName, colName) -> allColumns.get(tabName).stream().
+                filter(col -> col.getColumnName().equals(colName)).
+                collect(Collectors.toList()).get(0);
+        BiPredicate<String, ColumnDefinitionNode> isOmitted = (tabName, col) -> omitColumns.get(tabName) == null || 
+        		omitColumns.get(tabName).contains(col);
+        BiConsumer<String, ColumnDefinitionNode> omit = (tabName, col) -> {
+	    	if (omitColumns.get(tabName) == null) {
+	    		omitColumns.put(tabName, new ArrayList<ColumnDefinitionNode>(){{
+					this.add(col);
+				}});
+	    	} else {
+	    		omitColumns.get(tabName) .add(col);
+	    	}};
+        Map<String, List<String>> compositeUniqueConstraints = new LinkedHashMap<>();
         Pattern isNotNullPattern = Pattern.compile(" NOT NULL");
 
         for (CreateTableNode tableNode : parsedDDLList) {
 
             this.alloyable.atoms.add(tableHandler.build(tableNode.getFullName()));
-
+            // 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する
+            Map<String, List<String>> compositeUniqueConstraintsByFKey = new LinkedHashMap<>();
+            
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 // 外部キーはあとで処理。
                 if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
                     FKConstraintDefinitionNode constraint =
                         (FKConstraintDefinitionNode) tableElement;
-                    postpone(tableNode.getFullName(),
-                        ((ResultColumn) constraint.getColumnList().get(0)).getName());
+                    ResultColumnList columnList = constraint.getRefResultColumnList();
+                	if (columnList.size() > 1) {
+                		// 複合外部キーは、テーブル名をkeyにしたMapに
+                		List<String> columnNameList = new ArrayList<>();
+                		for (ResultColumn resultColumn : columnList) {
+                			columnNameList.add(resultColumn.getName());
+						}
+                		// 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する
+						compositeUniqueConstraintsByFKey.put(tableNode.getFullName(), columnNameList);
+					} else {
+	                    postpone(tableNode.getFullName(),
+	                        ((ResultColumn) constraint.getColumnList().get(0)).getName());	
+					}
                 }
                 else if (tableElement.getClass().equals(ConstraintDefinitionNode.class)) {
                     // プライマリキーはあとで処理
                     ConstraintDefinitionNode constraint = (ConstraintDefinitionNode) tableElement;
                     if (constraint.getConstraintType().equals(ConstraintType.PRIMARY_KEY)) {
-                        postpone(tableNode.getFullName(),
-                            ((ResultColumn) constraint.getColumnList().get(0)).getName());
-                    // （複合カラム）ユニーク制約はテーブル名をkeyにしたMapに
+                        ResultColumnList columnList = constraint.getColumnList();
+                        // 複合主キーは、テーブル名をkeyにしたMapに
+                    	if (columnList.size() > 1) {
+                    		List<String> columnNameList = new ArrayList<>();
+                    		for (ResultColumn resultColumn : columnList) {
+                    			columnNameList.add(resultColumn.getName());
+							}
+							compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
+						} else {
+	                        postpone(tableNode.getFullName(),
+	                            ((ResultColumn) constraint.getColumnList().get(0)).getName());
+						}
+                    // （複合カラム）ユニーク制約は、テーブル名をkeyにしたMapに
                     } else if (constraint.getConstraintType().equals(ConstraintType.UNIQUE)) {
                     	ResultColumnList columnList = constraint.getColumnList();
                     	if (columnList.size() > 1) {
@@ -104,16 +144,39 @@ public class AlloyableHandler {
                     		for (ResultColumn resultColumn : columnList) {
                     			columnNameList.add(resultColumn.getName());
 							}
-							uniqueConstraints.put(tableNode.getFullName(), columnNameList);
+							compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
 						}
                     }
                 }
                 // それ以外のelementをとりあえずぜんぶ保存
                 else if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
-                    allColumns.add((ColumnDefinitionNode)tableElement);
+                	List<ColumnDefinitionNode> exist = allColumns.get(tableNode.getFullName());
+                	if (exist == null) {
+    					allColumns.put(tableNode.getFullName(), new ArrayList<ColumnDefinitionNode>(){{
+    						this.add((ColumnDefinitionNode)tableElement);
+    					}});
+                	} else {
+                		exist.add((ColumnDefinitionNode)tableElement);	
+                	}
                 }
             }
+            
+			for (Entry<String, List<String>> pair : compositeUniqueConstraintsByFKey.entrySet()) {
+				// 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する。
+				List<String> target = compositeUniqueConstraints.get(pair.getKey());
+				if (target != null && target.equals(pair.getValue())) {
+					compositeUniqueConstraints.remove(pair.getKey());
+				}
+				// 複合外部キーに含まれるカラムは、通常のカラムとして解釈しない。
+				for (String colName : pair.getValue()) {
+					ColumnDefinitionNode column = columnSearchByName.apply(pair.getKey(), colName);	
+					if (column != null) {
+						omit.accept(pair.getKey(), column);
+					}
+ 				}
+			}
         }
+        
         /*
          * Constraintsに定義されている外部キーによる関連の処理
          */
@@ -122,20 +185,23 @@ public class AlloyableHandler {
                 if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
                     FKConstraintDefinitionNode constraint =
                         (FKConstraintDefinitionNode) tableElement;
+                    List<String> refColmnNames = new ArrayList<>();
+                    for (ResultColumn resultColumn : constraint.getRefResultColumnList()) {
+                    	refColmnNames.add(resultColumn.getName());
+                    }
+                    List<Relation> relations =
+                    		relationHandler.build(atomSearchByName, tableNode.getFullName(),
+								refColmnNames, constraint.getRefTableName().getFullTableName());
+                    // カラムの制約
                     for (ResultColumn resultColumn : constraint.getColumnList()) {
-                        List<Relation> relations =
-                            relationHandler.build(atomSearchByName, tableNode.getFullName(),
-                                resultColumn.getName(), constraint.getRefTableName().getFullTableName());
-                        // カラムの制約
-                        ColumnDefinitionNode column = columnSearchByName.apply(resultColumn.getName());
+                        ColumnDefinitionNode column = columnSearchByName.apply(tableNode.getFullName(), resultColumn.getName());
                         Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
                         relations.stream().
                             filter(rel -> rel.type.equals(Relation.Typify.RELATION)).collect(Collectors.toList()).
                             get(0).isNotEmpty = matcher.find();
-                        this.alloyable.relations.addAll(relations);
-
-                        this.alloyable.facts.add(relationHandler.buildFact(relations));
                     }
+                    this.alloyable.relations.addAll(relations);
+                    this.alloyable.facts.add(relationHandler.buildFact(relations));
                     // あとでさらに処理する。
                     postpone(tableNode.getFullName(),
                         ((ResultColumn) constraint.getColumnList().get(0)).getName());
@@ -150,6 +216,9 @@ public class AlloyableHandler {
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
                     ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
+                	if (isOmitted.test(tableNode.getFullName(), column)) {
+                		continue;
+                	}
                     columnNames.add(column.getName());
                 }
             }
@@ -168,8 +237,9 @@ public class AlloyableHandler {
                     // ※ポリモーフィック関連用の、xxx_id は、とりえあず使わない。
                     //postpone(tableNode.getFullName(),
                     //    polymorphicStr + namingRule.foreignKeySuffix());
-                    omitColumns.add(
-                        (ColumnDefinitionNode) columnSearchByName.apply(polymorphicStr + namingRule.foreignKeySuffix()));
+
+                    omit.accept(tableNode.getFullName(), 
+                    		(ColumnDefinitionNode) columnSearchByName.apply(tableNode.getFullName(),polymorphicStr + namingRule.foreignKeySuffix()));
                 }
             }
             // 外部キー
@@ -183,10 +253,10 @@ public class AlloyableHandler {
                     }
                     // ※解析失敗したら、単なる値カラムとして扱う。
                     List<Relation> relations =
-                        relationHandler.build(atomSearchByName, tableNode.getFullName(), keyStr,
+                        relationHandler.build(atomSearchByName, tableNode.getFullName(), Arrays.asList(keyStr),
                             String.valueOf(""));
                     // カラムの制約
-                    ColumnDefinitionNode column = columnSearchByName.apply(keyStr);
+                    ColumnDefinitionNode column = columnSearchByName.apply(tableNode.getFullName(),keyStr);
                     Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
                     List<Relation> rels = relations.stream().
                         filter(rel -> rel.type.equals(Relation.Typify.RELATION)).collect(Collectors.toList());
@@ -230,6 +300,9 @@ public class AlloyableHandler {
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
                     ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
+                	if (isOmitted.test(tableNode.getFullName(), column)) {
+                		continue;
+                	}
                     /*
                      * ポリモーフィック関連
                      */
@@ -252,7 +325,7 @@ public class AlloyableHandler {
                                     for (Relation relation : polymophicRelations) {
                                         if (relation.type.equals(Relation.Typify.RELATION_POLYMORPHIC)) {
                                             // カラムの制約
-                                            ColumnDefinitionNode c = columnSearchByName.apply(polymorphicStr + namingRule.polymorphicSuffix());
+                                            ColumnDefinitionNode c = columnSearchByName.apply(tableNode.getFullName(), polymorphicStr + namingRule.polymorphicSuffix());
                                             Matcher matcher = isNotNullPattern.matcher(c.getType().toString());
                                             isNotEmptyPolymorphicColumn = matcher.find();
                                             relation.isNotEmpty = isNotEmptyPolymorphicColumn;
@@ -315,7 +388,7 @@ public class AlloyableHandler {
                     Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
                     relation.isNotEmpty = matcher.find();
 
-                    if (!omitColumns.contains(column)) {
+                    if (isOmitted.test(tableNode.getFullName(), column)) {
                         this.alloyable.relations.add(relation);	
                     }
                 }
@@ -325,22 +398,12 @@ public class AlloyableHandler {
         /*
          * 複合カラムユニークインデックスのためのfactを生成
          */
-        int uniqueIdxCounter = 0;
-        for (String tableName : uniqueConstraints.keySet()) {
+        for (String tableName : compositeUniqueConstraints.keySet()) {
         	String tableSigName = NamingRuleForAlloyable.tableAtomName(tableName);
-        	List<String> list = uniqueConstraints.get(tableName);
-			List<Relation> relations = list
-					.stream()
-					.map(s -> {
-						return this.alloyable.relations.stream()
-								.filter(rel -> rel.originColumnName != null && AlloyableHandler.getOwner(rel) != null
-										&& rel.originColumnName.equals(s)
-										&& AlloyableHandler.getOwner(rel).name.equals(tableSigName))
-								.collect(Collectors.toList()).get(0);
-					}).collect(Collectors.toList());
-			Fact multiColumnUniqueFact = relationHandler.buildMultiColumnUniqueFact(tableSigName, relations, uniqueIdxCounter);
+        	List<String> list = compositeUniqueConstraints.get(tableName);
+			Fact multiColumnUniqueFact = 
+					relationHandler.buildMultiColumnUniqueFact(tableSigName, list);
 			this.alloyable.facts.add(multiColumnUniqueFact);
-        	uniqueIdxCounter ++;
         }
         return this.alloyable;
     }

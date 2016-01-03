@@ -16,7 +16,7 @@ public interface IRulesForAlloyable {
     public List<List<String>> guessedRelations(List<String> columnNames);
     public Boolean isGuessedPolymorphic(String originalColumnName, List<String> list);
 
-    public String tableNameFromFKey(String originalColumnName) throws IllegalAccessException;
+    public String tableNameFromFKey(String originalColumnName);
     public String fkeyFromTableName(String refTableName);
     public String foreignKeyName(String originalColumnName, String originalTableName);
     public String foreignKeyNameReversed(String refTableName, String originalTableName);
