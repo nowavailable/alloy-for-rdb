@@ -7,8 +7,8 @@ import java.util.List;
 public class Alloyable implements Serializable {
 
 	public static final long serialVersionUID = 1L;
-	public List<Atom> atoms = new ArrayList<>();
-	public List<Relation> relations = new ArrayList<>();
+	public List<IAtom> atoms = new ArrayList<>();
+	public List<IRelation> relations = new ArrayList<>();
 	public List<Fact> facts = new ArrayList<>();
 	public Boolean isRailsOriented = Boolean.FALSE;
 

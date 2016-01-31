@@ -15,7 +15,7 @@ public class Fact implements Serializable {
         RELATION_POLYMOPHIC_COLUMN,
         ROWS_CONSTRAINT,
     }
-    public List<Relation> owners = new ArrayList<>();
+    public List<IRelation> owners = new ArrayList<>();
 
     public Fact() {
         super();

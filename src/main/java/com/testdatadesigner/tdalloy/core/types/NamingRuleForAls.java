@@ -14,37 +14,38 @@ public class NamingRuleForAls {
     private static String SOME = "some";
     private static String SET = "set";
     private static String DISJ = "disj ";
-    private static Function<Relation, String> makeDisjoint = rel -> {return (rel.isUnique) ? DISJ : "";};
-    private static Function<Relation, String> makeMultiRelation = rel -> {return rel.isNotEmpty ? SOME : SET;};
-    private static Function<Relation, String> makeOneRelation = rel -> {return rel.isNotEmpty ? ONE : LONE;};
-    private static BiFunction<Relation, List<Relation>, Boolean> oneToOneOrMany = (referredRel, allRels) -> {
+    private static Function<IRelation, String> makeDisjoint = rel -> {return (rel.getIsUnique()) ? DISJ : "";};
+    private static Function<IRelation, String> makeMultiRelation = rel -> {return rel.getIsNotEmpty() ? SOME : SET;};
+    private static Function<IRelation, String> makeOneRelation = rel -> {return rel.getIsNotEmpty() ? ONE : LONE;};
+    private static BiFunction<IRelation, List<IRelation>, Boolean> oneToOneOrMany = (referredRel, allRels) -> {
         return allRels.stream()
-            .filter(r -> r.type.equals(Relation.Typify.RELATION))
-            .filter(r -> AlloyableHandler.getRefTo(r).name.equals(AlloyableHandler.getOwner(referredRel).name)).collect(Collectors.toList())
-            .get(0).isUnique;
+            .filter(r -> r.getClass().equals(TableRelation.class))
+            .filter(r -> AlloyableHandler.getRefTo(r).getName().equals(AlloyableHandler.getOwner(referredRel).getName())).collect(Collectors.toList())
+            .get(0).getIsUnique();
     };
 
-    private static Map<Relation.Typify, BiFunction<Relation, List<Relation>, String>> quantifierMap = new HashMap<Relation.Typify, BiFunction<Relation, List<Relation>, String>>() {
+    private static Map<Class, BiFunction<IRelation, List<IRelation>, String>> quantifierMap = 
+    		new HashMap<Class, BiFunction<IRelation, List<IRelation>, String>>() {
         {
-            put(Relation.Typify.RELATION, (rel, allRels) -> 
+            put(TableRelation.class, (rel, allRels) -> 
                 { return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);});
-            put(Relation.Typify.RELATION_REFERRED, (rel, allRels) -> 
+            put(TableRelationReferred.class, (rel, allRels) -> 
                 { return /*DISJ + */ (oneToOneOrMany.apply(rel, allRels) ? LONE : SET); });
-            put(Relation.Typify.RELATION_POLYMORPHIC, (rel, allRels) ->
+            put(RelationPolymorphic.class, (rel, allRels) ->
                 { return makeOneRelation.apply(rel);});
-            put(Relation.Typify.ABSTRACT_RELATION, (rel, allRels) -> 
+            put(AbstractRelationPolymorphic.class, (rel, allRels) -> 
                 { return ONE;});
-            put(Relation.Typify.ABSTRACT_RELATION_REFERRED, (rel, allRels) -> 
+            put(AbstractRelationPolymorphicReferred.class, (rel, allRels) -> 
                 { return /*DISJ + */ makeMultiRelation.apply(rel); });
-            put(Relation.Typify.ABSTRACT_RELATION_TYPIFIED, (rel, allRels) -> 
-                {return rel.isNotEmpty ? ONE : LONE;});
-            put(Relation.Typify.VALUE, (rel, allRels) -> 
+            put(AbstractRelationPolymorphicTypified.class, (rel, allRels) -> 
+                {return rel.getIsNotEmpty() ? ONE : LONE;});
+            put(ColumnValue.class, (rel, allRels) -> 
                 { return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);});
         }
     };
     
-    public String searchQuantifierMap(Relation relation, List<Relation> allRelations) {
-        return quantifierMap.get(relation.type).apply(relation, allRelations);
+    public String searchQuantifierMap(IRelation relation, List<IRelation> allRelations) {
+        return quantifierMap.get(relation.getClass()).apply(relation, allRelations);
     }
 
 }

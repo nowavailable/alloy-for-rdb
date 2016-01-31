@@ -8,17 +8,17 @@ public class Atom implements Serializable {
 
     public String name = "";
     public Integer seq;
-    public Tipify type;
-
-    public static enum Tipify {
-        ENTITY, // テーブル相当
-        PROPERTY,    // カラム値である（Boolean型以外はこれにまとめる）
-        POLYMORPHIC_ABSTRACT, // ポリモーフィック関連のtypeの抽象化されたsig
-        POLYMOPHIC_IMPLIMENT, // ポリモーフィック関連のtypeの抽象化されたsigの継承先
-        BOOLEAN_FACTOR,
-        // TODO: 状態sig用。
-        // STATE,
-    }
+//    public Tipify type;
+//
+//    public static enum Tipify {
+//        ENTITY, // テーブル相当
+//        PROPERTY,    // カラム値である（Boolean型以外はこれにまとめる）
+//        POLYMORPHIC_ABSTRACT, // ポリモーフィック関連のtypeの抽象化されたsig
+//        POLYMOPHIC_IMPLIMENT, // ポリモーフィック関連のtypeの抽象化されたsigの継承先
+//        BOOLEAN_FACTOR,
+//        // TODO: 状態sig用。
+//        // STATE,
+//    }
 
     public Boolean isAbstruct = false;
     public String originPropertyName = "";
@@ -26,39 +26,61 @@ public class Atom implements Serializable {
     
     public Boolean ignore = Boolean.FALSE;
 
-    private Atom parent;
-    private Atom extended;
-
-
     public Atom() {
         super();
     }
 
-    public Atom(Tipify type) {
-        super();
-        this.type = type;
-    }
+//    public Atom(Tipify type) {
+//        super();
+//        this.type = type;
+//    }
 
-    public Atom getParent() {
-        return this.parent;
-    }
+	public String getName() {
+		return name;
+	}
 
-    public void setParent(Atom parent) throws IllegalAccessException {
-        if (!Arrays.asList(Tipify.ENTITY, Tipify.POLYMORPHIC_ABSTRACT).contains(parent.type)) {
-            throw new IllegalAccessException("No need parent.");
-        }
-        this.parent = parent;
-    }
+	public void setName(String name) {
+		this.name = name;
+	}
 
-    public Atom getExtended() {
-        return this.extended;
-    }
+	public Integer getSeq() {
+		return seq;
+	}
 
-    public void setExtended(Atom extended) throws IllegalAccessException {
-        if (!Arrays.asList(Tipify.POLYMORPHIC_ABSTRACT).contains(extended.type)) {
-            throw new IllegalAccessException("No need extended.");
-        }
-        this.extended = extended;
-    }
+	public void setSeq(Integer seq) {
+		this.seq = seq;
+	}
+
+	public Boolean getIsAbstruct() {
+		return isAbstruct;
+	}
+
+	public void setIsAbstruct(Boolean isAbstruct) {
+		this.isAbstruct = isAbstruct;
+	}
+
+	public String getOriginPropertyName() {
+		return originPropertyName;
+	}
+
+	public void setOriginPropertyName(String originPropertyName) {
+		this.originPropertyName = originPropertyName;
+	}
+
+	public String getOriginTypeName() {
+		return originTypeName;
+	}
+
+	public void setOriginTypeName(String originTypeName) {
+		this.originTypeName = originTypeName;
+	}
+
+	public Boolean getIgnore() {
+		return ignore;
+	}
+
+	public void setIgnore(Boolean ignore) {
+		this.ignore = ignore;
+	}
 
 }

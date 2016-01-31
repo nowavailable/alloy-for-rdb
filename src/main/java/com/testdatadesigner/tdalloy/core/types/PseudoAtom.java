@@ -1,20 +1,39 @@
 package com.testdatadesigner.tdalloy.core.types;
 
-public class PseudoAtom extends Atom {
+import java.io.Serializable;
+
+public class PseudoAtom extends Entity implements Serializable, IAtom {
     private static final long serialVersionUID = 1L;
 
+    private IAtom parent;
+    private PolymorphicAbstract extended;
+
     public PseudoAtom(Integer seq) {
-        super(Atom.Tipify.ENTITY);
-        this.name = "Dummy" + String.valueOf(seq);
-        this.originPropertyName = "dummy_" + String.valueOf(seq) + "s";
+        super();
+        this.setName("Dummy" + String.valueOf(seq));
+        this.setOriginPropertyName("dummy_" + String.valueOf(seq) + "s");
     }
 
-    public PseudoAtom(String name, Atom abstructAtom) throws IllegalAccessException {
-        super(Atom.Tipify.POLYMOPHIC_IMPLIMENT);
-        if (!abstructAtom.type.equals(Atom.Tipify.POLYMORPHIC_ABSTRACT)) {
-            throw new IllegalAccessException();
-        }
-        this.name = name;
+    public PseudoAtom(String name, PolymorphicAbstract abstructAtom) throws IllegalAccessException {
+        this.setName(name);
         this.setExtended(abstructAtom);
     }
+
+    public PolymorphicAbstract getExtended() {
+        return this.extended;
+    }
+
+    public void setExtended(PolymorphicAbstract extended) {
+        this.extended = extended;
+    }
+
+    @Override
+	public IAtom getParent() {
+        return this.parent;
+	}
+
+	@Override
+	public void setParent(IAtom parent) throws IllegalAccessException {
+		this.parent = parent;
+	}
 }

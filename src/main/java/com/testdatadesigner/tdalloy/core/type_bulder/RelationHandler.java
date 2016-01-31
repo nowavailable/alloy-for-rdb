@@ -11,9 +11,13 @@ import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Fact;
+import com.testdatadesigner.tdalloy.core.types.IAtom;
+import com.testdatadesigner.tdalloy.core.types.IRelation;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
+import com.testdatadesigner.tdalloy.core.types.TableRelation;
+import com.testdatadesigner.tdalloy.core.types.TableRelationReferred;
 
 public class RelationHandler {
 
@@ -27,26 +31,26 @@ public class RelationHandler {
      * @return List<Relation> 外部キー保持側Relation, 参照される側Relation、のペア。
      * @throws IllegalAccessException 
      */
-    public List<Relation> build(Function<String, Atom> atomSearchByName, String ownerTableName,
+    public List<IRelation> build(Function<String, IAtom> atomSearchByName, String ownerTableName,
             List<String> fKeyColumnStrs, String refTableName) throws IllegalAccessException {
 
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         // 外部キー保持側
-        Relation relation = null;
+        IRelation relation = null;
 
         if (!refTableName.isEmpty()) {
-        	Atom refSig = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(refTableName));
-            relation = new Relation(Relation.Typify.RELATION);
+        	IAtom refSig = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(refTableName));
+            relation = new TableRelation();
             //relation.originColumnName = namingRule.fkeyFromTableName(refTableName);
-            relation.originColumnName = fKeyColumnStrs.toString();
-            relation.name = namingRule.foreignKeyName(namingRule.fkeyFromTableName(refTableName), ownerTableName);
+            relation.setOriginColumnName(fKeyColumnStrs.toString());
+            relation.setName(namingRule.foreignKeyName(namingRule.fkeyFromTableName(refTableName), ownerTableName));;
             relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
             relation.setRefTo(refSig);
 
             // 参照される側
-            Relation relationReversed = new Relation(Relation.Typify.RELATION_REFERRED);
+            IRelation relationReversed = new TableRelationReferred();
             relationReversed.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(refTableName)));
-            relationReversed.name = namingRule.foreignKeyNameReversed(refTableName, ownerTableName);
+            relationReversed.setName(namingRule.foreignKeyNameReversed(refTableName, ownerTableName));;
             relationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
             
             return Arrays.asList(relation, relationReversed);
@@ -56,24 +60,24 @@ public class RelationHandler {
         		throw new IllegalAccessException("複合外部キーなのは分かった。が、だったら、refTableName を引数に渡すこと。");
         	}
 
-        	Atom refSig = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStrs.get(0)));
+        	IAtom refSig = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStrs.get(0)));
             // DDL内に参照先が存在していなかったら、単なる値カラムとして扱う
             if (refSig == null) {
                 relation = new DefaultColumnHandler().
                     buildRelation(atomSearchByName, NamingRuleForAlloyable.tableAtomName(ownerTableName), namingRule.foreignKeyName(fKeyColumnStrs.get(0), ownerTableName));
                 return Arrays.asList(relation);
             } else {
-                relation = new Relation(Relation.Typify.RELATION);
-                relation.originColumnName = fKeyColumnStrs.get(0);
-                relation.name = namingRule.foreignKeyName(fKeyColumnStrs.get(0), ownerTableName);
+                relation = new TableRelation();
+                relation.setOriginColumnName(fKeyColumnStrs.get(0));
+                relation.setName(namingRule.foreignKeyName(fKeyColumnStrs.get(0), ownerTableName));
                 relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
                 relation.setRefTo(refSig);
 
                 // 参照される側
-                Relation relationReversed = new Relation(Relation.Typify.RELATION_REFERRED);
+                IRelation relationReversed = new TableRelationReferred();
                 String refTable = namingRule.tableNameFromFKey(fKeyColumnStrs.get(0));
                 relationReversed.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(refTable)));
-                relationReversed.name = namingRule.foreignKeyNameReversed(refTable, ownerTableName);
+                relationReversed.setName(namingRule.foreignKeyNameReversed(refTable, ownerTableName));
                 relationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
 
                 return Arrays.asList(relation, relationReversed);
@@ -81,15 +85,15 @@ public class RelationHandler {
         }
     }
     
-    public Fact buildFact(List<Relation> relations) {
+    public Fact buildFact(List<IRelation> relations) {
         String leftStr = new String();
         String rightStr = new String();
-        for (Relation relation : relations) {
-            if (relation.type.equals(Relation.Typify.RELATION)) {
-            	Atom owner = AlloyableHandler.getOwner(relation);
-                rightStr = owner.name + "<:" + relation.name;
-            } else if (relation.type.equals(Relation.Typify.RELATION_REFERRED)) {
-                leftStr = AlloyableHandler.getOwner(relation).name + "<:" + relation.name;
+        for (IRelation relation : relations) {
+            if (relation.getClass().equals(TableRelation.class)) {
+            	IAtom owner = AlloyableHandler.getOwner(relation);
+                rightStr = owner.getName() + "<:" + relation.getName();
+            } else if (relation.getClass().equals(TableRelationReferred.class)) {
+                leftStr = AlloyableHandler.getOwner(relation).getName() + "<:" + relation.getName();
             }
         }
         Fact fact = new Fact(Fact.Tipify.RELATION);

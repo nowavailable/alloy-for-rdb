@@ -8,10 +8,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.testdatadesigner.tdalloy.core.types.AbstractRelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
+import com.testdatadesigner.tdalloy.core.types.IAtom;
+import com.testdatadesigner.tdalloy.core.types.IRelation;
 import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
@@ -40,45 +43,46 @@ public class ImporterTest extends TestCase {
 
 	        String seperator = "  ";
 	        // String separator = "\t";
-	        for (Atom result : ((Alloyable)list.get(0)).atoms) {
-	            System.out.println(result.name
+	        for (IAtom result : ((Alloyable)list.get(0)).atoms) {
+	            System.out.println(result.getName()
 	                    + seperator
-	                    + result.type.toString()
+	                    + result.getClass().toString()
 	                    + seperator
-	                    + (result.originPropertyName.isEmpty() ? "-"
-	                            : result.originPropertyName)
+	                    + (result.getOriginPropertyName().isEmpty() ? "-"
+	                            : result.getOriginPropertyName())
 	                    + seperator
-	                    + result.isAbstruct.toString()
+	                    + result.getIsAbstruct().toString()
 	                    + seperator
 	                    + (result.getParent() == null ? "-"
-	                            : result.getParent().name)
+	                            : result.getParent().getName())
 	                    + seperator
-	                    + (result.originTypeName.isEmpty() ? "-"
-	                            : result.originTypeName)
+	                    + (result.getOriginTypeName().isEmpty() ? "-"
+	                            : result.getOriginTypeName())
 	                    + seperator
-	                    + (result.getExtended() == null ? "-"
-	                            : result.getExtended().name));
+	                    + (result.getClass().equals(AbstractRelationPolymorphicTypified.class) && 
+	                    		((AbstractRelationPolymorphicTypified)result).getExtended() == null ? "-"
+	                            : ((AbstractRelationPolymorphicTypified)result).getExtended().name));
 	        }
 	        System.out.println("-------------------------");
-	        for (Relation result : ((Alloyable)list.get(0)).relations) {
-	            System.out.println(result.name 
-	                    + seperator + result.type.toString()
-	                    + seperator + (AlloyableHandler.getOwner(result) == null ? "-" : AlloyableHandler.getOwner(result).name)
-	                    + seperator + (AlloyableHandler.getRefTo(result) == null ? "-" : AlloyableHandler.getRefTo(result).name) + '(' + result.originColumnName + ')'
-	                    + seperator + result.isNotEmpty);
+	        for (IRelation result : ((Alloyable)list.get(0)).relations) {
+	            System.out.println(result.getName() 
+	                    + seperator + result.getClass().toString()
+	                    + seperator + (AlloyableHandler.getOwner(result) == null ? "-" : AlloyableHandler.getOwner(result).getName())
+	                    + seperator + (AlloyableHandler.getRefTo(result) == null ? "-" : AlloyableHandler.getRefTo(result).getName()) + '(' + result.getOriginColumnName() + ')'
+	                    + seperator + result.getIsNotEmpty());
 	            if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
-	                ((MultipleRelation) result).refToTypes.forEach(rel -> {
-	                    System.out.println("                         refTo: " + rel.name);
+	                ((MultipleRelation) result).getRefToTypes().forEach(rel -> {
+	                    System.out.println("                         refTo: " + ((IAtom)rel).getName());
 	                });
-	                ((MultipleRelation) result).reverseOfrefToTypes.forEach(rel -> {
-	                    System.out.println("                       parent: " + rel.name);
-	                });
+//	                ((MultipleRelation) result).reverseOfrefToTypes.forEach(rel -> {
+//	                    System.out.println("                       parent: " + rel.name);
+//	                });
 	            }
 	        }
 	        System.out.println("-------------------------");
 	        for (Fact result : ((Alloyable)list.get(0)).facts) {
 	            System.out.println(result.value + seperator
-	                    + result.owners.stream().map(r -> r.name).collect(Collectors.joining(",")));
+	                    + result.owners.stream().map(r -> r.getName()).collect(Collectors.joining(",")));
 	        }
 		} catch (ImportError e) {
 			// TODO Auto-generated catch block

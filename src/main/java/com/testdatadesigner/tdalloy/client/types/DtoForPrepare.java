@@ -7,8 +7,10 @@ import java.util.stream.Collectors;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
+import com.testdatadesigner.tdalloy.core.types.Entity;
+import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
-import com.testdatadesigner.tdalloy.core.types.Atom;
+import com.testdatadesigner.tdalloy.core.types.Property;
 
 /**
  * クライアントの、初期設定ビューにGETさせる and 初期設定ビューからPOSTさせる 用の<br/>
@@ -62,57 +64,57 @@ public class DtoForPrepare {
      * @param alloyable
      */
     public void buiildFromAlloyable(Alloyable alloyable) {
-        List<Atom> tableAtoms =
-                alloyable.atoms.stream().filter(atom -> atom.type.equals(Atom.Tipify.ENTITY))
+        List<IAtom> tableAtoms =
+                alloyable.atoms.stream().filter(atom -> atom.getClass().equals(Entity.class))
                         .collect(Collectors.toList());
         tableAtoms.forEach(atom -> {
             Table table = this.constructTable();
-            table.name = atom.originPropertyName;
+            table.name = atom.getOriginPropertyName();
             // カラム
-            List<Atom> columnAtoms =
+            List<IAtom> columnAtoms =
                     alloyable.atoms
                             .stream()
                             .filter(a -> a.getParent() != null && a.getParent().equals(atom)
-                                    && (a.type.equals(Atom.Tipify.PROPERTY)))
+                                    && (a.getClass().equals(Property.class)))
                             .collect(Collectors.toList());
             columnAtoms.forEach(col -> {
                 Column column = this.constructColumn();
-                column.name = col.originPropertyName;
+                column.name = col.getOriginPropertyName();
                 table.columns.add(column);
             });
-            List<Atom> polymColumnAtoms =
+            List<IAtom> polymColumnAtoms =
                     alloyable.atoms
                             .stream()
                             .filter(a -> a.getParent() != null
                                     && a.getParent().equals(atom)
-                                    && (a.type
-                                            .equals(Atom.Tipify.POLYMORPHIC_ABSTRACT)))
+                                    && (a.getClass()
+                                            .equals(com.testdatadesigner.tdalloy.core.types.AbstractRelationPolymorphic.class)))
                             .collect(Collectors.toList());
             // ポリモーフィック（初期の未決状態）
             polymColumnAtoms.forEach(col -> {
                 Column column = this.constructColumn();
-                column.name = col.originPropertyName;
+                column.name = col.getOriginPropertyName();
                 column.relation = this.constructRelation();
                 column.relation.type = RelationType.POLYMORPHIC;
                 table.columns.add(column);
             });
             // 外部キー
-            List<? extends com.testdatadesigner.tdalloy.core.types.Relation> relsConcrete =
+            List<? extends com.testdatadesigner.tdalloy.core.types.IRelation> relsConcrete =
                     alloyable.relations
                             .stream()
                             .filter(rel -> AlloyableHandler.getOwner(rel).equals(atom)
-                                    && rel.type
+                                    && rel.getClass()
                                             .equals(
-                                                com.testdatadesigner.tdalloy.core.types.Relation.Typify.RELATION)
+                                                com.testdatadesigner.tdalloy.core.types.TableRelation.class)
                                     && !rel.getClass().equals(MultipleRelation.class))
                             .collect(Collectors.toList());
             relsConcrete.forEach(rel -> {
                 Column column = this.constructColumn();
-                column.name = RulesForAlloyableFactory.getInstance().getRule().singularize(AlloyableHandler.getRefTo(rel).originPropertyName)
+                column.name = RulesForAlloyableFactory.getInstance().getRule().singularize(AlloyableHandler.getRefTo(rel).getOriginPropertyName())
                                 + RulesForAlloyableFactory.getInstance().getRule().foreignKeySuffix();
                 column.relation = this.constructRelation();
                 column.relation.type = RelationType.MANY_TO_ONE;
-                column.relation.refTo.add(AlloyableHandler.getRefTo(rel).originPropertyName);
+                column.relation.refTo.add(AlloyableHandler.getRefTo(rel).getOriginPropertyName());
                 table.columns.add(column);
             });
 

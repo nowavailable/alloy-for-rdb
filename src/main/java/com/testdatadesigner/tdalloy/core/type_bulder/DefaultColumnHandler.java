@@ -2,38 +2,42 @@ package com.testdatadesigner.tdalloy.core.type_bulder;
 
 import java.util.function.Function;
 
-import com.testdatadesigner.tdalloy.core.types.Relation;
-import com.testdatadesigner.tdalloy.core.types.Atom;
+import com.testdatadesigner.tdalloy.core.types.ColumnValue;
+import com.testdatadesigner.tdalloy.core.types.IAtom;
+import com.testdatadesigner.tdalloy.core.types.IRelation;
+import com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract;
+import com.testdatadesigner.tdalloy.core.types.Property;
 import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
 
 public class DefaultColumnHandler {
 
-    public Relation buildRelation(Function<String, Atom> atomSearchByName, String ownerTableName,
-            String columnName) {
-        Relation relation = new Relation(Relation.Typify.VALUE);
-        relation.originColumnName = columnName;
+    public IRelation buildRelation(Function<String, IAtom> atomSearchByName, String ownerTableName,
+            String columnName) throws IllegalAccessException {
+        IRelation relation = new ColumnValue();
+        relation.setOriginColumnName(columnName);
         relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
-        relation.name = columnName;
-        Atom column = new Atom(Atom.Tipify.PROPERTY);
-        column.name = "Boundary";
+        relation.setName(columnName);
+        IAtom column = new Property();
+        column.setName("Boundary");
         relation.setRefTo(column);
         return relation;
     }
 
-    public Atom buildAtom(Function<String, Atom> atomSearchByName, String ownerTableName,
+    public IAtom buildAtom(Function<String, IAtom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
-        Atom colomnAtom = new Atom(Atom.Tipify.PROPERTY);
-        colomnAtom.originPropertyName = columnName;
-        colomnAtom.name = NamingRuleForAlloyable.columnAtomName(columnName, ownerTableName);
+        IAtom colomnAtom = new Property();
+        colomnAtom.setOriginPropertyName(columnName);
+        colomnAtom.setName(NamingRuleForAlloyable.columnAtomName(columnName, ownerTableName));
         colomnAtom.setParent(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         return colomnAtom;
     }
 
-    public Atom buildAtomPolymorphicAbstract(Function<String, Atom> atomSearchByName, String ownerTableName,
+    public PolymorphicAbstract buildAtomPolymorphicAbstract(Function<String, IAtom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
-        Atom colomnAtom = buildAtom(atomSearchByName, ownerTableName, columnName);
-        colomnAtom.name = NamingRuleForAlloyable.polymorphicAbstractAtomName(columnName, ownerTableName);
-        colomnAtom.type = Atom.Tipify.POLYMORPHIC_ABSTRACT;
+    	PolymorphicAbstract colomnAtom = new PolymorphicAbstract();
+        colomnAtom.setOriginPropertyName(columnName);
+        colomnAtom.setParent(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
+        colomnAtom.setName(NamingRuleForAlloyable.polymorphicAbstractAtomName(columnName, ownerTableName));;
         return colomnAtom;
     }
 }
