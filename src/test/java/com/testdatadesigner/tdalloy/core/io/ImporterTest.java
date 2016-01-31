@@ -60,8 +60,8 @@ public class ImporterTest extends TestCase {
 	                            : result.getOriginTypeName())
 	                    + seperator
 	                    + (result.getClass().equals(AbstractRelationPolymorphicTypified.class) && 
-	                    		((AbstractRelationPolymorphicTypified)result).getExtended() == null ? "-"
-	                            : ((AbstractRelationPolymorphicTypified)result).getExtended().name));
+	                    		((AbstractRelationPolymorphicTypified)result).getExtended() != null ? 
+	                    				((AbstractRelationPolymorphicTypified)result).getExtended().getName() : "-"));
 	        }
 	        System.out.println("-------------------------");
 	        for (IRelation result : ((Alloyable)list.get(0)).relations) {
