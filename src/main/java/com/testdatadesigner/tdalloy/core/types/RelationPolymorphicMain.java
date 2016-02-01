@@ -3,13 +3,13 @@ package com.testdatadesigner.tdalloy.core.types;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class AbstractRelationPolymorphicReferred extends Relation implements Serializable,IRelation {
+public class RelationPolymorphicMain extends Relation implements Serializable,IRelation {
 	private static final long serialVersionUID = 1L;
 
     private Entity refTo;
     private ITable owner;
     
-	public AbstractRelationPolymorphicReferred() {
+	public RelationPolymorphicMain() {
 		super();
 	}
 

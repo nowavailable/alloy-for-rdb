@@ -71,9 +71,9 @@ public class AlloyableHandlerTest extends TestCase {
                     + (result.getOriginTypeName().isEmpty() ? "-"
                             : result.getOriginTypeName())
                     + seperator
-                    + (result.getClass().equals(AbstractRelationPolymorphicTypified.class) && 
-                    		((AbstractRelationPolymorphicTypified)result).getExtended() != null ? 
-                    				((AbstractRelationPolymorphicTypified)result).getExtended().getName() : "-"));
+                    + (result.getClass().equals(RelationPolymorphicTypified.class) && 
+                    		((RelationPolymorphicTypified)result).getExtended() != null ? 
+                    				((RelationPolymorphicTypified)result).getExtended().getName() : "-"));
         }
         System.out.println("-------------------------");
         for (IRelation result : this.currentAlloyable.relations) {

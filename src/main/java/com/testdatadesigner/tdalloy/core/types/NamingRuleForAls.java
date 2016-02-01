@@ -31,13 +31,13 @@ public class NamingRuleForAls {
                 { return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);});
             put(TableRelationReferred.class, (rel, allRels) -> 
                 { return /*DISJ + */ (oneToOneOrMany.apply(rel, allRels) ? LONE : SET); });
-            put(RelationPolymorphic.class, (rel, allRels) ->
+            put(RelationPolymorphicTypeHolder.class, (rel, allRels) ->
                 { return makeOneRelation.apply(rel);});
-            put(AbstractRelationPolymorphic.class, (rel, allRels) -> 
+            put(RelationPolymorphicTypeBundler.class, (rel, allRels) -> 
                 { return ONE;});
-            put(AbstractRelationPolymorphicReferred.class, (rel, allRels) -> 
+            put(RelationPolymorphicMain.class, (rel, allRels) -> 
                 { return /*DISJ + */ makeMultiRelation.apply(rel); });
-            put(AbstractRelationPolymorphicTypified.class, (rel, allRels) -> 
+            put(RelationPolymorphicTypified.class, (rel, allRels) -> 
                 {return rel.getIsNotEmpty() ? ONE : LONE;});
             put(RelationProperty.class, (rel, allRels) -> 
                 { return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);});
@@ -45,7 +45,7 @@ public class NamingRuleForAls {
     };
     
     public String searchQuantifierMap(IRelation relation, List<IRelation> allRelations) {
-        Class<?> clazz = relation.getClass().equals(ReversibleRelation.class) ? ((ReversibleRelation)relation).getInjected() : relation.getClass();
+        Class<?> clazz = relation.getClass().equals(RelationMultipliable.class) ? ((RelationMultipliable)relation).getInjected() : relation.getClass();
         return quantifierMap.get(clazz).apply(relation, allRelations);
     }
 

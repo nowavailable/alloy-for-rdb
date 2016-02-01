@@ -4,7 +4,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
 
-public class ReversibleRelation extends TableRelation implements Serializable, IRelation {
+public class RelationMultipliable extends TableRelation implements Serializable, IRelation {
     private static final long serialVersionUID = 1L;
 
     private IAtom refTo;
@@ -17,15 +17,15 @@ public class ReversibleRelation extends TableRelation implements Serializable, I
     private Class<? extends Atom> boundedOwner;
     private Class<? extends Atom> boundedRefTo;
     
-    public ReversibleRelation(Class<? extends Relation> injected) throws IllegalAccessException {
+    public RelationMultipliable(Class<? extends Relation> injected) throws IllegalAccessException {
         super();
-    	if (injected.equals(RelationPolymorphic.class)) {
+    	if (injected.equals(RelationPolymorphicTypeHolder.class)) {
     	    this.injected = injected;
     		this.boundedOwner = Entity.class;
     		this.boundedRefTo = PolymorphicAbstract.class;
     		return;
     	} 
-    	if (injected.equals(AbstractRelationPolymorphic.class)) {
+    	if (injected.equals(RelationPolymorphicTypeBundler.class)) {
             this.injected = injected;
     		this.boundedOwner = PolymorphicAbstract.class;
     		this.boundedRefTo = Entity.class;

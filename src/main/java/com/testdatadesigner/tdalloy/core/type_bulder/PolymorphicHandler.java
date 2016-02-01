@@ -7,20 +7,20 @@ import java.util.function.Function;
 
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
-import com.testdatadesigner.tdalloy.core.types.AbstractRelationPolymorphic;
-import com.testdatadesigner.tdalloy.core.types.AbstractRelationPolymorphicReferred;
-import com.testdatadesigner.tdalloy.core.types.AbstractRelationPolymorphicTypified;
+import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeBundler;
+import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicMain;
+import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
 import com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract;
 import com.testdatadesigner.tdalloy.core.types.PseudoAtom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
-import com.testdatadesigner.tdalloy.core.types.ReversibleRelation;
+import com.testdatadesigner.tdalloy.core.types.RelationMultipliable;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
-import com.testdatadesigner.tdalloy.core.types.RelationPolymorphic;
+import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeHolder;
 
 public class PolymorphicHandler {
     IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
@@ -35,7 +35,7 @@ public class PolymorphicHandler {
     public IRelation buildRelationForDummy(Function<String, IAtom> atomSearchByName, String ownerTableName,
             String fKeyColumnStr, String refTableName) throws IllegalAccessException {
         // 参照される側
-        IRelation relation = new AbstractRelationPolymorphicReferred();
+        IRelation relation = new RelationPolymorphicMain();
         String refTable = refTableName.isEmpty() ? namingRule
                 .tableNameFromFKey(fKeyColumnStr) : refTableName;
         relation.setName(namingRule.foreignKeyNameReversed(ownerTableName, refTable));
@@ -55,7 +55,7 @@ public class PolymorphicHandler {
         List<IRelation> relList = new ArrayList<>();
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         // 1/9
-        ReversibleRelation valueRelation = new ReversibleRelation(RelationPolymorphic.class);
+        RelationMultipliable valueRelation = new RelationMultipliable(RelationPolymorphicTypeHolder.class);
         valueRelation.originColumnName = polymorphicStr + namingRule.polymorphicSuffix();
         valueRelation.name =
                 NamingRuleForAlloyable.columnRelationName(
@@ -66,10 +66,11 @@ public class PolymorphicHandler {
         relList.add(valueRelation);
 
         // 5/9
-        ReversibleRelation polymRelationReversed =
-                new ReversibleRelation(AbstractRelationPolymorphic.class);
+        RelationMultipliable polymRelationReversed =
+                new RelationMultipliable(RelationPolymorphicTypeBundler.class);
         polymRelationReversed.originColumnName = polymorphicStr + namingRule.polymorphicSuffix();
-        polymRelationReversed.name = "refTo_" + NamingRuleForAlloyable.tableAtomName(ownerTableName);
+        polymRelationReversed.name = //"refTo_" + NamingRuleForAlloyable.tableAtomName(ownerTableName);
+        		polymorphicStr + "_bundler";
         polymRelationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         //polymRelationReversed.reverseOfrefToTypes = refToAtoms;
         polymRelationReversed.setOwner(polymAbstructAtom);
@@ -78,7 +79,7 @@ public class PolymorphicHandler {
     }
     
     public IRelation buildTypifiedRelation(IAtom extendedAtom, IAtom dummyAtom) throws IllegalAccessException {
-        IRelation relation = new AbstractRelationPolymorphicTypified();
+        IRelation relation = new RelationPolymorphicTypified();
         relation.setName(namingRule.tableize(dummyAtom.getName()));
         relation.setOwner(extendedAtom);
         relation.setRefTo(dummyAtom);
@@ -90,10 +91,10 @@ public class PolymorphicHandler {
         String rightStr = new String();
         for (IRelation relation : relations) {
         	IAtom owner = AlloyableHandler.getOwner(relation);
-        	if (relation.getClass().equals(ReversibleRelation.class)) {
-                if (((ReversibleRelation)relation).getInjected().equals(AbstractRelationPolymorphic.class)) {
+        	if (relation.getClass().equals(RelationMultipliable.class)) {
+                if (((RelationMultipliable)relation).getInjected().equals(RelationPolymorphicTypeBundler.class)) {
                     rightStr = owner.getName() + "<:" + relation.getName();
-                } else if (((ReversibleRelation)relation).getInjected().equals(RelationPolymorphic.class)) {
+                } else if (((RelationMultipliable)relation).getInjected().equals(RelationPolymorphicTypeHolder.class)) {
                     leftStr = owner.getName() + "<:" + relation.getName();
                 }   
             }

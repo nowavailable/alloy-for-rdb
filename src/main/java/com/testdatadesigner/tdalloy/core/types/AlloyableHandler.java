@@ -323,13 +323,13 @@ public class AlloyableHandler {
                                     List<IRelation> polymophicRelations =
                                         polymorphicHandler.buildRelation(atomSearchByName, polymorphicStr, tableNode.getFullName(), polymAbstructAtom);
                                     for (IRelation relation : polymophicRelations) {
-                                        if (relation.getClass().equals(RelationPolymorphic.class)) {
+                                        if (relation.getClass().equals(RelationPolymorphicTypeHolder.class)) {
                                             // カラムの制約
                                             ColumnDefinitionNode c = columnSearchByName.apply(tableNode.getFullName(), polymorphicStr + namingRule.polymorphicSuffix());
                                             Matcher matcher = isNotNullPattern.matcher(c.getType().toString());
                                             isNotEmptyPolymorphicColumn = matcher.find();
                                             relation.setIsNotEmpty(isNotEmptyPolymorphicColumn);
-                                        } else if (relation.getClass().equals(AbstractRelationPolymorphic.class)) {
+                                        } else if (relation.getClass().equals(RelationPolymorphicTypeBundler.class)) {
                                             relation.setIsNotEmpty(true);
                                         }
                                     }
@@ -364,7 +364,7 @@ public class AlloyableHandler {
                                         this.alloyable.facts.add(
                                             polymorphicHandler.buildFactForDummies(relation,
                                                 polymophicRelations.stream().filter(
-                                                        rel -> rel.getClass().equals(ReversibleRelation.class) && ((ReversibleRelation)rel).getInjected().equals(RelationPolymorphic.class)
+                                                        rel -> rel.getClass().equals(RelationMultipliable.class) && ((RelationMultipliable)rel).getInjected().equals(RelationPolymorphicTypeHolder.class)
                                                         ).collect(Collectors.toList()).get(0)));
                                     }
                                 }
@@ -442,13 +442,13 @@ public class AlloyableHandler {
                 /*
                  * sig にする。
                  */
-                String sigStr = atom.getClass().equals(AbstractRelationPolymorphic.class) ? "abstract sig " : "sig ";
+                String sigStr = atom.getClass().equals(RelationPolymorphicTypeBundler.class) ? "abstract sig " : "sig ";
                 sigStrBuff.append(sigStr);
                 sigStrBuff.append(atom.getName());
-                if (atom.getClass().equals(AbstractRelationPolymorphicTypified.class) && 
-                		((AbstractRelationPolymorphicTypified)atom).getExtended() != null) {
+                if (atom.getClass().equals(RelationPolymorphicTypified.class) && 
+                		((RelationPolymorphicTypified)atom).getExtended() != null) {
                     sigStrBuff.append(" extends ");
-                    sigStrBuff.append(((AbstractRelationPolymorphicTypified)atom).getExtended().getName());
+                    sigStrBuff.append(((RelationPolymorphicTypified)atom).getExtended().getName());
                 }
                 sigStrBuff.append(" {");
                 sigStrBuff.append("\n");

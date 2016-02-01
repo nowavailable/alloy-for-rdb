@@ -1,15 +1,25 @@
 package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
-public class RelationPolymorphic extends Relation implements Serializable, IRelation {
+public class RelationPolymorphicTypified extends Relation implements Serializable, IRelation {
 	private static final long serialVersionUID = 1L;
 
-    private PolymorphicAbstract refTo;
-    private Entity owner;
+    private Entity refTo;
+    private IPolymorphicColumn owner;
+    private PolymorphicAbstract extended;
 
-    public RelationPolymorphic() {
+    public RelationPolymorphicTypified() {
 		super();
+	}
+
+	public PolymorphicAbstract getExtended() {
+		return extended;
+	}
+
+	public void setExtended(PolymorphicAbstract extended) {
+		this.extended = extended;
 	}
 
 	@Override
@@ -22,10 +32,10 @@ public class RelationPolymorphic extends Relation implements Serializable, IRela
 
 	@Override
 	public void setRefTo(IAtom refTo) throws IllegalAccessException {
-        if (!refTo.getClass().equals(PolymorphicAbstract.class)) {
+        if (!Arrays.asList(refTo.getClass().getInterfaces()).contains(ITable.class)) {
             throw new IllegalAccessException(refTo.getClass().toString() + " is not for refTo.");
         }
-		this.refTo = (PolymorphicAbstract)refTo;
+		this.refTo = (Entity)refTo;
 	}
 
 	@Override
@@ -33,15 +43,14 @@ public class RelationPolymorphic extends Relation implements Serializable, IRela
 		if (this.owner == null) {
 //			throw new ParseError(this.name + ":" + this.type.toString() +  " does not have owner.");
 		}
-		return this.owner;
+		return (IAtom)this.owner;
 	}
 
 	@Override
 	public void setOwner(IAtom owner) throws IllegalAccessException {
-        if (!owner.getClass().equals(Entity.class)) {
+        if (!Arrays.asList(owner.getClass().getInterfaces()).contains(IPolymorphicColumn.class)) {
             throw new IllegalAccessException(owner.getClass().toString() + " is not for owner.");
         }
-		this.owner = (Entity)owner;
+		this.owner = (IPolymorphicColumn)owner;
 	}
-
 }

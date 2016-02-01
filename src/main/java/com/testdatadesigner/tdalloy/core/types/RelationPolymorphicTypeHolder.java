@@ -2,13 +2,13 @@ package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
 
-public class AbstractRelationPolymorphic extends Relation implements Serializable, IRelation {
+public class RelationPolymorphicTypeHolder extends Relation implements Serializable, IRelation {
 	private static final long serialVersionUID = 1L;
 
-    private Entity refTo;
-    private PolymorphicAbstract owner;
+    private PolymorphicAbstract refTo;
+    private Entity owner;
 
-	public AbstractRelationPolymorphic() {
+    public RelationPolymorphicTypeHolder() {
 		super();
 	}
 
@@ -22,10 +22,10 @@ public class AbstractRelationPolymorphic extends Relation implements Serializabl
 
 	@Override
 	public void setRefTo(IAtom refTo) throws IllegalAccessException {
-        if (!refTo.getClass().equals(Entity.class)) {
+        if (!refTo.getClass().equals(PolymorphicAbstract.class)) {
             throw new IllegalAccessException(refTo.getClass().toString() + " is not for refTo.");
         }
-		this.refTo = (Entity)refTo;
+		this.refTo = (PolymorphicAbstract)refTo;
 	}
 
 	@Override
@@ -38,9 +38,10 @@ public class AbstractRelationPolymorphic extends Relation implements Serializabl
 
 	@Override
 	public void setOwner(IAtom owner) throws IllegalAccessException {
-        if (!owner.getClass().equals(PolymorphicAbstract.class)) {
+        if (!owner.getClass().equals(Entity.class)) {
             throw new IllegalAccessException(owner.getClass().toString() + " is not for owner.");
         }
-		this.owner = (PolymorphicAbstract)owner;
+		this.owner = (Entity)owner;
 	}
+
 }

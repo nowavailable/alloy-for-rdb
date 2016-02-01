@@ -8,14 +8,14 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import com.testdatadesigner.tdalloy.core.types.AbstractRelationPolymorphicTypified;
+import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
-import com.testdatadesigner.tdalloy.core.types.ReversibleRelation;
+import com.testdatadesigner.tdalloy.core.types.RelationMultipliable;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
@@ -59,9 +59,9 @@ public class ImporterTest extends TestCase {
 	                    + (result.getOriginTypeName().isEmpty() ? "-"
 	                            : result.getOriginTypeName())
 	                    + seperator
-	                    + (result.getClass().equals(AbstractRelationPolymorphicTypified.class) && 
-	                    		((AbstractRelationPolymorphicTypified)result).getExtended() != null ? 
-	                    				((AbstractRelationPolymorphicTypified)result).getExtended().getName() : "-"));
+	                    + (result.getClass().equals(RelationPolymorphicTypified.class) && 
+	                    		((RelationPolymorphicTypified)result).getExtended() != null ? 
+	                    				((RelationPolymorphicTypified)result).getExtended().getName() : "-"));
 	        }
 	        System.out.println("-------------------------");
 	        for (IRelation result : ((Alloyable)list.get(0)).relations) {
