@@ -2,13 +2,13 @@ package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
 
-public class PolymorphicImpliment extends Atom implements Serializable, IAtom {
+public class PolymorphicImpl extends Atom implements Serializable, IAtom, IPolymorphicColumn {
 	private static final long serialVersionUID = 1L;
 
     private IAtom parent = null;
     private PolymorphicAbstract extended;
 
-	public PolymorphicImpliment() {
+	public PolymorphicImpl() {
 		super();
 	}
 

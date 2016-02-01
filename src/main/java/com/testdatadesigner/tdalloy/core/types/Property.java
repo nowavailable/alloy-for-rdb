@@ -3,7 +3,7 @@ package com.testdatadesigner.tdalloy.core.types;
 import java.io.Serializable;
 import java.util.Arrays;
 
-public class Property extends Atom implements Serializable, IAtom {
+public class Property extends Atom implements Serializable, IAtom, IColumnValue {
 	private static final long serialVersionUID = 1L;
 
     private IAtom parent;

@@ -9,7 +9,7 @@ import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Entity;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
-import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
+import com.testdatadesigner.tdalloy.core.types.ReversibleRelation;
 import com.testdatadesigner.tdalloy.core.types.Property;
 
 /**
@@ -106,7 +106,7 @@ public class DtoForPrepare {
                                     && rel.getClass()
                                             .equals(
                                                 com.testdatadesigner.tdalloy.core.types.TableRelation.class)
-                                    && !rel.getClass().equals(MultipleRelation.class))
+                                    && !rel.getClass().equals(ReversibleRelation.class))
                             .collect(Collectors.toList());
             relsConcrete.forEach(rel -> {
                 Column column = this.constructColumn();

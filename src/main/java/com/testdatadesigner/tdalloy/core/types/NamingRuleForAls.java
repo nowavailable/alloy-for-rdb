@@ -39,13 +39,14 @@ public class NamingRuleForAls {
                 { return /*DISJ + */ makeMultiRelation.apply(rel); });
             put(AbstractRelationPolymorphicTypified.class, (rel, allRels) -> 
                 {return rel.getIsNotEmpty() ? ONE : LONE;});
-            put(ColumnValue.class, (rel, allRels) -> 
+            put(RelationProperty.class, (rel, allRels) -> 
                 { return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);});
         }
     };
     
     public String searchQuantifierMap(IRelation relation, List<IRelation> allRelations) {
-        return quantifierMap.get(relation.getClass()).apply(relation, allRelations);
+        Class<?> clazz = relation.getClass().equals(ReversibleRelation.class) ? ((ReversibleRelation)relation).getInjected() : relation.getClass();
+        return quantifierMap.get(clazz).apply(relation, allRelations);
     }
 
 }

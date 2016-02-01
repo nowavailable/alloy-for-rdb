@@ -265,9 +265,9 @@ public class AlloyableHandler {
                     }
                     this.alloyable.relations.addAll(relations);
 
-                    List<IRelation> collects = relations.stream().filter(rel -> !rel.getClass().equals(ColumnValue.class)).collect(Collectors.toList());
+                    List<IRelation> collects = relations.stream().filter(rel -> !rel.getClass().equals(RelationProperty.class)).collect(Collectors.toList());
                     if (!collects.isEmpty()) {
-                    	this.alloyable.facts.add(relationHandler.buildFact(relations.stream().filter(rel -> !rel.getClass().equals(ColumnValue.class)).collect(Collectors.toList())));
+                    	this.alloyable.facts.add(relationHandler.buildFact(relations.stream().filter(rel -> !rel.getClass().equals(RelationProperty.class)).collect(Collectors.toList())));
                     }
                     
                     // あとでさらに処理する。
@@ -363,9 +363,9 @@ public class AlloyableHandler {
                                         // and fact
                                         this.alloyable.facts.add(
                                             polymorphicHandler.buildFactForDummies(relation,
-                                                polymophicRelations.stream().filter(rel -> rel.getClass().equals(
-                                                		RelationPolymorphic.class)).
-                                                    collect(Collectors.toList()).get(0)));
+                                                polymophicRelations.stream().filter(
+                                                        rel -> rel.getClass().equals(ReversibleRelation.class) && ((ReversibleRelation)rel).getInjected().equals(RelationPolymorphic.class)
+                                                        ).collect(Collectors.toList()).get(0)));
                                     }
                                 }
                                 buildPolymRelationCount++;

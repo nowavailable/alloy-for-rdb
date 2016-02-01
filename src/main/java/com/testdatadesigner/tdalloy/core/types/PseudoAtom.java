@@ -2,7 +2,7 @@ package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
 
-public class PseudoAtom extends Entity implements Serializable, IAtom {
+public class PseudoAtom extends Entity implements Serializable, IAtom, ITable, IPolymorphicColumn {
     private static final long serialVersionUID = 1L;
 
     private IAtom parent;

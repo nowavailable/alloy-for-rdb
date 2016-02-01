@@ -1,12 +1,13 @@
 package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
 public class AbstractRelationPolymorphicTypified extends Relation implements Serializable, IRelation {
 	private static final long serialVersionUID = 1L;
 
     private Entity refTo;
-    private PolymorphicImpliment owner;
+    private IPolymorphicColumn owner;
     private PolymorphicAbstract extended;
 
     public AbstractRelationPolymorphicTypified() {
@@ -31,7 +32,7 @@ public class AbstractRelationPolymorphicTypified extends Relation implements Ser
 
 	@Override
 	public void setRefTo(IAtom refTo) throws IllegalAccessException {
-        if (!refTo.getClass().equals(Entity.class)) {
+        if (!Arrays.asList(refTo.getClass().getInterfaces()).contains(ITable.class)) {
             throw new IllegalAccessException(refTo.getClass().toString() + " is not for refTo.");
         }
 		this.refTo = (Entity)refTo;
@@ -42,14 +43,14 @@ public class AbstractRelationPolymorphicTypified extends Relation implements Ser
 		if (this.owner == null) {
 //			throw new ParseError(this.name + ":" + this.type.toString() +  " does not have owner.");
 		}
-		return this.owner;
+		return (IAtom)this.owner;
 	}
 
 	@Override
 	public void setOwner(IAtom owner) throws IllegalAccessException {
-        if (!owner.getClass().equals(PolymorphicImpliment.class)) {
+        if (!Arrays.asList(owner.getClass().getInterfaces()).contains(IPolymorphicColumn.class)) {
             throw new IllegalAccessException(owner.getClass().toString() + " is not for owner.");
         }
-		this.owner = (PolymorphicImpliment)owner;
+		this.owner = (IPolymorphicColumn)owner;
 	}
 }

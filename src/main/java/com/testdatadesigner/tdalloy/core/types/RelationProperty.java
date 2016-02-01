@@ -1,14 +1,15 @@
 package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
+import java.util.Arrays;
 
-public class ColumnValue extends Relation implements Serializable, IRelation {
+public class RelationProperty extends Relation implements Serializable, IRelation {
 	private static final long serialVersionUID = 1L;
 
-    private Property refTo;
+    private IColumnValue refTo;
     private Entity owner;
 
-	public ColumnValue() {
+	public RelationProperty() {
 		super();
 	}
 
@@ -17,15 +18,15 @@ public class ColumnValue extends Relation implements Serializable, IRelation {
 		if (this.refTo == null) {
 //			throw new ParseError(this.name + ":" + this.type.toString() +  " does not have owner.");
 		}
-		return this.refTo;
+		return (IAtom)this.refTo;
 	}
 
 	@Override
 	public void setRefTo(IAtom refTo) throws IllegalAccessException {
-		if (!refTo.getClass().equals(Property.class)) {
+		if (!Arrays.asList(refTo.getClass().getInterfaces()).contains(IColumnValue.class)) {
 			throw new IllegalAccessException(refTo.getClass().toString() + " is not for refTo.");
 		}
-		this.refTo = (Property)refTo;
+		this.refTo = (IColumnValue)refTo;
 	}
 
 	@Override

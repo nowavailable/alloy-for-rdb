@@ -2,7 +2,7 @@ package com.testdatadesigner.tdalloy.core.type_bulder;
 
 import java.util.function.Function;
 
-import com.testdatadesigner.tdalloy.core.types.ColumnValue;
+import com.testdatadesigner.tdalloy.core.types.RelationProperty;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
 import com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract;
@@ -13,7 +13,7 @@ public class DefaultColumnHandler {
 
     public IRelation buildRelation(Function<String, IAtom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
-        IRelation relation = new ColumnValue();
+        IRelation relation = new RelationProperty();
         relation.setOriginColumnName(columnName);
         relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         relation.setName(columnName);

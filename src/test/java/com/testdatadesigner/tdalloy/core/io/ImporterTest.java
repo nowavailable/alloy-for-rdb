@@ -15,7 +15,7 @@ import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
-import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
+import com.testdatadesigner.tdalloy.core.types.ReversibleRelation;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
@@ -28,8 +28,8 @@ public class ImporterTest extends TestCase {
 	protected void setUp() throws Exception {
 		super.setUp();
         Bootstrap.setProps();
-        //URL resInfo = this.getClass().getResource("/naming_rule.dump");
-        URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
+        URL resInfo = this.getClass().getResource("/naming_rule.dump");
+        //URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
         filePath = resInfo.getFile();
 	}
 
@@ -46,7 +46,7 @@ public class ImporterTest extends TestCase {
 	        for (IAtom result : ((Alloyable)list.get(0)).atoms) {
 	            System.out.println(result.getName()
 	                    + seperator
-	                    + result.getClass().toString()
+	                    + result.getClass().getSimpleName()
 	                    + seperator
 	                    + (result.getOriginPropertyName().isEmpty() ? "-"
 	                            : result.getOriginPropertyName())
@@ -66,18 +66,18 @@ public class ImporterTest extends TestCase {
 	        System.out.println("-------------------------");
 	        for (IRelation result : ((Alloyable)list.get(0)).relations) {
 	            System.out.println(result.getName() 
-	                    + seperator + result.getClass().toString()
+	                    + seperator + result.getClass().getSimpleName()
 	                    + seperator + (AlloyableHandler.getOwner(result) == null ? "-" : AlloyableHandler.getOwner(result).getName())
 	                    + seperator + (AlloyableHandler.getRefTo(result) == null ? "-" : AlloyableHandler.getRefTo(result).getName()) + '(' + result.getOriginColumnName() + ')'
 	                    + seperator + result.getIsNotEmpty());
-	            if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
-	                ((MultipleRelation) result).getRefToTypes().forEach(rel -> {
-	                    System.out.println("                         refTo: " + ((IAtom)rel).getName());
-	                });
-//	                ((MultipleRelation) result).reverseOfrefToTypes.forEach(rel -> {
-//	                    System.out.println("                       parent: " + rel.name);
+//	            if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
+//	                ((MultipleRelation) result).getRefToTypes().forEach(rel -> {
+//	                    System.out.println("                         refTo: " + ((IAtom)rel).getName());
 //	                });
-	            }
+////	                ((MultipleRelation) result).reverseOfrefToTypes.forEach(rel -> {
+////	                    System.out.println("                       parent: " + rel.name);
+////	                });
+//	            }
 	        }
 	        System.out.println("-------------------------");
 	        for (Fact result : ((Alloyable)list.get(0)).facts) {

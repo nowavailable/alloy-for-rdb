@@ -2,7 +2,7 @@ package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
 
-public class BooleanFactor extends Atom implements Serializable, IAtom {
+public class BooleanFactor extends Atom implements Serializable, IAtom, IColumnValue {
 	private static final long serialVersionUID = 1L;
 
     private Entity parent;

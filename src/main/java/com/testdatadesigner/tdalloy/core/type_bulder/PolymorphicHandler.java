@@ -16,7 +16,7 @@ import com.testdatadesigner.tdalloy.core.types.IRelation;
 import com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract;
 import com.testdatadesigner.tdalloy.core.types.PseudoAtom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
-import com.testdatadesigner.tdalloy.core.types.MultipleRelation;
+import com.testdatadesigner.tdalloy.core.types.ReversibleRelation;
 import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
@@ -55,7 +55,7 @@ public class PolymorphicHandler {
         List<IRelation> relList = new ArrayList<>();
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         // 1/9
-        MultipleRelation valueRelation = new MultipleRelation<RelationPolymorphic>();
+        ReversibleRelation valueRelation = new ReversibleRelation(RelationPolymorphic.class);
         valueRelation.originColumnName = polymorphicStr + namingRule.polymorphicSuffix();
         valueRelation.name =
                 NamingRuleForAlloyable.columnRelationName(
@@ -66,8 +66,8 @@ public class PolymorphicHandler {
         relList.add(valueRelation);
 
         // 5/9
-        MultipleRelation polymRelationReversed =
-                new MultipleRelation<AbstractRelationPolymorphic>();
+        ReversibleRelation polymRelationReversed =
+                new ReversibleRelation(AbstractRelationPolymorphic.class);
         polymRelationReversed.originColumnName = polymorphicStr + namingRule.polymorphicSuffix();
         polymRelationReversed.name = "refTo_" + NamingRuleForAlloyable.tableAtomName(ownerTableName);
         polymRelationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
@@ -90,10 +90,12 @@ public class PolymorphicHandler {
         String rightStr = new String();
         for (IRelation relation : relations) {
         	IAtom owner = AlloyableHandler.getOwner(relation);
-            if (relation.getClass().equals(AbstractRelationPolymorphic.class)) {
-                rightStr = owner.getName() + "<:" + relation.getName();
-            } else if (relation.getClass().equals(RelationPolymorphic.class)) {
-                leftStr = owner.getName() + "<:" + relation.getName();
+        	if (relation.getClass().equals(ReversibleRelation.class)) {
+                if (((ReversibleRelation)relation).getInjected().equals(AbstractRelationPolymorphic.class)) {
+                    rightStr = owner.getName() + "<:" + relation.getName();
+                } else if (((ReversibleRelation)relation).getInjected().equals(RelationPolymorphic.class)) {
+                    leftStr = owner.getName() + "<:" + relation.getName();
+                }   
             }
         }
         Fact fact = new Fact(Fact.Tipify.RELATION);
