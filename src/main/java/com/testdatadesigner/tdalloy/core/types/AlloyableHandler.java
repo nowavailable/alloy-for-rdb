@@ -48,7 +48,7 @@ public class AlloyableHandler {
     private BooleanColumnHandler booleanColumnHandler = new BooleanColumnHandler();
     private PolymorphicHandler polymorphicHandler = new PolymorphicHandler();
     private List<String> postponeListForColumn = new ArrayList<>();
-    private HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
+    private HashMap<String, List<String>> allInferredPolymorphicSet = new HashMap<String, List<String>>();
     private Function<String, IAtom> atomSearchByName = name -> {
         List<IAtom> arr = this.alloyable.atoms.stream().filter(s -> s.getName().equals(name))
             .collect(Collectors.toList());
@@ -225,7 +225,7 @@ public class AlloyableHandler {
             List<List<String>> guessed = namingRule.guessedRelations(columnNames);
             List<String> guessedPolymorphicSet = guessed.get(0);
             List<String> guessedForeignKeySet = guessed.get(1);
-            allInferencedPolymorphicSet.put(tableNode.getFullName(), guessedPolymorphicSet);
+            allInferredPolymorphicSet.put(tableNode.getFullName(), guessedPolymorphicSet);
 
             // ポリモーフィック
             if (!guessedPolymorphicSet.isEmpty()) {
@@ -238,8 +238,9 @@ public class AlloyableHandler {
                     //postpone(tableNode.getFullName(),
                     //    polymorphicStr + namingRule.foreignKeySuffix());
 
-                    omit.accept(tableNode.getFullName(), 
-                    		(ColumnDefinitionNode) columnSearchByName.apply(tableNode.getFullName(),polymorphicStr + namingRule.foreignKeySuffix()));
+                    omit.accept(tableNode.getFullName(), (ColumnDefinitionNode) columnSearchByName
+                        .apply(tableNode.getFullName(),
+                            polymorphicStr + namingRule.foreignKeySuffix()));
                 }
             }
             // 外部キー
@@ -265,9 +266,11 @@ public class AlloyableHandler {
                     }
                     this.alloyable.relations.addAll(relations);
 
-                    List<IRelation> collects = relations.stream().filter(rel -> !rel.getClass().equals(RelationProperty.class)).collect(Collectors.toList());
+                    List<IRelation> collects = relations.stream().filter(rel -> !rel.getClass().equals(
+                        RelationProperty.class)).collect(Collectors.toList());
                     if (!collects.isEmpty()) {
-                    	this.alloyable.facts.add(relationHandler.buildFact(relations.stream().filter(rel -> !rel.getClass().equals(RelationProperty.class)).collect(Collectors.toList())));
+                    	this.alloyable.facts.add(relationHandler.buildFact(relations.stream().filter(rel -> !rel.getClass().equals(
+                          RelationProperty.class)).collect(Collectors.toList())));
                     }
                     
                     // あとでさらに処理する。
@@ -283,7 +286,8 @@ public class AlloyableHandler {
             if (relation.getClass().equals(TableRelation.class)) {
                 this.alloyable.relations.stream()
                     .filter(rel -> rel.getClass().equals(TableRelationReferred.class))
-                    .filter(rel -> AlloyableHandler.getOwner(rel).getName().equals(AlloyableHandler.getRefTo(relation).getName()))
+                    .filter(rel -> AlloyableHandler.getOwner(rel).getName().equals(
+                        AlloyableHandler.getRefTo(relation).getName()))
                     .collect(Collectors.toList())
                     .forEach(rel ->rel.setIsNotEmpty(relation.getIsNotEmpty()));
             }
@@ -309,7 +313,7 @@ public class AlloyableHandler {
                     if (postponeListForColumn.contains(tableNode.getFullName()
                         + INTERNAL_SEPARATOR + column.getName())) {
                         if (namingRule.isGuessedPolymorphic(column.getName(),
-                            allInferencedPolymorphicSet.get(tableNode.getFullName()))) {
+                            allInferredPolymorphicSet.get(tableNode.getFullName()))) {
                             // as sig
                         	PolymorphicAbstract polymAbstructAtom =
                                 columnHandler.buildAtomPolymorphicAbstract(atomSearchByName,
@@ -318,7 +322,7 @@ public class AlloyableHandler {
                             this.alloyable.atoms.add(polymAbstructAtom);
                             // as fields
                             if (buildPolymRelationCount == 0) {
-                                for (String polymorphicStr : allInferencedPolymorphicSet.get(tableNode.getFullName())) {
+                                for (String polymorphicStr : allInferredPolymorphicSet.get(tableNode.getFullName())) {
                                       Boolean isNotEmptyPolymorphicColumn = false;
                                     List<IRelation> polymophicRelations =
                                         polymorphicHandler.buildRelation(atomSearchByName, polymorphicStr, tableNode.getFullName(), polymAbstructAtom);
