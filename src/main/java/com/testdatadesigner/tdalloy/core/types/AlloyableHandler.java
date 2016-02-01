@@ -41,7 +41,7 @@ import com.testdatadesigner.tdalloy.core.type_bulder.TableHandler;
 
 public class AlloyableHandler {
 
-	public Alloyable alloyable;
+    public Alloyable alloyable;
     private TableHandler tableHandler = new TableHandler();
     private RelationHandler relationHandler = new RelationHandler();
     private DefaultColumnHandler columnHandler = new DefaultColumnHandler();
@@ -49,17 +49,17 @@ public class AlloyableHandler {
     private PolymorphicHandler polymorphicHandler = new PolymorphicHandler();
     private List<String> postponeListForColumn = new ArrayList<>();
     private HashMap<String, List<String>> allInferencedPolymorphicSet = new HashMap<String, List<String>>();
-	private Function<String, IAtom> atomSearchByName = name -> {
-		List<IAtom> arr = this.alloyable.atoms.stream().filter(s -> s.getName().equals(name))
-				.collect(Collectors.toList());
-		return arr.isEmpty() ? null : arr.get(0);
-	};
+    private Function<String, IAtom> atomSearchByName = name -> {
+        List<IAtom> arr = this.alloyable.atoms.stream().filter(s -> s.getName().equals(name))
+            .collect(Collectors.toList());
+        return arr.isEmpty() ? null : arr.get(0);
+    };
     private IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
     static final String INTERNAL_SEPARATOR = "_#_";
 
     public AlloyableHandler(Alloyable alloyable) {
-		this.alloyable = alloyable;
-	}
+        this.alloyable = alloyable;
+    }
 
     /**
      * テーブルの処理。 Constraintsに定義されている外部キーによる関連の処理
@@ -71,7 +71,7 @@ public class AlloyableHandler {
      * @throws IllegalAccessException
      */
     public Alloyable buildFromDDL(List<CreateTableNode> parsedDDLList) //, Consumer<Serializable> setWarning 
-    		throws IllegalAccessException {
+        throws IllegalAccessException {
         /*
          * テーブルの処理。
          */
@@ -100,25 +100,25 @@ public class AlloyableHandler {
             this.alloyable.atoms.add(tableHandler.build(tableNode.getFullName()));
             // 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する
             Map<String, List<String>> compositeUniqueConstraintsByFKey = new LinkedHashMap<>();
-            
+
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
                 // 外部キーはあとで処理。
                 if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
                     FKConstraintDefinitionNode constraint =
                         (FKConstraintDefinitionNode) tableElement;
                     ResultColumnList columnList = constraint.getRefResultColumnList();
-                	if (columnList.size() > 1) {
-                		// 複合外部キーは、テーブル名をkeyにしたMapに
-                		List<String> columnNameList = new ArrayList<>();
-                		for (ResultColumn resultColumn : columnList) {
-                			columnNameList.add(resultColumn.getName());
-						}
-                		// 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する
-						compositeUniqueConstraintsByFKey.put(tableNode.getFullName(), columnNameList);
-					} else {
-	                    postpone(tableNode.getFullName(),
-	                        ((ResultColumn) constraint.getColumnList().get(0)).getName());	
-					}
+                    if (columnList.size() > 1) {
+                        // 複合外部キーは、テーブル名をkeyにしたMapに
+                        List<String> columnNameList = new ArrayList<>();
+                        for (ResultColumn resultColumn : columnList) {
+                            columnNameList.add(resultColumn.getName());
+                        }
+                        // 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する
+                        compositeUniqueConstraintsByFKey.put(tableNode.getFullName(), columnNameList);
+                    } else {
+                        postpone(tableNode.getFullName(),
+                            ((ResultColumn) constraint.getColumnList().get(0)).getName());
+                    }
                 }
                 else if (tableElement.getClass().equals(ConstraintDefinitionNode.class)) {
                     // プライマリキーはあとで処理
@@ -126,55 +126,55 @@ public class AlloyableHandler {
                     if (constraint.getConstraintType().equals(ConstraintType.PRIMARY_KEY)) {
                         ResultColumnList columnList = constraint.getColumnList();
                         // 複合主キーは、テーブル名をkeyにしたMapに
-                    	if (columnList.size() > 1) {
-                    		List<String> columnNameList = new ArrayList<>();
-                    		for (ResultColumn resultColumn : columnList) {
-                    			columnNameList.add(resultColumn.getName());
-							}
-							compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
-						} else {
-	                        postpone(tableNode.getFullName(),
-	                            ((ResultColumn) constraint.getColumnList().get(0)).getName());
-						}
-                    // （複合カラム）ユニーク制約は、テーブル名をkeyにしたMapに
+                        if (columnList.size() > 1) {
+                            List<String> columnNameList = new ArrayList<>();
+                            for (ResultColumn resultColumn : columnList) {
+                                columnNameList.add(resultColumn.getName());
+                            }
+                            compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
+                        } else {
+                            postpone(tableNode.getFullName(),
+                                ((ResultColumn) constraint.getColumnList().get(0)).getName());
+                        }
+                        // （複合カラム）ユニーク制約は、テーブル名をkeyにしたMapに
                     } else if (constraint.getConstraintType().equals(ConstraintType.UNIQUE)) {
-                    	ResultColumnList columnList = constraint.getColumnList();
-                    	if (columnList.size() > 1) {
-                    		List<String> columnNameList = new ArrayList<>();
-                    		for (ResultColumn resultColumn : columnList) {
-                    			columnNameList.add(resultColumn.getName());
-							}
-							compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
-						}
+                        ResultColumnList columnList = constraint.getColumnList();
+                        if (columnList.size() > 1) {
+                            List<String> columnNameList = new ArrayList<>();
+                            for (ResultColumn resultColumn : columnList) {
+                                columnNameList.add(resultColumn.getName());
+                            }
+                            compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
+                        }
                     }
                 }
                 // それ以外のelementをとりあえずぜんぶ保存
                 else if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
-                	List<ColumnDefinitionNode> exist = allColumns.get(tableNode.getFullName());
-                	if (exist == null) {
-    					allColumns.put(tableNode.getFullName(), new ArrayList<ColumnDefinitionNode>(){{
-    						this.add((ColumnDefinitionNode)tableElement);
-    					}});
-                	} else {
-                		exist.add((ColumnDefinitionNode)tableElement);	
-                	}
+                    List<ColumnDefinitionNode> exist = allColumns.get(tableNode.getFullName());
+                    if (exist == null) {
+                        allColumns.put(tableNode.getFullName(), new ArrayList<ColumnDefinitionNode>(){{
+                            this.add((ColumnDefinitionNode)tableElement);
+                        }});
+                    } else {
+                        exist.add((ColumnDefinitionNode)tableElement);
+                    }
                 }
             }
-            
-			for (Entry<String, List<String>> pair : compositeUniqueConstraintsByFKey.entrySet()) {
-				// 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する。
-				List<String> target = compositeUniqueConstraints.get(pair.getKey());
-				if (target != null && target.equals(pair.getValue())) {
-					compositeUniqueConstraints.remove(pair.getKey());
-				}
-				// 複合外部キーに含まれるカラムは、通常のカラムとして解釈しない。
-				for (String colName : pair.getValue()) {
-					ColumnDefinitionNode column = columnSearchByName.apply(pair.getKey(), colName);	
-					if (column != null) {
-						omit.accept(pair.getKey(), column);
-					}
- 				}
-			}
+
+            for (Entry<String, List<String>> pair : compositeUniqueConstraintsByFKey.entrySet()) {
+                // 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する。
+                List<String> target = compositeUniqueConstraints.get(pair.getKey());
+                if (target != null && target.equals(pair.getValue())) {
+                    compositeUniqueConstraints.remove(pair.getKey());
+                }
+                // 複合外部キーに含まれるカラムは、通常のカラムとして解釈しない。
+                for (String colName : pair.getValue()) {
+                    ColumnDefinitionNode column = columnSearchByName.apply(pair.getKey(), colName);
+                    if (column != null) {
+                        omit.accept(pair.getKey(), column);
+                    }
+                }
+            }
         }
         
         /*
