@@ -88,6 +88,22 @@ CREATE TABLE `photos` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
+
+DROP TABLE IF EXISTS `urls`;
+CREATE TABLE `urls` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `urlable_type` varchar(255) DEFAULT NULL,
+  `urlable_id` int(11) DEFAULT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+
+DROP TABLE IF EXISTS `bookmarks`;
+CREATE TABLE `bookmarks` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
 --
 -- Table structure for table `zines`
 --
