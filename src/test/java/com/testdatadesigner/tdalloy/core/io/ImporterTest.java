@@ -11,12 +11,9 @@ import java.util.stream.Collectors;
 import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
-import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
-import com.testdatadesigner.tdalloy.core.types.RelationMultipliable;
-import com.testdatadesigner.tdalloy.core.types.Relation;
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
 import junit.framework.TestCase;
@@ -70,14 +67,6 @@ public class ImporterTest extends TestCase {
 	                    + seperator + (AlloyableHandler.getOwner(result) == null ? "-" : AlloyableHandler.getOwner(result).getName())
 	                    + seperator + (AlloyableHandler.getRefTo(result) == null ? "-" : AlloyableHandler.getRefTo(result).getName()) + '(' + result.getOriginColumnName() + ')'
 	                    + seperator + result.getIsNotEmpty());
-//	            if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
-//	                ((MultipleRelation) result).getRefToTypes().forEach(rel -> {
-//	                    System.out.println("                         refTo: " + ((IAtom)rel).getName());
-//	                });
-////	                ((MultipleRelation) result).reverseOfrefToTypes.forEach(rel -> {
-////	                    System.out.println("                       parent: " + rel.name);
-////	                });
-//	            }
 	        }
 	        System.out.println("-------------------------");
 	        for (Fact result : ((Alloyable)list.get(0)).facts) {

@@ -333,9 +333,10 @@ public class AlloyableHandler {
                                             Matcher matcher = isNotNullPattern.matcher(c.getType().toString());
                                             isNotEmptyPolymorphicColumn = matcher.find();
                                             relation.setIsNotEmpty(isNotEmptyPolymorphicColumn);
-                                        } else if (relation.getClass().equals(RelationPolymorphicTypeBundler.class)) {
-                                            relation.setIsNotEmpty(true);
-                                        }
+                                        } 
+//                                        else if (relation.getClass().equals(RelationPolymorphicTypeBundler.class)) {
+//                                            relation.setIsNotEmpty(true);
+//                                        }
                                     }
                                     this.alloyable.relations.addAll(polymophicRelations);
 
@@ -368,7 +369,7 @@ public class AlloyableHandler {
                                         this.alloyable.facts.add(
                                             polymorphicHandler.buildFactForDummies(relation,
                                                 polymophicRelations.stream().filter(
-                                                        rel -> rel.getClass().equals(RelationMultipliable.class) && ((RelationMultipliable)rel).getInjected().equals(RelationPolymorphicTypeHolder.class)
+                                                		rel -> rel.getClass().equals(RelationPolymorphicTypeHolder.class)
                                                         ).collect(Collectors.toList()).get(0)));
                                     }
                                 }
@@ -446,7 +447,7 @@ public class AlloyableHandler {
                 /*
                  * sig にする。
                  */
-                String sigStr = atom.getClass().equals(RelationPolymorphicTypeBundler.class) ? "abstract sig " : "sig ";
+                String sigStr = atom.getClass().equals(PolymorphicAbstract.class) ? "abstract sig " : "sig ";
                 sigStrBuff.append(sigStr);
                 sigStrBuff.append(atom.getName());
                 if (atom.getClass().equals(RelationPolymorphicTypified.class) && 

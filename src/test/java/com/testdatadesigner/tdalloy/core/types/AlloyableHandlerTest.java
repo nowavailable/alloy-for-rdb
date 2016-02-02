@@ -82,14 +82,6 @@ public class AlloyableHandlerTest extends TestCase {
                     + seperator + (AlloyableHandler.getOwner(result) == null ? "-" : AlloyableHandler.getOwner(result).getName())
                     + seperator + (AlloyableHandler.getRefTo(result) == null ? "-" : AlloyableHandler.getRefTo(result).getName()) + '(' + result.getOriginColumnName() + ')'
                     + seperator + result.getIsNotEmpty());
-//            if (result.getClass().toString().indexOf("MultipleRelation") > 0) {
-//                ((MultipleRelation) result).getRefToTypes().forEach(rel -> {
-//                    System.out.println("                         refTo: " + ((Atom)rel).getName());
-//                });
-////                ((MultipleRelation) result).reverseOfrefToTypes.forEach(rel -> {
-////                    System.out.println("                       parent: " + rel.name);
-////                });
-//            }
         }
         System.out.println("-------------------------");
         for (Fact result : this.currentAlloyable.facts) {

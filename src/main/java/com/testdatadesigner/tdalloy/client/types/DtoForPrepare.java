@@ -9,7 +9,6 @@ import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Entity;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
-import com.testdatadesigner.tdalloy.core.types.RelationMultipliable;
 import com.testdatadesigner.tdalloy.core.types.Property;
 
 /**
@@ -88,7 +87,8 @@ public class DtoForPrepare {
                             .filter(a -> a.getParent() != null
                                     && a.getParent().equals(atom)
                                     && (a.getClass()
-                                            .equals(com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeBundler.class)))
+                                            .equals(com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract.class)
+                                            ))
                             .collect(Collectors.toList());
             // ポリモーフィック（初期の未決状態）
             polymColumnAtoms.forEach(col -> {
@@ -106,7 +106,7 @@ public class DtoForPrepare {
                                     && rel.getClass()
                                             .equals(
                                                 com.testdatadesigner.tdalloy.core.types.TableRelation.class)
-                                    && !rel.getClass().equals(RelationMultipliable.class))
+                                    && !rel.getClass().equals(com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeHolder.class))
                             .collect(Collectors.toList());
             relsConcrete.forEach(rel -> {
                 Column column = this.constructColumn();

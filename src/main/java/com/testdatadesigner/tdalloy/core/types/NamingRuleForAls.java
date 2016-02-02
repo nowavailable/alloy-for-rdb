@@ -33,8 +33,6 @@ public class NamingRuleForAls {
                 { return /*DISJ + */ (oneToOneOrMany.apply(rel, allRels) ? LONE : SET); });
             put(RelationPolymorphicTypeHolder.class, (rel, allRels) ->
                 { return makeOneRelation.apply(rel);});
-            put(RelationPolymorphicTypeBundler.class, (rel, allRels) -> 
-                { return ONE;});
             put(RelationPolymorphicMain.class, (rel, allRels) -> 
                 { return /*DISJ + */ makeMultiRelation.apply(rel); });
             put(RelationPolymorphicTypified.class, (rel, allRels) -> 
@@ -45,8 +43,7 @@ public class NamingRuleForAls {
     };
     
     public String searchQuantifierMap(IRelation relation, List<IRelation> allRelations) {
-        Class<?> clazz = relation.getClass().equals(RelationMultipliable.class) ? ((RelationMultipliable)relation).getInjected() : relation.getClass();
-        return quantifierMap.get(clazz).apply(relation, allRelations);
+        return quantifierMap.get(relation.getClass()).apply(relation, allRelations);
     }
 
 }

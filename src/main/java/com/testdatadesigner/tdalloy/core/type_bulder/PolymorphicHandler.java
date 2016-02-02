@@ -7,7 +7,6 @@ import java.util.function.Function;
 
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
-import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeBundler;
 import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicMain;
 import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
@@ -16,9 +15,6 @@ import com.testdatadesigner.tdalloy.core.types.IRelation;
 import com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract;
 import com.testdatadesigner.tdalloy.core.types.PseudoAtom;
 import com.testdatadesigner.tdalloy.core.types.Fact;
-import com.testdatadesigner.tdalloy.core.types.RelationMultipliable;
-import com.testdatadesigner.tdalloy.core.types.Relation;
-import com.testdatadesigner.tdalloy.core.types.Atom;
 import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
 import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeHolder;
 
@@ -54,27 +50,15 @@ public class PolymorphicHandler {
             String polymorphicStr, String ownerTableName, IAtom polymAbstructAtom) throws IllegalAccessException {
         List<IRelation> relList = new ArrayList<>();
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
-        // 1/9
-        RelationMultipliable valueRelation = new RelationMultipliable(RelationPolymorphicTypeHolder.class);
+
+        RelationPolymorphicTypeHolder valueRelation = new RelationPolymorphicTypeHolder();
         valueRelation.originColumnName = polymorphicStr + namingRule.polymorphicSuffix();
         valueRelation.name =
                 NamingRuleForAlloyable.columnRelationName(
                     polymorphicStr + namingRule.polymorphicSuffix(), ownerTableName);
         valueRelation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
-        //valueRelation.refToTypes = refToAtoms;
         valueRelation.setRefTo(polymAbstructAtom);
         relList.add(valueRelation);
-
-        // 5/9
-        RelationMultipliable polymRelationReversed =
-                new RelationMultipliable(RelationPolymorphicTypeBundler.class);
-        polymRelationReversed.originColumnName = polymorphicStr + namingRule.polymorphicSuffix();
-        polymRelationReversed.name = //"refTo_" + NamingRuleForAlloyable.tableAtomName(ownerTableName);
-        		polymorphicStr + "_bundler";
-        polymRelationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
-        //polymRelationReversed.reverseOfrefToTypes = refToAtoms;
-        polymRelationReversed.setOwner(polymAbstructAtom);
-        relList.add(polymRelationReversed);
         return relList;
     }
     
@@ -88,19 +72,18 @@ public class PolymorphicHandler {
 
     public Fact buildFactBase(List<IRelation> relations) {
         String leftStr = new String();
-        String rightStr = new String();
         for (IRelation relation : relations) {
         	IAtom owner = AlloyableHandler.getOwner(relation);
-        	if (relation.getClass().equals(RelationMultipliable.class)) {
-                if (((RelationMultipliable)relation).getInjected().equals(RelationPolymorphicTypeBundler.class)) {
-                    rightStr = owner.getName() + "<:" + relation.getName();
-                } else if (((RelationMultipliable)relation).getInjected().equals(RelationPolymorphicTypeHolder.class)) {
-                    leftStr = owner.getName() + "<:" + relation.getName();
-                }   
+        	if (relation.getClass().equals(RelationPolymorphicTypeHolder.class)) {
+	            String alias = owner.getOriginPropertyName().substring(0, 1);
+	            String f = "all " + alias + ":" + owner.getName() + " | "
+	            		+ alias + " = " + "(" + owner.getName() + "<:" + relation.getName() + ").(" + alias + ".(" +  owner.getName() + "<:" + relation.getName() + "))";
+	            leftStr = "(" + owner.getName() + "." + relation.getName() + " = " + relation.getRefTo().getName() + ") and " 
+	            		+ "(" + f + ")";
             }
         }
         Fact fact = new Fact(Fact.Tipify.RELATION);
-        fact.value = leftStr + " = ~(" + rightStr + ")";
+        fact.value = leftStr; //+ " = ~(" + rightStr + ")";
         fact.owners.addAll(relations);
         return fact;
     }
