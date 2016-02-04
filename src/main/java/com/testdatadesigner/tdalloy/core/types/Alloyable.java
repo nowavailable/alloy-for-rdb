@@ -11,5 +11,5 @@ public class Alloyable implements Serializable {
 	public List<IRelation> relations = new ArrayList<>();
 	public List<Fact> facts = new ArrayList<>();
 	public Boolean isRailsOriented = Boolean.FALSE;
-
+	public List<MissingAtom> missingAtoms = new ArrayList<>();
 }

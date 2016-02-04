@@ -4,7 +4,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import com.google.common.base.Joiner;
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
@@ -13,8 +12,8 @@ import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
-import com.testdatadesigner.tdalloy.core.types.Relation;
-import com.testdatadesigner.tdalloy.core.types.Atom;
+import com.testdatadesigner.tdalloy.core.types.MissingAtom;
+import com.testdatadesigner.tdalloy.core.types.MissingAtomFactory;
 import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
 import com.testdatadesigner.tdalloy.core.types.TableRelation;
 import com.testdatadesigner.tdalloy.core.types.TableRelationReferred;
@@ -39,49 +38,46 @@ public class RelationHandler {
         IRelation relation = null;
 
         if (!refTableName.isEmpty()) {
-        	IAtom refSig = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(refTableName));
+        	String refSigName = NamingRuleForAlloyable.tableAtomName(refTableName);
+        	IAtom refSig = atomSearchByName.apply(refSigName);
             relation = new TableRelation();
-            //relation.originColumnName = namingRule.fkeyFromTableName(refTableName);
             relation.setOriginColumnName(fKeyColumnStrs.toString());
             relation.setName(namingRule.foreignKeyName(namingRule.fkeyFromTableName(refTableName), ownerTableName));;
             relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
-            relation.setRefTo(refSig);
+            relation.setRefTo(refSig == null ? MissingAtomFactory.getInstance().getMissingAtom(refSigName) : refSig);
 
             // 参照される側
             IRelation relationReversed = new TableRelationReferred();
-            relationReversed.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(refTableName)));
-            relationReversed.setName(namingRule.foreignKeyNameReversed(refTableName, ownerTableName));;
+            String ownerName = NamingRuleForAlloyable.tableAtomName(refTableName);
+            IAtom owner = atomSearchByName.apply(ownerName);
+            relationReversed.setOwner(owner == null ? MissingAtomFactory.getInstance().getMissingAtom(ownerName) : owner);
+            relationReversed.setName(namingRule.foreignKeyNameReversed(refTableName, ownerTableName));
             relationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
             
             return Arrays.asList(relation, relationReversed);
-
         } else {
         	if (fKeyColumnStrs.size() > 1) {
         		throw new IllegalAccessException("複合外部キーなのは分かった。が、だったら、refTableName を引数に渡すこと。");
         	}
 
-        	IAtom refSig = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStrs.get(0)));
-            // DDL内に参照先が存在していなかったら、単なる値カラムとして扱う
-            if (refSig == null) {
-                relation = new DefaultColumnHandler().
-                    buildRelation(atomSearchByName, NamingRuleForAlloyable.tableAtomName(ownerTableName), namingRule.foreignKeyName(fKeyColumnStrs.get(0), ownerTableName));
-                return Arrays.asList(relation);
-            } else {
-                relation = new TableRelation();
-                relation.setOriginColumnName(fKeyColumnStrs.get(0));
-                relation.setName(namingRule.foreignKeyName(fKeyColumnStrs.get(0), ownerTableName));
-                relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
-                relation.setRefTo(refSig);
+        	String refSigName = NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStrs.get(0));
+        	IAtom refSig = atomSearchByName.apply(refSigName);
+            relation = new TableRelation();
+            relation.setOriginColumnName(fKeyColumnStrs.get(0));
+            relation.setName(namingRule.foreignKeyName(fKeyColumnStrs.get(0), ownerTableName));
+            relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
+            relation.setRefTo(refSig == null ? MissingAtomFactory.getInstance().getMissingAtom(refSigName) : refSig);
 
-                // 参照される側
-                IRelation relationReversed = new TableRelationReferred();
-                String refTable = namingRule.tableNameFromFKey(fKeyColumnStrs.get(0));
-                relationReversed.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(refTable)));
-                relationReversed.setName(namingRule.foreignKeyNameReversed(refTable, ownerTableName));
-                relationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
+            // 参照される側
+            IRelation relationReversed = new TableRelationReferred();
+            String refTable = namingRule.tableNameFromFKey(fKeyColumnStrs.get(0));
+            String ownerName = NamingRuleForAlloyable.tableAtomName(refTable);
+            IAtom owner = atomSearchByName.apply(ownerName);
+            relationReversed.setOwner(owner == null ? MissingAtomFactory.getInstance().getMissingAtom(ownerName) : owner);
+            relationReversed.setName(namingRule.foreignKeyNameReversed(refTable, ownerTableName));
+            relationReversed.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
 
-                return Arrays.asList(relation, relationReversed);
-            }
+            return Arrays.asList(relation, relationReversed);
         }
     }
     
@@ -89,6 +85,10 @@ public class RelationHandler {
         String leftStr = new String();
         String rightStr = new String();
         for (IRelation relation : relations) {
+            if (relation.getOwner().getClass().equals(MissingAtom.class) ||
+            		relation.getRefTo().getClass().equals(MissingAtom.class)) {
+    			continue;
+    		}
             if (relation.getClass().equals(TableRelation.class)) {
             	IAtom owner = AlloyableHandler.getOwner(relation);
                 rightStr = owner.getName() + "<:" + relation.getName();
@@ -96,6 +96,10 @@ public class RelationHandler {
                 leftStr = AlloyableHandler.getOwner(relation).getName() + "<:" + relation.getName();
             }
         }
+        if (leftStr.isEmpty() && rightStr.isEmpty()) {
+			return null;
+		}
+        
         Fact fact = new Fact(Fact.Tipify.RELATION);
         fact.value = leftStr + " = ~(" + rightStr + ")";
         fact.owners.addAll(relations);

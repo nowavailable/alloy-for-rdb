@@ -28,19 +28,6 @@ public class AlloyableHandlerTest extends TestCase {
     protected void setUp() throws Exception {
         super.setUp();
         Bootstrap.setProps();
-        //URL resInfo = this.getClass().getResource("/naming_rule_with_composite.sql");
-        URL resInfo = this.getClass().getResource("/naming_rule.dump");
-        //URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
-        String filePath = resInfo.getFile();
-        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-        List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
-
-        IRdbSchemmaParser parser = new MySQLSchemaParser();
-        this.resultList = parser.inboundParse(results);
-        
-        this.currentAlloyable = new Alloyable();
-        this.alloyableHandler = new AlloyableHandler(currentAlloyable);
-
 //        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
 //        map.put(IOGateway.STORE_KEYS.get(IOGateway.StoreData.REF_WARNING_ON_BUILD), new ArrayList<Serializable>());
 //        setWarning = o -> { 
@@ -48,11 +35,6 @@ public class AlloyableHandlerTest extends TestCase {
     }
 
     protected void tearDown() throws Exception {
-        super.tearDown();
-    }
-
-    public void testBuildAll() throws Exception {
-        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
         String seperator = "  ";
         // String separator = "\t";
         for (IAtom result : this.currentAlloyable.atoms) {
@@ -88,31 +70,83 @@ public class AlloyableHandlerTest extends TestCase {
             System.out.println(result.value + seperator
                     + result.owners.stream().map(r -> r.getName()).collect(Collectors.joining(",")));
         }
-    }
-
-    public void testBuildTableAtoms() throws Exception {
-        // 期待値
+        System.out.println("-------------------------");
+        for (IAtom result : this.currentAlloyable.missingAtoms) {
+            System.out.println(result.getName()
+                    + seperator
+                    + result.getClass().getSimpleName()
+                    + seperator
+                    + (result.getOriginPropertyName().isEmpty() ? "-"
+                            : result.getOriginPropertyName())
+                    + seperator
+                    + result.getIsAbstruct().toString()
+                    + seperator
+                    + (result.getParent() == null ? "-"
+                            : result.getParent().getName())
+                    + seperator
+                    + (result.getOriginTypeName().isEmpty() ? "-"
+                            : result.getOriginTypeName())
+                    + seperator
+                    + (result.getClass().equals(RelationPolymorphicTypified.class) && 
+                    		((RelationPolymorphicTypified)result).getExtended() != null ? 
+                    				((RelationPolymorphicTypified)result).getExtended().getName() : "-"));
+        }
         
-    }
-
-    public void testBuildColumnAtoms() throws Exception {
-        // 期待値
-        
-    }
-
-    public void testBuildFields() throws Exception {
-        // 期待値
-        
-    }
-
-    public void testOutputToAls() throws Exception {
-        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+        System.out.println("");
+        System.out.println("==================================================");
+        System.out.println("");
         try(BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()){
             String line = null;
             while ((line = outputToAlsReader.readLine()) != null) {
                 System.out.println(line);
             }
         }
+
+        super.tearDown();
+    }
+
+    public void testBuildAll() throws Exception {
+        URL resInfo = this.getClass().getResource("/naming_rule.dump");
+        //URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
+        String filePath = resInfo.getFile();
+        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+        List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
+
+        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        this.resultList = parser.inboundParse(results);
+        
+        this.currentAlloyable = new Alloyable();
+        this.alloyableHandler = new AlloyableHandler(currentAlloyable);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+    }
+
+
+    public void testBuildAllAndOutputAls_ConpositeIndex() throws Exception {
+        URL resInfo = this.getClass().getResource("/naming_rule_with_composite.sql");
+        String filePath = resInfo.getFile();
+        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+        List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
+
+        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        this.resultList = parser.inboundParse(results);
+        
+        this.currentAlloyable = new Alloyable();
+        this.alloyableHandler = new AlloyableHandler(currentAlloyable);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+    }
+
+    public void testBuildAllAndOutputAls_Inconsistency() throws Exception {
+        URL resInfo = this.getClass().getResource("/naming_rule_with_inconsistency.sql");
+        String filePath = resInfo.getFile();
+        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+        List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
+
+        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        this.resultList = parser.inboundParse(results);
+        
+        this.currentAlloyable = new Alloyable();
+        this.alloyableHandler = new AlloyableHandler(currentAlloyable);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
     }
 
 }

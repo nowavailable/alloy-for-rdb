@@ -2,12 +2,13 @@ package com.testdatadesigner.tdalloy.core.types;
 
 import java.io.Serializable;
 
-public class MissingAtom extends Atom implements Serializable, IAtom {
+public class MissingAtom extends Atom implements Serializable, IAtom, ITable {
 	private static final long serialVersionUID = 1L;
 
     private IAtom parent;
     
-	public MissingAtom() {
+	public MissingAtom(String name) {
+		this.name = name;
 	}
 
 	@Override

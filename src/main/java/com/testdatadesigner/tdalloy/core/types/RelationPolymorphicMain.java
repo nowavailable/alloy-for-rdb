@@ -15,9 +15,6 @@ public class RelationPolymorphicMain extends Relation implements Serializable,IR
 
 	@Override
 	public IAtom getRefTo() {
-		if (this.refTo == null) {
-//			throw new ParseError(this.name + ":" + this.type.toString() +  " does not have owner.");
-		}
 		return this.refTo;
 	}
 
@@ -31,9 +28,6 @@ public class RelationPolymorphicMain extends Relation implements Serializable,IR
 
 	@Override
 	public IAtom getOwner() {
-		if (this.owner == null) {
-//			throw new ParseError(this.name + ":" + this.type.toString() +  " does not have owner.");
-		}
 		return (IAtom)this.owner;
 	}
 

@@ -1,4 +1,4 @@
 package com.testdatadesigner.tdalloy.core.types;
 
-public interface ITable {
+public interface ITable extends IAtom {
 }

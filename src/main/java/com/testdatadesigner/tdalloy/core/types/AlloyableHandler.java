@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.IOException;
-import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -15,7 +14,6 @@ import java.util.Map.Entry;
 import java.util.function.BiConsumer;
 import java.util.function.BiFunction;
 import java.util.function.BiPredicate;
-import java.util.function.Consumer;
 import java.util.function.Function;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -201,7 +199,12 @@ public class AlloyableHandler {
                             get(0).setIsNotEmpty(matcher.find());
                     }
                     this.alloyable.relations.addAll(relations);
-                    this.alloyable.facts.add(relationHandler.buildFact(relations));
+
+                    Fact relationFact = relationHandler.buildFact(relations);
+                    if (relationFact != null) {
+                        this.alloyable.facts.add(relationFact);
+                    }
+
                     // あとでさらに処理する。
                     postpone(tableNode.getFullName(),
                         ((ResultColumn) constraint.getColumnList().get(0)).getName());
@@ -269,8 +272,11 @@ public class AlloyableHandler {
                     List<IRelation> collects = relations.stream().filter(rel -> !rel.getClass().equals(
                         RelationProperty.class)).collect(Collectors.toList());
                     if (!collects.isEmpty()) {
-                    	this.alloyable.facts.add(relationHandler.buildFact(relations.stream().filter(rel -> !rel.getClass().equals(
-                          RelationProperty.class)).collect(Collectors.toList())));
+                    	Fact relationFact = relationHandler.buildFact(relations.stream().filter(rel -> !rel.getClass().equals(
+                                RelationProperty.class)).collect(Collectors.toList()));
+                    	if (relationFact != null) {
+                        	this.alloyable.facts.add(relationFact);	
+                    	}
                     }
                     
                     // あとでさらに処理する。
@@ -313,7 +319,7 @@ public class AlloyableHandler {
                     if (postponeListForColumn.contains(tableNode.getFullName()
                         + INTERNAL_SEPARATOR + column.getName())) {
                         if (namingRule.isGuessedPolymorphic(column.getName(),
-                            allInferredPolymorphicSet.get(tableNode.getFullName()))) {
+                                allInferredPolymorphicSet.get(tableNode.getFullName()))) {
                             // as sig
                         	PolymorphicAbstract polymAbstructAtom =
                                 columnHandler.buildAtomPolymorphicAbstract(atomSearchByName,
@@ -410,6 +416,10 @@ public class AlloyableHandler {
 					relationHandler.buildMultiColumnUniqueFact(tableSigName, list);
 			this.alloyable.facts.add(multiColumnUniqueFact);
         }
+
+        this.alloyable.missingAtoms = 
+        		MissingAtomFactory.getInstance().getMissingAtoms();
+
         return this.alloyable;
     }
 
@@ -500,45 +510,10 @@ public class AlloyableHandler {
 
 
     public static IAtom getOwner(IRelation relation) {
-    	IAtom owner;
-    	try {
-    		owner = relation.getOwner();
-		} catch (ParseError e) {
-			owner = new MissingAtom();
-		}
-		return owner;
+		return relation.getOwner();
 	}
 
 	public static IAtom getRefTo(IRelation relation) {
-    	IAtom refTo;
-    	try {
-    		refTo = relation.getRefTo();
-		} catch (ParseError e) {
-			refTo = new MissingAtom();
-		}
-		return refTo;
+		return relation.getRefTo();
 	}
-
-	public static IAtom getOwnerWithWarn(IRelation relation, Consumer<Serializable> setWarning) {
-    	IAtom owner;
-    	try {
-    		owner = relation.getOwner();
-		} catch (ParseError e) {
-			owner = new MissingAtom();
-			setWarning.accept(e);
-		}
-		return owner;
-	}
-
-	public static IAtom getRefToWithWarn(IRelation relation, Consumer<Serializable> setWarning) {
-    	IAtom refTo;
-    	try {
-    		refTo = relation.getRefTo();
-		} catch (ParseError e) {
-			refTo = new MissingAtom();
-			setWarning.accept(e);
-		}
-		return refTo;
-	}
-	
 }
