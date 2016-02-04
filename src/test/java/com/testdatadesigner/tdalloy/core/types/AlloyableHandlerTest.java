@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import com.foundationdb.sql.parser.CreateTableNode;
 import com.testdatadesigner.tdalloy.core.io.IOGateway;
-import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
+import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
@@ -112,7 +112,7 @@ public class AlloyableHandlerTest extends TestCase {
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
 
-        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        IRdbSchemaParser parser = new MySQLSchemaParser();
         this.resultList = parser.inboundParse(results);
         
         this.currentAlloyable = new Alloyable();
@@ -121,13 +121,13 @@ public class AlloyableHandlerTest extends TestCase {
     }
 
 
-    public void testBuildAllAndOutputAls_ConpositeIndex() throws Exception {
+    public void testBuildAllAndOutputAls_CompositeIndex() throws Exception {
         URL resInfo = this.getClass().getResource("/naming_rule_with_composite.sql");
         String filePath = resInfo.getFile();
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
 
-        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        IRdbSchemaParser parser = new MySQLSchemaParser();
         this.resultList = parser.inboundParse(results);
         
         this.currentAlloyable = new Alloyable();
@@ -141,7 +141,7 @@ public class AlloyableHandlerTest extends TestCase {
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
 
-        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        IRdbSchemaParser parser = new MySQLSchemaParser();
         this.resultList = parser.inboundParse(results);
         
         this.currentAlloyable = new Alloyable();

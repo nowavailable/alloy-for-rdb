@@ -4,13 +4,11 @@ import java.io.InputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Consumer;
 
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 import com.foundationdb.sql.parser.CreateTableNode;
-import com.testdatadesigner.tdalloy.core.io.IOGateway;
-import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
+import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
@@ -32,7 +30,7 @@ public class ParameterizedTest extends TestCase {
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();
 
-        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        IRdbSchemaParser parser = new MySQLSchemaParser();
         this.resultList = parser.inboundParse(results);
         
         this.currentAlloyable = new Alloyable();

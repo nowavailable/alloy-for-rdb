@@ -1,22 +1,18 @@
 package com.testdatadesigner.tdalloy.client.types;
 
-import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 import com.foundationdb.sql.parser.CreateTableNode;
 import com.google.gson.Gson;
-import com.testdatadesigner.tdalloy.client.types.DtoForPrepare;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Column;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Relation;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Table;
 import com.testdatadesigner.tdalloy.core.io.IOGateway;
-import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
+import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
@@ -41,7 +37,7 @@ public class DtoForPrepareTest extends TestCase {
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
 
-        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        IRdbSchemaParser parser = new MySQLSchemaParser();
         this.resultList = parser.inboundParse(results);
 
 

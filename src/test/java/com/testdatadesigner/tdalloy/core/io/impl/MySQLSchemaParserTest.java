@@ -7,7 +7,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.foundationdb.sql.parser.CreateTableNode;
-import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
+import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 
 public class MySQLSchemaParserTest extends TestCase {
@@ -32,7 +32,7 @@ public class MySQLSchemaParserTest extends TestCase {
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();
 
-        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        IRdbSchemaParser parser = new MySQLSchemaParser();
         List<CreateTableNode> resultList = parser.inboundParse(results);
         for (CreateTableNode tableNode : resultList) {
             tableNode.treePrint();
@@ -46,7 +46,7 @@ public class MySQLSchemaParserTest extends TestCase {
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         ddlSplitter.prepare(in);
         List<String> results = ddlSplitter.getRawTables();
-        IRdbSchemmaParser parser = new MySQLSchemaParser();
+        IRdbSchemaParser parser = new MySQLSchemaParser();
         parser.inboundParse(results);
     }
 }

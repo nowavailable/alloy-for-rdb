@@ -11,13 +11,13 @@ import com.foundationdb.sql.parser.CreateTableNode;
 import com.foundationdb.sql.parser.SQLParser;
 import com.foundationdb.sql.parser.StatementNode;
 import com.google.common.base.Joiner;
-import com.testdatadesigner.tdalloy.core.io.IRdbSchemmaParser;
+import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
 
 /**
  * @author tsutsumi
  * 
  */
-public class MySQLSchemaParser implements IRdbSchemmaParser {
+public class MySQLSchemaParser implements IRdbSchemaParser {
 
     private List<String> constraints = new ArrayList<>();
 

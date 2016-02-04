@@ -31,7 +31,7 @@ public class Importer {
     	 */
     	this.database = database;
     	ISchemaSplitter ddlSplitter = null;
-        IRdbSchemmaParser parser = null;
+        IRdbSchemaParser parser = null;
     	if (this.database.equals(Database.MYSQL)) {
     		ddlSplitter = new MySQLSchemaSplitter();
     		parser = new MySQLSchemaParser();
