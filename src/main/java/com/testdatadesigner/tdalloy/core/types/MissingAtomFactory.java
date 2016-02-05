@@ -28,6 +28,25 @@ public final class MissingAtomFactory {
 		}
     }
 
+    public MissingAtom getMissingAtom(String atomName, IAtom ownerAtom) {
+    	List<MissingAtom> exits = missingAtoms.stream().
+    			filter(atom -> atom.getName().equals(atomName)).
+    			collect(Collectors.toList());
+    	if (exits.isEmpty()) {
+    		MissingAtom missingAtom = new MissingAtom(atomName);
+    		if (!missingAtom.getOwners().contains(ownerAtom)) {
+        		missingAtom.addOwners(ownerAtom);
+			}
+    		missingAtoms.add(missingAtom);
+    		return missingAtom;
+		} else {
+            if (!exits.get(0).getOwners().contains(ownerAtom)) {
+                exits.get(0).addOwners(ownerAtom);
+            }
+			return exits.get(0);
+		}
+    }
+
     public List<MissingAtom> getMissingAtoms() {
 		return missingAtoms;
 	}

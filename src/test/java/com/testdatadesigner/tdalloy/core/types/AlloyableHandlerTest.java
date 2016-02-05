@@ -74,22 +74,7 @@ public class AlloyableHandlerTest extends TestCase {
         for (IAtom result : this.currentAlloyable.missingAtoms) {
             System.out.println(result.getName()
                     + seperator
-                    + result.getClass().getSimpleName()
-                    + seperator
-                    + (result.getOriginPropertyName().isEmpty() ? "-"
-                            : result.getOriginPropertyName())
-                    + seperator
-                    + result.getIsAbstruct().toString()
-                    + seperator
-                    + (result.getParent() == null ? "-"
-                            : result.getParent().getName())
-                    + seperator
-                    + (result.getOriginTypeName().isEmpty() ? "-"
-                            : result.getOriginTypeName())
-                    + seperator
-                    + (result.getClass().equals(RelationPolymorphicTypified.class) && 
-                    		((RelationPolymorphicTypified)result).getExtended() != null ? 
-                    				((RelationPolymorphicTypified)result).getExtended().getName() : "-"));
+                    + ((MissingAtom)result).getOwners().stream().map(atom -> atom.getName()).collect(Collectors.joining(",")));
         }
         
         System.out.println("");
