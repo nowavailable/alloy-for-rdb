@@ -134,4 +134,17 @@ public class AlloyableHandlerTest extends TestCase {
         this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
     }
 
+    public void testBuildAllAndOutputAls_NoRelations() throws Exception {
+        URL resInfo = this.getClass().getResource("/naming_rule_with_no_relations.sql");
+        String filePath = resInfo.getFile();
+        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+        List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
+
+        IRdbSchemaParser parser = new MySQLSchemaParser();
+        this.resultList = parser.inboundParse(results);
+
+        this.currentAlloyable = new Alloyable();
+        this.alloyableHandler = new AlloyableHandler(currentAlloyable);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+    }
 }
