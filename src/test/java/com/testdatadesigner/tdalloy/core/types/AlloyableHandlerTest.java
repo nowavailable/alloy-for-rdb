@@ -206,6 +206,39 @@ public class AlloyableHandlerTest extends TestCase {
         Assert.assertEquals(str.toString(), expected);
     }
 
+    public void testBuildAllAndOutputAls_CompositeInconsistency() throws Exception {
+        URL resInfo = this.getClass().getResource("/naming_rule_with_composite_inconsistency.sql");
+        String filePath = resInfo.getFile();
+        ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+        List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
+
+        IRdbSchemaParser parser = new MySQLSchemaParser();
+        this.resultList = parser.inboundParse(results);
+
+        this.currentAlloyable = new Alloyable();
+        this.alloyableHandler = new AlloyableHandler(currentAlloyable);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+
+        StringBuilder str = new StringBuilder();
+        try(BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()){
+            String line = null;
+            while ((line = outputToAlsReader.readLine()) != null) {
+                str.append(line);
+                str.append("\n");
+            }
+        }
+        String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n"
+            + "\n" + "sig Actor {\n" + "  charactors: set Charactor,\n" + "  name: one Boundary\n"
+            + "}\n" + "sig Charactor {\n" + "  actor: lone Actor,\n" + "  movie: lone Boundary,\n"
+            + "  goods: set Good,\n" + "  name: one Boundary\n" + "}\n" + "sig Good {\n"
+            + "  charactor: one Charactor,\n" + "  name: one Boundary\n" + "}\n" + "\n" + "fact {\n"
+            + "  Actor<:charactors = ~(Charactor<:actor)\n"
+            + "  Charactor<:goods = ~(Good<:charactor)\n"
+            + "  all e,e':Charactor | e != e' => (e.actor -> e.movie != e'.actor -> e'.movie)\n"
+            + "  all e,e':Good | e != e' => (e.charactor.actor -> e.charactor.movie != e'.charactor.actor -> e'.charactor.movie)\n"
+            + "}\n" + "\n" + "run {}\n");
+    }
+
     public void testBuildAllAndOutputAls_NoRelations() throws Exception {
         URL resInfo = this.getClass().getResource("/naming_rule_with_no_relations.sql");
         String filePath = resInfo.getFile();
