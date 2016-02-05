@@ -1,5 +1,7 @@
 package com.testdatadesigner.tdalloy.core.types;
 
+import java.util.List;
+
 public interface IRelation {
 	public IAtom getRefTo();
 	public void setRefTo(IAtom refTo) throws IllegalAccessException;
@@ -7,8 +9,8 @@ public interface IRelation {
 	public void setOwner(IAtom owner) throws IllegalAccessException;
 	public String getName();
 	public void setName(String name);
-	public String getOriginColumnName();
-	public void setOriginColumnName(String originColumnName) ;
+	public List<String> getOriginColumnName();
+	public void setOriginColumnName(List<String> originColumnName) ;
 	public Boolean getIgnore();
 	public void setIgnore(Boolean ignore);
 	public Boolean getIsNotEmpty() ;

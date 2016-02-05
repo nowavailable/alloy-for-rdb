@@ -41,7 +41,7 @@ public class RelationHandler {
         	String refSigName = NamingRuleForAlloyable.tableAtomName(refTableName);
         	IAtom refSig = atomSearchByName.apply(refSigName);
             relation = new TableRelation();
-            relation.setOriginColumnName(fKeyColumnStrs.toString());
+            relation.setOriginColumnName(fKeyColumnStrs);
             relation.setName(namingRule.foreignKeyName(namingRule.fkeyFromTableName(refTableName), ownerTableName));;
             relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
             relation.setRefTo(refSig == null ? MissingAtomFactory.getInstance().getMissingAtom(refSigName) : refSig);
@@ -63,7 +63,7 @@ public class RelationHandler {
         	String refSigName = NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStrs.get(0));
         	IAtom refSig = atomSearchByName.apply(refSigName);
             relation = new TableRelation();
-            relation.setOriginColumnName(fKeyColumnStrs.get(0));
+            relation.setOriginColumnName(fKeyColumnStrs);
             relation.setName(namingRule.foreignKeyName(fKeyColumnStrs.get(0), ownerTableName));
             relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
             relation.setRefTo(refSig == null ? MissingAtomFactory.getInstance().getMissingAtom(refSigName) : refSig);
@@ -106,7 +106,13 @@ public class RelationHandler {
         return fact;
     } 
     
-    public Fact buildMultiColumnUniqueFact(String tableSigName, List<String> colNames) {
+    /**
+     * @param tableSigName
+     * @param colNames
+     * @param relName 複合外部キーがあるなら、その参照先テーブル由来のrelation名が渡されること。
+     * @return
+     */
+    public Fact buildMultiColumnUniqueFact(String tableSigName, List<String> colNames, String relName) {
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
         List<String> alloyFieldNames = new ArrayList<>(); 
         for (String colName : colNames) {
@@ -115,10 +121,10 @@ public class RelationHandler {
         Fact fact = new Fact(Fact.Tipify.ROWS_CONSTRAINT);
         StringBuilder builder = new StringBuilder();
 
-        builder.append("all ent,ent':");
+        builder.append("all e,e':");
         builder.append(tableSigName);
         builder.append(" | ");
-        builder.append("ent != ent' => ");
+        builder.append("e != e' => ");
 
         List<String> fields_left = new ArrayList<String>();
         List<String> fields_right = new ArrayList<String>();
@@ -128,8 +134,9 @@ public class RelationHandler {
         		previous_field = fieldName;
         		continue;
         	}
-        	fields_left.add("ent." + previous_field + " -> " + "ent." + fieldName);
-        	fields_right.add("ent'." + previous_field + " -> " + "ent'." + fieldName);
+        	Object refSigNameAsField = relName.isEmpty() ? "" : relName + ".";
+        	fields_left.add("e." + refSigNameAsField + previous_field + " -> " + "e." + refSigNameAsField + fieldName);
+        	fields_right.add("e'." + refSigNameAsField + previous_field + " -> " + "e'." + refSigNameAsField + fieldName);
 		}
         List<String> fields = new ArrayList<String>();
 		for (int i = 0; i < fields_left.size(); i++) {

@@ -1,5 +1,6 @@
 package com.testdatadesigner.tdalloy.core.type_bulder;
 
+import java.util.Arrays;
 import java.util.function.Function;
 
 import com.testdatadesigner.tdalloy.core.types.BooleanFactor;
@@ -13,7 +14,7 @@ public class BooleanColumnHandler {
     public IRelation build(Function<String, IAtom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
         IRelation relation = new RelationProperty();
-        relation.setOriginColumnName(columnName);
+        relation.setOriginColumnName(Arrays.asList(columnName));
         relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         //relation.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
         relation.setName(columnName);

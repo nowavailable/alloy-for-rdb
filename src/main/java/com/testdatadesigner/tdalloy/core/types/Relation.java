@@ -1,6 +1,8 @@
 package com.testdatadesigner.tdalloy.core.types;
 
+
 import java.io.Serializable;
+import java.util.List;
 
 public class Relation implements Serializable {
 
@@ -23,7 +25,7 @@ public class Relation implements Serializable {
 //        //ON_STATE,
 //    }
 
-    public String originColumnName;
+    public List<String> originColumnName;
     public Boolean ignore = Boolean.FALSE;
 
     public Boolean isNotEmpty = Boolean.FALSE;
@@ -42,11 +44,11 @@ public class Relation implements Serializable {
 		this.name = name;
 	}
 
-	public String getOriginColumnName() {
+	public List<String> getOriginColumnName() {
 		return originColumnName;
 	}
 
-	public void setOriginColumnName(String originColumnName) {
+	public void setOriginColumnName(List<String> originColumnName) {
 		this.originColumnName = originColumnName;
 	}
 

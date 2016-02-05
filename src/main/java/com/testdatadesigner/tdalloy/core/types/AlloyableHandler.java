@@ -96,7 +96,6 @@ public class AlloyableHandler {
         for (CreateTableNode tableNode : parsedDDLList) {
 
             this.alloyable.atoms.add(tableHandler.build(tableNode.getFullName()));
-            // 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する
             Map<String, List<String>> compositeUniqueConstraintsByFKey = new LinkedHashMap<>();
 
             for (TableElementNode tableElement : tableNode.getTableElementList()) {
@@ -111,7 +110,6 @@ public class AlloyableHandler {
                         for (ResultColumn resultColumn : columnList) {
                             columnNameList.add(resultColumn.getName());
                         }
-                        // 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する
                         compositeUniqueConstraintsByFKey.put(tableNode.getFullName(), columnNameList);
                     } else {
                         postpone(tableNode.getFullName(),
@@ -134,9 +132,9 @@ public class AlloyableHandler {
                             postpone(tableNode.getFullName(),
                                 ((ResultColumn) constraint.getColumnList().get(0)).getName());
                         }
-                        // （複合カラム）ユニーク制約は、テーブル名をkeyにしたMapに
                     } else if (constraint.getConstraintType().equals(ConstraintType.UNIQUE)) {
                         ResultColumnList columnList = constraint.getColumnList();
+                        // （複合カラム）ユニーク制約は、テーブル名をkeyにしたMapに
                         if (columnList.size() > 1) {
                             List<String> columnNameList = new ArrayList<>();
                             for (ResultColumn resultColumn : columnList) {
@@ -160,11 +158,12 @@ public class AlloyableHandler {
             }
 
             for (Entry<String, List<String>> pair : compositeUniqueConstraintsByFKey.entrySet()) {
-                // 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する。
-                List<String> target = compositeUniqueConstraints.get(pair.getKey());
-                if (target != null && target.equals(pair.getValue())) {
-                    compositeUniqueConstraints.remove(pair.getKey());
-                }
+                //// 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する？
+                //List<String> target = compositeUniqueConstraints.get(pair.getKey());
+                //if (target != null && target.equals(pair.getValue())) {
+                //    compositeUniqueConstraints.remove(pair.getKey());
+                //}
+
                 // 複合外部キーに含まれるカラムは、通常のカラムとして解釈しない。
                 for (String colName : pair.getValue()) {
                     ColumnDefinitionNode column = columnSearchByName.apply(pair.getKey(), colName);
@@ -412,8 +411,18 @@ public class AlloyableHandler {
         for (String tableName : compositeUniqueConstraints.keySet()) {
         	String tableSigName = NamingRuleForAlloyable.tableAtomName(tableName);
         	List<String> list = compositeUniqueConstraints.get(tableName);
+        	/* 
+        	 * 複合外部キーがあるなら
+        	 */
+        	String relName = "";
+        	IRelation relation = this.alloyable.relations.stream().
+        			filter(rel -> rel.getOwner().getName().equals(tableSigName)).
+        			collect(Collectors.toList()).get(0);
+        	if (relation.getOriginColumnName().size() > 1) {
+        		relName = relation.getName();
+			}
 			Fact multiColumnUniqueFact = 
-					relationHandler.buildMultiColumnUniqueFact(tableSigName, list);
+					relationHandler.buildMultiColumnUniqueFact(tableSigName, list, relName);
 			this.alloyable.facts.add(multiColumnUniqueFact);
         }
 
