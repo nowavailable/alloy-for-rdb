@@ -41,7 +41,7 @@ public class RelationHandler {
         	String refSigName = NamingRuleForAlloyable.tableAtomName(refTableName);
         	IAtom refSig = atomSearchByName.apply(refSigName);
             relation = new TableRelation();
-            relation.setOriginColumnName(fKeyColumnStrs);
+            relation.setOriginColumnNames(fKeyColumnStrs);
             relation.setName(namingRule.foreignKeyName(namingRule.fkeyFromTableName(refTableName), ownerTableName));;
             relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
             relation.setRefTo(refSig == null ? MissingAtomFactory.getInstance().getMissingAtom(refSigName, relation.getOwner()) : refSig);
@@ -63,7 +63,7 @@ public class RelationHandler {
         	String refSigName = NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStrs.get(0));
         	IAtom refSig = atomSearchByName.apply(refSigName);
             relation = new TableRelation();
-            relation.setOriginColumnName(fKeyColumnStrs);
+            relation.setOriginColumnNames(fKeyColumnStrs);
             relation.setName(namingRule.foreignKeyName(fKeyColumnStrs.get(0), ownerTableName));
             relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
             relation.setRefTo(refSig == null ? MissingAtomFactory.getInstance().getMissingAtom(refSigName, relation.getOwner()) : refSig);

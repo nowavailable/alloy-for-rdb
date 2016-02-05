@@ -9,8 +9,8 @@ public interface IRelation {
 	public void setOwner(IAtom owner) throws IllegalAccessException;
 	public String getName();
 	public void setName(String name);
-	public List<String> getOriginColumnName();
-	public void setOriginColumnName(List<String> originColumnName) ;
+	public List<String> getOriginColumnNames();
+	public void setOriginColumnNames(List<String> originColumnName) ;
 	public Boolean getIgnore();
 	public void setIgnore(Boolean ignore);
 	public Boolean getIsNotEmpty() ;

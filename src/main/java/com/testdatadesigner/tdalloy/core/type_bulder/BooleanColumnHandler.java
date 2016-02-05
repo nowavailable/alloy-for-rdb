@@ -14,7 +14,7 @@ public class BooleanColumnHandler {
     public IRelation build(Function<String, IAtom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
         IRelation relation = new RelationProperty();
-        relation.setOriginColumnName(Arrays.asList(columnName));
+        relation.setOriginColumnNames(Arrays.asList(columnName));
         relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         //relation.name = RulesForAlloyable.columnRelationName(columnName, ownerTableName);
         relation.setName(columnName);

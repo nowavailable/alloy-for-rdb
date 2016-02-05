@@ -63,7 +63,7 @@ public class AlloyableHandlerTest extends TestCase {
             System.out.println(result.getName() 
                     + seperator + result.getClass().getSimpleName()
                     + seperator + (AlloyableHandler.getOwner(result) == null ? "-" : AlloyableHandler.getOwner(result).getName())
-                    + seperator + (AlloyableHandler.getRefTo(result) == null ? "-" : AlloyableHandler.getRefTo(result).getName()) + '(' + result.getOriginColumnName() + ')'
+                    + seperator + (AlloyableHandler.getRefTo(result) == null ? "-" : AlloyableHandler.getRefTo(result).getName()) + '(' + result.getOriginColumnNames() + ')'
                     + seperator + result.getIsNotEmpty());
         }
         System.out.println("-------------------------");

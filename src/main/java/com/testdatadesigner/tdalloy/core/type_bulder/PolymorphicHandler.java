@@ -52,7 +52,7 @@ public class PolymorphicHandler {
         IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
 
         RelationPolymorphicTypeHolder valueRelation = new RelationPolymorphicTypeHolder();
-        valueRelation.originColumnName = Arrays.asList(polymorphicStr + namingRule.polymorphicSuffix());
+        valueRelation.originColumnNames = Arrays.asList(polymorphicStr + namingRule.polymorphicSuffix());
         valueRelation.name =
                 NamingRuleForAlloyable.columnRelationName(
                     polymorphicStr + namingRule.polymorphicSuffix(), ownerTableName);

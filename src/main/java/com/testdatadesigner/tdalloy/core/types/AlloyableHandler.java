@@ -418,7 +418,7 @@ public class AlloyableHandler {
         	IRelation relation = this.alloyable.relations.stream().
         			filter(rel -> rel.getOwner().getName().equals(tableSigName)).
         			collect(Collectors.toList()).get(0);
-        	if (relation.getOriginColumnName().size() > 1) {
+        	if (relation.getOriginColumnNames().size() > 1) {
         		relName = relation.getName();
 			}
 			Fact multiColumnUniqueFact = 
