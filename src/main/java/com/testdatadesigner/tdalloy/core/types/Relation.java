@@ -2,6 +2,7 @@ package com.testdatadesigner.tdalloy.core.types;
 
 
 import java.io.Serializable;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Relation implements Serializable {
@@ -25,7 +26,7 @@ public class Relation implements Serializable {
 //        //ON_STATE,
 //    }
 
-    public List<String> originColumnName;
+    public List<String> originColumnName = new ArrayList<>();
     public Boolean ignore = Boolean.FALSE;
 
     public Boolean isNotEmpty = Boolean.FALSE;
