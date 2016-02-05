@@ -19,26 +19,17 @@ public class DefaultColumnHandler {
         relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
         relation.setName(columnName);
         IAtom column = new Property();
-        column.setName("Boundary");
+        column.setName(Property.TYPE_ON_ALS);
         relation.setRefTo(column);
         return relation;
     }
 
-    public IAtom buildAtom(Function<String, IAtom> atomSearchByName, String ownerTableName,
-            String columnName) throws IllegalAccessException {
-        IAtom colomnAtom = new Property();
-        colomnAtom.setOriginPropertyName(columnName);
-        colomnAtom.setName(NamingRuleForAlloyable.columnAtomName(columnName, ownerTableName));
-        colomnAtom.setParent(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
-        return colomnAtom;
-    }
-
     public PolymorphicAbstract buildAtomPolymorphicAbstract(Function<String, IAtom> atomSearchByName, String ownerTableName,
             String columnName) throws IllegalAccessException {
-    	PolymorphicAbstract colomnAtom = new PolymorphicAbstract();
-        colomnAtom.setOriginPropertyName(columnName);
-        colomnAtom.setParent(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
-        colomnAtom.setName(NamingRuleForAlloyable.polymorphicAbstractAtomName(columnName, ownerTableName));;
-        return colomnAtom;
+    	PolymorphicAbstract columnAtom = new PolymorphicAbstract();
+        columnAtom.setOriginPropertyName(columnName);
+        columnAtom.setParent(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
+        columnAtom.setName(NamingRuleForAlloyable.polymorphicAbstractAtomName(columnName, ownerTableName));;
+        return columnAtom;
     }
 }

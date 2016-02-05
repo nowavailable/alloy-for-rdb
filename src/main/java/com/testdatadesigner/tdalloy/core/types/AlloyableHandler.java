@@ -456,7 +456,7 @@ public class AlloyableHandler {
             StringBuffer strBuff = new StringBuffer();
 
             strBuff.append("open util/boolean\n");
-            strBuff.append("sig Boundary { val: one Int }\n");  // FIXME: 仮実装
+            strBuff.append("sig " + Property.TYPE_ON_ALS + " { val: one Int }\n");  // FIXME: 仮実装
             strBuff.append("\n");
             writer.write(strBuff.toString());
             strBuff.setLength(0);
@@ -483,7 +483,9 @@ public class AlloyableHandler {
                 List<String> fields = new ArrayList<String>();
                 for (IRelation relation : relations) {
                 	IAtom refTo = AlloyableHandler.getRefTo(relation);
-                    fields.add(relation.getName() + ": " + ruleForAls.searchQuantifierMap(relation, this.alloyable.relations) + " " + refTo.getName());
+                    fields.add(relation.getName() + ": "
+                        + ruleForAls.searchQuantifierMap(relation, this.alloyable.relations) + " "
+                        + (refTo.getClass().equals(MissingAtom.class) ? Property.TYPE_ON_ALS : refTo.getName()));
                 }
                 sigStrBuff.append(indent);
                 sigStrBuff.append(Joiner.on(",\n" + indent).join(fields));

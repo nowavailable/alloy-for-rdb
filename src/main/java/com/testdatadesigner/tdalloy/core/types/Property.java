@@ -5,6 +5,7 @@ import java.util.Arrays;
 
 public class Property extends Atom implements Serializable, IAtom, IColumnValue {
 	private static final long serialVersionUID = 1L;
+    public static final String TYPE_ON_ALS = "Boundary";
 
     private IAtom parent;
 
