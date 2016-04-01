@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.type_bulder;
+package com.testdatadesigner.tdalloy.core.translater;
 
 import com.testdatadesigner.tdalloy.core.types.Entity;
 import com.testdatadesigner.tdalloy.core.types.IAtom;

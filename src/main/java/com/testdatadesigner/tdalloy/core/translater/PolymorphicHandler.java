@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.type_bulder;
+package com.testdatadesigner.tdalloy.core.translater;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -9,7 +9,6 @@ import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicMain;
 import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
-import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
 import com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract;

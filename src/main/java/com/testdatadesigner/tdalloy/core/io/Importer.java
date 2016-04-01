@@ -8,12 +8,13 @@ import java.util.List;
 import java.util.Map;
 //import java.util.function.Consumer;
 
+
 import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.CreateTableNode;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
+import com.testdatadesigner.tdalloy.core.translater.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
-import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 
 /**
  * + データスキーマインポートファイルのI/O + 結果出力ファイルのI/O + 結果出力前オブジェクトの状態操作

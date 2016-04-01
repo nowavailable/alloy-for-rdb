@@ -12,6 +12,7 @@ import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
+import com.testdatadesigner.tdalloy.core.translater.AlloyableHandler;
 
 import junit.framework.TestCase;
 

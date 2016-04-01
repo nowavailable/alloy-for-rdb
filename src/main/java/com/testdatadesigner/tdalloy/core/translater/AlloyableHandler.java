@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.types;
+package com.testdatadesigner.tdalloy.core.translater;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -31,11 +31,21 @@ import com.google.common.base.Joiner;
 import com.testdatadesigner.tdalloy.core.io.IOGateway;
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
-import com.testdatadesigner.tdalloy.core.type_bulder.BooleanColumnHandler;
-import com.testdatadesigner.tdalloy.core.type_bulder.DefaultColumnHandler;
-import com.testdatadesigner.tdalloy.core.type_bulder.PolymorphicHandler;
-import com.testdatadesigner.tdalloy.core.type_bulder.RelationHandler;
-import com.testdatadesigner.tdalloy.core.type_bulder.TableHandler;
+import com.testdatadesigner.tdalloy.core.types.Alloyable;
+import com.testdatadesigner.tdalloy.core.types.Fact;
+import com.testdatadesigner.tdalloy.core.types.IAtom;
+import com.testdatadesigner.tdalloy.core.types.IRelation;
+import com.testdatadesigner.tdalloy.core.types.MissingAtom;
+import com.testdatadesigner.tdalloy.core.types.MissingAtomFactory;
+import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
+import com.testdatadesigner.tdalloy.core.types.NamingRuleForAls;
+import com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract;
+import com.testdatadesigner.tdalloy.core.types.Property;
+import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeHolder;
+import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
+import com.testdatadesigner.tdalloy.core.types.RelationProperty;
+import com.testdatadesigner.tdalloy.core.types.TableRelation;
+import com.testdatadesigner.tdalloy.core.types.TableRelationReferred;
 
 public class AlloyableHandler {
 
