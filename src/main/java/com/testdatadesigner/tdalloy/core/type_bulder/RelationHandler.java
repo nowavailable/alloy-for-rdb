@@ -8,7 +8,6 @@ import java.util.function.Function;
 import com.google.common.base.Joiner;
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
-import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
@@ -90,10 +89,10 @@ public class RelationHandler {
     			continue;
     		}
             if (relation.getClass().equals(TableRelation.class)) {
-            	IAtom owner = AlloyableHandler.getOwner(relation);
+            	IAtom owner = relation.getOwner();
                 rightStr = owner.getName() + "<:" + relation.getName();
             } else if (relation.getClass().equals(TableRelationReferred.class)) {
-                leftStr = AlloyableHandler.getOwner(relation).getName() + "<:" + relation.getName();
+                leftStr = relation.getOwner().getName() + "<:" + relation.getName();
             }
         }
         if (leftStr.isEmpty() && rightStr.isEmpty()) {

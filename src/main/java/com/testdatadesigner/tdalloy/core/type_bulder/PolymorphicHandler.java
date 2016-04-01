@@ -73,7 +73,7 @@ public class PolymorphicHandler {
     public Fact buildFactBase(List<IRelation> relations) {
         String leftStr = new String();
         for (IRelation relation : relations) {
-        	IAtom owner = AlloyableHandler.getOwner(relation);
+        	IAtom owner = relation.getOwner();
         	if (relation.getClass().equals(RelationPolymorphicTypeHolder.class)) {
 	            String alias = owner.getOriginPropertyName().substring(0, 1);
 	            String f = "all " + alias + ":" + owner.getName() + " | "
@@ -89,8 +89,8 @@ public class PolymorphicHandler {
     }
 
     public Fact buildFactForDummies(IRelation dummyRelation, IRelation parentRelation) {
-    	IAtom dummyRelationOwner = AlloyableHandler.getOwner(dummyRelation);
-    	IAtom parentRelationOwner = AlloyableHandler.getOwner(parentRelation);
+    	IAtom dummyRelationOwner = dummyRelation.getOwner();
+    	IAtom parentRelationOwner = parentRelation.getOwner();
         String leftStr = dummyRelationOwner.getName() + "<:" + dummyRelation.getName();
         String rightStr = parentRelationOwner.getName() + "<:" + parentRelation.getName() + "." + namingRule.tableize(dummyRelationOwner.getName());
         Fact fact = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);

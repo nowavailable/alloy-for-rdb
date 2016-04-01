@@ -10,7 +10,6 @@ import java.util.stream.Collectors;
 
 import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
-import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
@@ -64,8 +63,8 @@ public class ImporterTest extends TestCase {
 	        for (IRelation result : ((Alloyable)list.get(0)).relations) {
 	            System.out.println(result.getName() 
 	                    + seperator + result.getClass().getSimpleName()
-	                    + seperator + (AlloyableHandler.getOwner(result) == null ? "-" : AlloyableHandler.getOwner(result).getName())
-	                    + seperator + (AlloyableHandler.getRefTo(result) == null ? "-" : AlloyableHandler.getRefTo(result).getName()) + '(' + result.getOriginColumnNames() + ')'
+	                    + seperator + (result.getOwner() == null ? "-" : result.getOwner().getName())
+	                    + seperator + (result.getRefTo() == null ? "-" : result.getRefTo().getName()) + '(' + result.getOriginColumnNames() + ')'
 	                    + seperator + result.getIsNotEmpty());
 	        }
 	        System.out.println("-------------------------");

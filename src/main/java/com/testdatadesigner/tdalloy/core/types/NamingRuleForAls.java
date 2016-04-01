@@ -20,7 +20,7 @@ public class NamingRuleForAls {
     private static BiFunction<IRelation, List<IRelation>, Boolean> oneToOneOrMany = (referredRel, allRels) -> {
         return allRels.stream()
             .filter(r -> r.getClass().equals(TableRelation.class))
-            .filter(r -> AlloyableHandler.getRefTo(r).getName().equals(AlloyableHandler.getOwner(referredRel).getName())).collect(Collectors.toList())
+            .filter(r -> r.getRefTo().getName().equals(referredRel.getOwner().getName())).collect(Collectors.toList())
             .get(0).getIsUnique();
     };
 

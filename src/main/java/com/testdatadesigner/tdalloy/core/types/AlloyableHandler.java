@@ -291,8 +291,7 @@ public class AlloyableHandler {
             if (relation.getClass().equals(TableRelation.class)) {
                 this.alloyable.relations.stream()
                     .filter(rel -> rel.getClass().equals(TableRelationReferred.class))
-                    .filter(rel -> AlloyableHandler.getOwner(rel).getName().equals(
-                        AlloyableHandler.getRefTo(relation).getName()))
+                    .filter(rel -> rel.getOwner().getName().equals(relation.getRefTo().getName()))
                     .collect(Collectors.toList())
                     .forEach(rel ->rel.setIsNotEmpty(relation.getIsNotEmpty()));
             }
@@ -449,7 +448,7 @@ public class AlloyableHandler {
         NamingRuleForAls ruleForAls = new NamingRuleForAls();
 
         Function<IAtom, List<IRelation>> atomSearchByRelationOwner = atom -> this.alloyable.relations.stream()
-            .filter(rel -> AlloyableHandler.getOwner(rel).getName().equals(atom.getName())).collect(Collectors.toList());
+            .filter(rel -> rel.getOwner().getName().equals(atom.getName())).collect(Collectors.toList());
 
         String indent = "  ";
         try(BufferedWriter writer = IOGateway.getTempFileWriter(tempFile)){
@@ -482,7 +481,7 @@ public class AlloyableHandler {
                 List<IRelation> relations = atomSearchByRelationOwner.apply(atom);
                 List<String> fields = new ArrayList<String>();
                 for (IRelation relation : relations) {
-                	IAtom refTo = AlloyableHandler.getRefTo(relation);
+                	IAtom refTo = relation.getRefTo();
                     fields.add(relation.getName() + ": "
                         + ruleForAls.searchQuantifierMap(relation, this.alloyable.relations) + " "
                         + (refTo.getClass().equals(MissingAtom.class) ? Property.TYPE_ON_ALS : refTo.getName()));
@@ -519,12 +518,4 @@ public class AlloyableHandler {
     	return IOGateway.getTempFileReader(tempFile);
     }
 
-
-    public static IAtom getOwner(IRelation relation) {
-		return relation.getOwner();
-	}
-
-	public static IAtom getRefTo(IRelation relation) {
-		return relation.getRefTo();
-	}
 }

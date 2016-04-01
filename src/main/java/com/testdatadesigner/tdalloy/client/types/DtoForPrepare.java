@@ -6,7 +6,6 @@ import java.util.stream.Collectors;
 
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
-import com.testdatadesigner.tdalloy.core.types.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Entity;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.Property;
@@ -102,7 +101,7 @@ public class DtoForPrepare {
             List<? extends com.testdatadesigner.tdalloy.core.types.IRelation> relsConcrete =
                     alloyable.relations
                             .stream()
-                            .filter(rel -> AlloyableHandler.getOwner(rel).equals(atom)
+                            .filter(rel -> rel.getOwner().equals(atom)
                                     && rel.getClass()
                                             .equals(
                                                 com.testdatadesigner.tdalloy.core.types.TableRelation.class)
@@ -110,11 +109,11 @@ public class DtoForPrepare {
                             .collect(Collectors.toList());
             relsConcrete.forEach(rel -> {
                 Column column = this.constructColumn();
-                column.name = RulesForAlloyableFactory.getInstance().getRule().singularize(AlloyableHandler.getRefTo(rel).getOriginPropertyName())
+                column.name = RulesForAlloyableFactory.getInstance().getRule().singularize(rel.getRefTo().getOriginPropertyName())
                                 + RulesForAlloyableFactory.getInstance().getRule().foreignKeySuffix();
                 column.relation = this.constructRelation();
                 column.relation.type = RelationType.MANY_TO_ONE;
-                column.relation.refTo.add(AlloyableHandler.getRefTo(rel).getOriginPropertyName());
+                column.relation.refTo.add(rel.getRefTo().getOriginPropertyName());
                 table.columns.add(column);
             });
 
