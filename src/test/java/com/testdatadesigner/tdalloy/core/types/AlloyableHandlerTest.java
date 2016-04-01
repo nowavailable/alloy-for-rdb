@@ -140,9 +140,15 @@ public class AlloyableHandlerTest extends TestCase {
         Assert.assertEquals(str.toString(), expected);
     }
 
-
+    /*
+     * idの無い交差テーブル。これには2パターンのDBスキーマが考えられる。
+     * ひとつは、交差テーブルに複合主キーを定義するかたち。
+     * もうひとつは、複合ユニーク制約のみを定義するかたち。
+     * （※この交差テーブルを参照する外部キーは、両ケースとも同じになる）
+     * どちらの表現でも、alloy上では同じ意味になる。
+     */
     public void testBuildAllAndOutputAls_CompositeIndex() throws Exception {
-        URL resInfo = this.getClass().getResource("/naming_rule_with_composite.sql");
+        URL resInfo = this.getClass().getResource("/naming_rule_with_composite_pkey.sql");
         String filePath = resInfo.getFile();
         ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
         List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
@@ -163,6 +169,40 @@ public class AlloyableHandlerTest extends TestCase {
             }
         }
         String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n"
+            + "\n" + "sig Actor {\n" + "  charactors: set Charactor,\n" + "  name: one Boundary\n"
+            + "}\n" + "sig Movie {\n" + "  charactors: set Charactor,\n" + "  title: one Boundary\n"
+            + "}\n" + "sig Charactor {\n" + "  goods: set Good,\n" + "  actor: one Actor,\n"
+            + "  movie: one Movie,\n" + "  name: one Boundary\n" + "}\n" + "sig Good {\n"
+            + "  charactor: one Charactor,\n" + "  name: one Boundary\n" + "}\n" + "\n" + "fact {\n"
+            + "  Charactor<:goods = ~(Good<:charactor)\n"
+            + "  Actor<:charactors = ~(Charactor<:actor)\n"
+            + "  Movie<:charactors = ~(Charactor<:movie)\n"
+            + "  all e,e':Charactor | e != e' => (e.actor -> e.movie != e'.actor -> e'.movie)\n"
+            + "  all e,e':Good | e != e' => (e.charactor.actor -> e.charactor.movie != e'.charactor.actor -> e'.charactor.movie)\n"
+            + "}\n" + "\n" + "run {}\n");
+        Assert.assertEquals(str.toString(), expected);
+
+        resInfo = this.getClass().getResource("/naming_rule_with_composite.sql");
+        filePath = resInfo.getFile();
+        ddlSplitter = new MySQLSchemaSplitter();
+        results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
+
+        parser = new MySQLSchemaParser();
+        this.resultList = parser.inboundParse(results);
+
+        this.currentAlloyable = new Alloyable();
+        this.alloyableHandler = new AlloyableHandler(currentAlloyable);
+        this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+
+        str = new StringBuilder();
+        try(BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()){
+            String line = null;
+            while ((line = outputToAlsReader.readLine()) != null) {
+                str.append(line);
+                str.append("\n");
+            }
+        }
+        expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n"
             + "\n" + "sig Actor {\n" + "  charactors: set Charactor,\n" + "  name: one Boundary\n"
             + "}\n" + "sig Movie {\n" + "  charactors: set Charactor,\n" + "  title: one Boundary\n"
             + "}\n" + "sig Charactor {\n" + "  actor: lone Actor,\n" + "  movie: lone Movie,\n"
