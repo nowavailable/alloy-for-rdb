@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.types;
+package com.testdatadesigner.tdalloy.core.translator;
 
 import java.io.BufferedReader;
 import java.io.Serializable;
@@ -15,6 +15,12 @@ import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
 import com.testdatadesigner.tdalloy.core.translater.AlloyableHandler;
+import com.testdatadesigner.tdalloy.core.types.Alloyable;
+import com.testdatadesigner.tdalloy.core.types.Fact;
+import com.testdatadesigner.tdalloy.core.types.IAtom;
+import com.testdatadesigner.tdalloy.core.types.IRelation;
+import com.testdatadesigner.tdalloy.core.types.MissingAtom;
+import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
 import junit.framework.Assert;
