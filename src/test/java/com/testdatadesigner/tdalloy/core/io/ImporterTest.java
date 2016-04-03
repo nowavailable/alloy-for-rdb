@@ -37,24 +37,24 @@ public class ImporterTest extends TestCase {
 	        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
 	        List<Serializable> list = map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.ALLOYABLE_ON_BUILD));
 
-	        String seperator = "  ";
+	        String separator = "  ";
 	        // String separator = "\t";
 	        for (IAtom result : ((Alloyable)list.get(0)).atoms) {
 	            System.out.println(result.getName()
-	                    + seperator
+	                    + separator
 	                    + result.getClass().getSimpleName()
-	                    + seperator
+	                    + separator
 	                    + (result.getOriginPropertyName().isEmpty() ? "-"
 	                            : result.getOriginPropertyName())
-	                    + seperator
+	                    + separator
 	                    + result.getIsAbstruct().toString()
-	                    + seperator
+	                    + separator
 	                    + (result.getParent() == null ? "-"
 	                            : result.getParent().getName())
-	                    + seperator
+	                    + separator
 	                    + (result.getOriginTypeName().isEmpty() ? "-"
 	                            : result.getOriginTypeName())
-	                    + seperator
+	                    + separator
 	                    + (result.getClass().equals(RelationPolymorphicTypified.class) && 
 	                    		((RelationPolymorphicTypified)result).getExtended() != null ? 
 	                    				((RelationPolymorphicTypified)result).getExtended().getName() : "-"));
@@ -62,14 +62,14 @@ public class ImporterTest extends TestCase {
 	        System.out.println("-------------------------");
 	        for (IRelation result : ((Alloyable)list.get(0)).relations) {
 	            System.out.println(result.getName() 
-	                    + seperator + result.getClass().getSimpleName()
-	                    + seperator + (result.getOwner() == null ? "-" : result.getOwner().getName())
-	                    + seperator + (result.getRefTo() == null ? "-" : result.getRefTo().getName()) + '(' + result.getOriginColumnNames() + ')'
-	                    + seperator + result.getIsNotEmpty());
+	                    + separator + result.getClass().getSimpleName()
+	                    + separator + (result.getOwner() == null ? "-" : result.getOwner().getName())
+	                    + separator + (result.getRefTo() == null ? "-" : result.getRefTo().getName()) + '(' + result.getOriginColumnNames() + ')'
+	                    + separator + result.getIsNotEmpty());
 	        }
 	        System.out.println("-------------------------");
 	        for (Fact result : ((Alloyable)list.get(0)).facts) {
-	            System.out.println(result.value + seperator
+	            System.out.println(result.value + separator
 	                    + result.owners.stream().map(r -> r.getName()).collect(Collectors.joining(",")));
 	        }
 		} catch (ImportError e) {
