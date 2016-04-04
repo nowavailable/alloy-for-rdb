@@ -41,8 +41,8 @@ import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
 import com.testdatadesigner.tdalloy.core.types.NamingRuleForAls;
 import com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract;
 import com.testdatadesigner.tdalloy.core.types.Property;
+import com.testdatadesigner.tdalloy.core.types.PseudoAtom;
 import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeHolder;
-import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.core.types.RelationProperty;
 import com.testdatadesigner.tdalloy.core.types.TableRelation;
 import com.testdatadesigner.tdalloy.core.types.TableRelationReferred;
@@ -478,10 +478,10 @@ public class AlloyableHandler {
                 String sigStr = atom.getClass().equals(PolymorphicAbstract.class) ? "abstract sig " : "sig ";
                 sigStrBuff.append(sigStr);
                 sigStrBuff.append(atom.getName());
-                if (atom.getClass().equals(RelationPolymorphicTypified.class) && 
-                		((RelationPolymorphicTypified)atom).getExtended() != null) {
+                if (atom.getClass().equals(PseudoAtom.class) && 
+                		((PseudoAtom)atom).getExtended() != null) {
                     sigStrBuff.append(" extends ");
-                    sigStrBuff.append(((RelationPolymorphicTypified)atom).getExtended().getName());
+                    sigStrBuff.append(((PseudoAtom)atom).getExtended().getName());
                 }
                 sigStrBuff.append(" {");
                 sigStrBuff.append("\n");
