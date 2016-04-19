@@ -60,7 +60,7 @@ public class DtoForPrepareTest extends TestCase {
 
         DtoForPrepare dto = new DtoForPrepare();
         dto.buiildFromAlloyable(this.currentAlloyable);
-        String json = new Gson().toJson(dto.tables);
+        String json = new Gson().toJson(this.currentAlloyable);
         System.out.println(json);
     }
     

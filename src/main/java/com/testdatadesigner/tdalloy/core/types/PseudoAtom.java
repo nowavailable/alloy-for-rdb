@@ -5,7 +5,6 @@ import java.io.Serializable;
 public class PseudoAtom extends Entity implements Serializable, IAtom, ITable, IPolymorphicColumn {
     private static final long serialVersionUID = 1L;
 
-    private IAtom parent;
     private PolymorphicAbstract extended;
 
     public PseudoAtom(Integer seq) {
@@ -29,11 +28,11 @@ public class PseudoAtom extends Entity implements Serializable, IAtom, ITable, I
 
     @Override
 	public IAtom getParent() {
-        return this.parent;
+        return super.getParent();
 	}
 
 	@Override
 	public void setParent(IAtom parent) throws IllegalAccessException {
-		this.parent = parent;
+		super.setParent(parent);
 	}
 }
