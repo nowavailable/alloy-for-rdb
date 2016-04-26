@@ -111,10 +111,8 @@ public class ImporterTest extends TestCase {
         String json = new Gson().toJson(currentAlloyable);
         System.out.println(json);
     }
-    
-    // TODO: getAlloyableJSON()をNashorn上で実行して解釈。
-    
-    // TODO: JSONではなくmsgpackに変換/デコードする処理をNashorn上で実行
+        
+    // TODO: JSONではなくmsgpackに変換/デコードする処理をNashorn上で?実行
    
 	protected void tearDown() throws Exception {
 		super.tearDown();
