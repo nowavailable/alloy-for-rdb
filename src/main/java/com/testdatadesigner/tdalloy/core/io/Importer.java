@@ -4,17 +4,19 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
-//import java.util.function.Consumer;
-
 
 import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.CreateTableNode;
+import com.google.common.base.Strings;
+import com.google.gson.Gson;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
 import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
 import com.testdatadesigner.tdalloy.core.translater.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
+import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
 /**
  * + データスキーマインポートファイルのI/O + 結果出力ファイルのI/O + 結果出力前オブジェクトの状態操作
@@ -24,7 +26,33 @@ public class Importer {
     public enum Database {MYSQL};
     public Database database;
     
-    // TODO: ネーミングルールの指定と保持メソッド
+    public Importer() throws IOException {
+		Bootstrap.setProps();
+    }
+    
+    public String getAlloyableJSON(String filePath, String dbmsName) {
+    	Alloyable currentAlloyable = null;
+		try {
+	    	if (dbmsName.equals("mysql")) {
+	    		this.database = Importer.Database.MYSQL;
+	    	} else {
+	    		throw new ImportError("No DBMS type.");
+	    	}
+			currentAlloyable = this.getAlloyable(filePath, database);
+		} catch (ImportError e) {
+			e.printStackTrace();
+			return e.getCause().toString();
+		}
+        String jsonStr = new Gson().toJson(currentAlloyable);
+		return jsonStr;
+    }
+
+    public Alloyable getAlloyable(String filePath, Database database) throws ImportError {
+		this.iceBreak(filePath, database);
+        Map<String, List<Serializable>> map = IOGateway.getKVSMap();
+        List<Serializable> list = map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.ALLOYABLE_ON_BUILD));
+        return (Alloyable)list.get(0);
+    }
     
     public void iceBreak(String path, Database database) throws ImportError {
     	/*

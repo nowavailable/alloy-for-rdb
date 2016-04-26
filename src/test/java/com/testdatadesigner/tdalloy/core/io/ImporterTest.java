@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import com.google.gson.Gson;
 import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.Fact;
@@ -29,7 +30,7 @@ public class ImporterTest extends TestCase {
         filePath = resInfo.getFile();
 	}
 
-	public void testParse() {
+	public void testParse() throws IOException {
 		Importer importer = new Importer();
 		try {
 			importer.iceBreak(filePath, Importer.Database.MYSQL);
@@ -78,7 +79,7 @@ public class ImporterTest extends TestCase {
 		}
 	}
 
-	public void testAls() {
+	public void testAls() throws IOException {
 		Importer importer = new Importer();
 		Alloyable alloyable = null;
 		try {
@@ -101,7 +102,20 @@ public class ImporterTest extends TestCase {
 			e.printStackTrace();
 		}
 	}
-
+	 
+    public void testJSON() throws Exception {
+        Importer importer = new Importer();
+        URL resInfo = this.getClass().getResource("/naming_rule.dump");
+        String filePath = resInfo.getFile();
+        Alloyable currentAlloyable = importer.getAlloyable(filePath, Importer.Database.MYSQL);
+        String json = new Gson().toJson(currentAlloyable);
+        System.out.println(json);
+    }
+    
+    // TODO: getAlloyableJSON()をNashorn上で実行して解釈。
+    
+    // TODO: JSONではなくmsgpackに変換/デコードする処理をNashorn上で実行
+   
 	protected void tearDown() throws Exception {
 		super.tearDown();
 	}
