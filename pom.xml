@@ -38,11 +38,16 @@
 			<version>2.3.1</version>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
-			<groupId>org.json</groupId>
-			<artifactId>json</artifactId>
-			<version>20141113</version>
-		</dependency>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20141113</version>
+        </dependency>
+<!-- 		<dependency> -->
+<!-- 		    <groupId>org.msgpack</groupId> -->
+<!-- 		    <artifactId>msgpack</artifactId> -->
+<!-- 		    <version>0.6.10</version> -->
+<!-- 		</dependency> -->
 		<dependency>
 			<groupId>org.mapdb</groupId>
 			<artifactId>mapdb</artifactId>
