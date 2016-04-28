@@ -13,6 +13,9 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>1.8</java.version>
+	    <jetty-version>9.2.7.v20150116</jetty-version>
+        <main-class>com.testdatadesigner.tdalloy.core.io.EventServer</main-class>
+        <package-name>com.testdatadesigner.tdalloy</package-name>
 	</properties>
 
 	<dependencies>
@@ -52,6 +55,24 @@
 			<groupId>org.mapdb</groupId>
 			<artifactId>mapdb</artifactId>
 			<version>1.0.8</version>
+		</dependency>
+		<!-- To write basic javax.websocket against -->
+		<dependency>
+			<groupId>javax.websocket</groupId>
+			<artifactId>javax.websocket-api</artifactId>
+			<version>1.0</version>
+		</dependency>
+		<!-- To run javax.websocket in embedded server -->
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>javax-websocket-server-impl</artifactId>
+			<version>${jetty-version}</version>
+		</dependency>
+		<!-- To run javax.websocket client -->
+		<dependency>
+			<groupId>org.eclipse.jetty.websocket</groupId>
+			<artifactId>javax-websocket-client-impl</artifactId>
+			<version>${jetty-version}</version>
 		</dependency>
 	</dependencies>
 
@@ -96,6 +117,15 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+	                <archive>
+	                    <manifest>
+	                        <mainClass>${main-class}</mainClass>
+	                        <packageName>${package-name}</packageName>
+	                        <addClasspath>true</addClasspath>
+	                        <addExtensions>true</addExtensions>
+	                        <classpathPrefix>lib</classpathPrefix>
+	                    </manifest>
+	                </archive>
 				</configuration>
 			</plugin>
 			<!-- Unit tests -->
@@ -116,11 +146,24 @@
 				<version>2.6</version>
 				<executions>
 					<execution>
-						<goals>
+		                <phase>package</phase>
+		                <goals>
+		                    <goal>jar</goal>
 							<goal>test-jar</goal>
 						</goals>
 					</execution>
 				</executions>
+				<configuration>
+					<archive>
+						<manifest>
+							<mainClass>${main-class}</mainClass>
+							<packageName>${package-name}</packageName>
+							<addClasspath>true</addClasspath>
+							<addExtensions>true</addExtensions>
+							<classpathPrefix>lib</classpathPrefix>
+						</manifest>
+					</archive>
+				</configuration>
 			</plugin>
 			<!-- License checking -->
 			<plugin>
