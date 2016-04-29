@@ -27,7 +27,6 @@ public class Importer {
     public Database database;
     
     public Importer() throws IOException {
-		Bootstrap.setProps();
     }
     
     public String getAlloyableJSON(String filePath, String dbmsName) {
