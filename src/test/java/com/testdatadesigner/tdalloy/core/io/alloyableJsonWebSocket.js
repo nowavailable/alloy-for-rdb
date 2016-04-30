@@ -12,9 +12,15 @@ var imp = java.newInstanceSync("com.testdatadesigner.tdalloy.core.io.Importer");
 java.callStaticMethodSync("com.testdatadesigner.tdalloy.igniter.Bootstrap", "setProps")
 var alloyable = JSON.parse(java.callMethodSync(imp, "getAlloyableJSON", "./src/test/resources/naming_rule.dump", "mysql"));
 
-var WebSocket = require('ws');
+var WebSocket = require('../../../../../../../../node_modules/ws');
 var ws = new WebSocket('ws://localhost:8080/events/');
 ws.on('open', function open() {
 	ws.send(JSON.stringify(alloyable))
 	ws.terminate();
-})
+}).on('error', function(err) {
+	console.log(err);
+	ws.terminate();
+}).on('close', function(err) {
+	console.log("Closing");
+	ws.terminate();
+});
