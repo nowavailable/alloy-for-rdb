@@ -5,24 +5,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Fact implements Serializable {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public String value;
-    public Tipify type;
-    public enum Tipify {
-        RELATION,
-        RELATION_POLYMOPHIC,
-        RELATION_POLYMOPHIC_COLUMN,
-        ROWS_CONSTRAINT,
-    }
-    public List<IRelation> owners = new ArrayList<>();
+  public String value;
+  public Tipify type;
 
-    public Fact() {
-        super();
-    }
+  public enum Tipify {
+    RELATION, RELATION_POLYMOPHIC, RELATION_POLYMOPHIC_COLUMN, ROWS_CONSTRAINT,
+  }
 
-    public Fact(Tipify type) {
-        super();
-        this.type = type;
-    }
+  public List<IRelation> owners = new ArrayList<>();
+
+  public Fact() {
+    super();
+  }
+
+  public Fact(Tipify type) {
+    super();
+    this.type = type;
+  }
 }

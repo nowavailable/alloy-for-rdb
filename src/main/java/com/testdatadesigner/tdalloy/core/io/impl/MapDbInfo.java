@@ -11,18 +11,15 @@ import org.mapdb.HTreeMap;
 import java.io.Serializable;
 
 public class MapDbInfo implements IKVSInfo {
-    DB db;
-    String STORE_NAME = "TDAlloyCore";
+  DB db;
+  String STORE_NAME = "TDAlloyCore";
 
-    public MapDbInfo() {
-        this.db = DBMaker.newMemoryDirectDB().
-            transactionDisable().
-            closeOnJvmShutdown().
-            make();
-    }
+  public MapDbInfo() {
+    this.db = DBMaker.newMemoryDirectDB().transactionDisable().closeOnJvmShutdown().make();
+  }
 
-    @Override
-    public HTreeMap<String, List<Serializable>> getMap() {
-        return this.db.getHashMap(STORE_NAME);
-    }
+  @Override
+  public HTreeMap<String, List<Serializable>> getMap() {
+    return this.db.getHashMap(STORE_NAME);
+  }
 }

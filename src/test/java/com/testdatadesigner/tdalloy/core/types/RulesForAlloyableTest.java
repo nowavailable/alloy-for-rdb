@@ -10,34 +10,34 @@ import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 import junit.framework.TestCase;
 
 public class RulesForAlloyableTest extends TestCase {
-    IRulesForAlloyable namingRule;
+  IRulesForAlloyable namingRule;
 
-    protected void setUp() throws Exception {
-        super.setUp();
-        Bootstrap.setProps();
-        namingRule = RulesForAlloyableFactory.getInstance().getRule();
-    }
+  protected void setUp() throws Exception {
+    super.setUp();
+    Bootstrap.setProps();
+    namingRule = RulesForAlloyableFactory.getInstance().getRule();
+  }
 
-    public void test正規表現確認() {
-        String result = namingRule.foreignKeyName("user_id", "photos");
-        assertEquals("user", result);
-    }
-    
-    public void testReverse() {
-        String result_1 = namingRule.reverse("BookPrice");
-        assertEquals("book_prices", result_1);
+  public void test正規表現確認() {
+    String result = namingRule.foreignKeyName("user_id", "photos");
+    assertEquals("user", result);
+  }
 
-        String result_2 = namingRule.reverse("BooksPrice");
-        assertEquals("books_prices", result_2);
-    }
-    
-    public void testポリモーフィック関連用カラムかどうか() {
-        List<String> bag = Arrays.asList("campaign", "photable");
-        Boolean result1 = namingRule.isGuessedPolymorphic("photable_id", bag);
-        assertEquals(Boolean.TRUE, result1);
-        Boolean result2 = namingRule.isGuessedPolymorphic("photable_type", bag);
-        assertEquals(Boolean.TRUE, result2);
-        Boolean result3 = namingRule.isGuessedPolymorphic("id_of_campaign", bag);
-        assertEquals(Boolean.FALSE, result3);
-    }
+  public void testReverse() {
+    String result_1 = namingRule.reverse("BookPrice");
+    assertEquals("book_prices", result_1);
+
+    String result_2 = namingRule.reverse("BooksPrice");
+    assertEquals("books_prices", result_2);
+  }
+
+  public void testポリモーフィック関連用カラムかどうか() {
+    List<String> bag = Arrays.asList("campaign", "photable");
+    Boolean result1 = namingRule.isGuessedPolymorphic("photable_id", bag);
+    assertEquals(Boolean.TRUE, result1);
+    Boolean result2 = namingRule.isGuessedPolymorphic("photable_type", bag);
+    assertEquals(Boolean.TRUE, result2);
+    Boolean result3 = namingRule.isGuessedPolymorphic("id_of_campaign", bag);
+    assertEquals(Boolean.FALSE, result3);
+  }
 }

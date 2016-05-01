@@ -18,106 +18,96 @@ import com.testdatadesigner.tdalloy.core.types.Property;
  *
  */
 public class DtoForPrepare {
-    public List<Table> tables = new ArrayList<>();
+  public List<Table> tables = new ArrayList<>();
 
-    public static enum RelationType {
-        // NONE,
-        MANY_TO_ONE, ONE_TO_ONE, POLYMORPHIC
-    };
+  public static enum RelationType {
+    // NONE,
+    MANY_TO_ONE, ONE_TO_ONE, POLYMORPHIC
+  };
 
-    public class Table {
-        public String name;
-        public List<Column> columns = new ArrayList<>();
-        public Boolean ignore = Boolean.FALSE;
-    }
+  public class Table {
+    public String name;
+    public List<Column> columns = new ArrayList<>();
+    public Boolean ignore = Boolean.FALSE;
+  }
 
-    public class Column {
-        public String name;
-        public Relation relation;
-        public Boolean ignore = Boolean.FALSE;
-    }
+  public class Column {
+    public String name;
+    public Relation relation;
+    public Boolean ignore = Boolean.FALSE;
+  }
 
-    public class Relation {
-        public RelationType type;
-        public List<String> refTo = new ArrayList<>();
-        public Boolean ignore = Boolean.FALSE;
-    }
+  public class Relation {
+    public RelationType type;
+    public List<String> refTo = new ArrayList<>();
+    public Boolean ignore = Boolean.FALSE;
+  }
 
-    public Table constructTable() {
-        return new Table();
-    }
+  public Table constructTable() {
+    return new Table();
+  }
 
-    public Column constructColumn() {
-        return new Column();
-    }
+  public Column constructColumn() {
+    return new Column();
+  }
 
-    public Relation constructRelation() {
-        return new Relation();
-    }
+  public Relation constructRelation() {
+    return new Relation();
+  }
 
-    /**
-     * DDL読み込み直後の、初期状態Alloyableオブジェクトの内容を、<br/>
-     * 対クライアント送信用のDTOとしてビルドする。
-     * 
-     * @param alloyable
-     */
-    public void buiildFromAlloyable(Alloyable alloyable) {
-        List<IAtom> tableAtoms =
-                alloyable.atoms.stream().filter(atom -> atom.getClass().equals(Entity.class))
-                        .collect(Collectors.toList());
-        tableAtoms.forEach(atom -> {
-            Table table = this.constructTable();
-            table.name = atom.getOriginPropertyName();
-            // カラム
-            List<IAtom> columnAtoms =
-                    alloyable.atoms
-                            .stream()
-                            .filter(a -> a.getParent() != null && a.getParent().equals(atom)
-                                    && (a.getClass().equals(Property.class)))
-                            .collect(Collectors.toList());
-            columnAtoms.forEach(col -> {
-                Column column = this.constructColumn();
-                column.name = col.getOriginPropertyName();
-                table.columns.add(column);
-            });
-            List<IAtom> polymColumnAtoms =
-                    alloyable.atoms
-                            .stream()
-                            .filter(a -> a.getParent() != null
-                                    && a.getParent().equals(atom)
-                                    && (a.getClass()
-                                            .equals(com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract.class)
-                                            ))
-                            .collect(Collectors.toList());
-            // ポリモーフィック（初期の未決状態）
-            polymColumnAtoms.forEach(col -> {
-                Column column = this.constructColumn();
-                column.name = col.getOriginPropertyName();
-                column.relation = this.constructRelation();
-                column.relation.type = RelationType.POLYMORPHIC;
-                table.columns.add(column);
-            });
-            // 外部キー
-            List<? extends com.testdatadesigner.tdalloy.core.types.IRelation> relsConcrete =
-                    alloyable.relations
-                            .stream()
-                            .filter(rel -> rel.getOwner().equals(atom)
-                                    && rel.getClass()
-                                            .equals(
-                                                com.testdatadesigner.tdalloy.core.types.TableRelation.class)
-                                    && !rel.getClass().equals(com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeHolder.class))
-                            .collect(Collectors.toList());
-            relsConcrete.forEach(rel -> {
-                Column column = this.constructColumn();
-                column.name = RulesForAlloyableFactory.getInstance().getRule().singularize(rel.getRefTo().getOriginPropertyName())
-                                + RulesForAlloyableFactory.getInstance().getRule().foreignKeySuffix();
-                column.relation = this.constructRelation();
-                column.relation.type = RelationType.MANY_TO_ONE;
-                column.relation.refTo.add(rel.getRefTo().getOriginPropertyName());
-                table.columns.add(column);
-            });
+  /**
+   * DDL読み込み直後の、初期状態Alloyableオブジェクトの内容を、<br/>
+   * 対クライアント送信用のDTOとしてビルドする。
+   * 
+   * @param alloyable
+   */
+  public void buiildFromAlloyable(Alloyable alloyable) {
+    List<IAtom> tableAtoms = alloyable.atoms.stream().filter(atom -> atom.getClass().equals(Entity.class))
+        .collect(Collectors.toList());
+    tableAtoms.forEach(atom -> {
+      Table table = this.constructTable();
+      table.name = atom.getOriginPropertyName();
+      // カラム
+      List<IAtom> columnAtoms = alloyable.atoms.stream()
+          .filter(a -> a.getParent() != null && a.getParent().equals(atom) && (a.getClass().equals(Property.class)))
+          .collect(Collectors.toList());
+      columnAtoms.forEach(col -> {
+        Column column = this.constructColumn();
+        column.name = col.getOriginPropertyName();
+        table.columns.add(column);
+      });
+      List<IAtom> polymColumnAtoms = alloyable.atoms.stream()
+          .filter(a -> a.getParent() != null && a.getParent().equals(atom)
+              && (a.getClass().equals(com.testdatadesigner.tdalloy.core.types.PolymorphicAbstract.class)))
+          .collect(Collectors.toList());
+      // ポリモーフィック（初期の未決状態）
+      polymColumnAtoms.forEach(col -> {
+        Column column = this.constructColumn();
+        column.name = col.getOriginPropertyName();
+        column.relation = this.constructRelation();
+        column.relation.type = RelationType.POLYMORPHIC;
+        table.columns.add(column);
+      });
+      // 外部キー
+      List<? extends com.testdatadesigner.tdalloy.core.types.IRelation> relsConcrete = alloyable.relations.stream()
+          .filter(
+              rel -> rel.getOwner().equals(atom)
+                  && rel.getClass().equals(com.testdatadesigner.tdalloy.core.types.TableRelation.class)
+                  && !rel.getClass()
+                      .equals(com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypeHolder.class))
+          .collect(Collectors.toList());
+      relsConcrete.forEach(rel -> {
+        Column column = this.constructColumn();
+        column.name = RulesForAlloyableFactory.getInstance().getRule()
+            .singularize(rel.getRefTo().getOriginPropertyName())
+            + RulesForAlloyableFactory.getInstance().getRule().foreignKeySuffix();
+        column.relation = this.constructRelation();
+        column.relation.type = RelationType.MANY_TO_ONE;
+        column.relation.refTo.add(rel.getRefTo().getOriginPropertyName());
+        table.columns.add(column);
+      });
 
-            this.tables.add(table);
-        });
-    }
+      this.tables.add(table);
+    });
+  }
 }

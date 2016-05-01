@@ -4,83 +4,83 @@ import java.io.Serializable;
 import java.util.Arrays;
 
 public class Atom implements Serializable {
-    private static final long serialVersionUID = 1L;
+  private static final long serialVersionUID = 1L;
 
-    public String name = "";
-    public Integer seq;
-//    public Tipify type;
-//
-//    public static enum Tipify {
-//        ENTITY, // テーブル相当
-//        PROPERTY,    // カラム値である（Boolean型以外はこれにまとめる）
-//        POLYMORPHIC_ABSTRACT, // ポリモーフィック関連のtypeの抽象化されたsig
-//        POLYMOPHIC_IMPLIMENT, // ポリモーフィック関連のtypeの抽象化されたsigの継承先
-//        BOOLEAN_FACTOR,
-//        // TODO: 状態sig用。
-//        // STATE,
-//    }
+  public String name = "";
+  public Integer seq;
+  // public Tipify type;
+  //
+  // public static enum Tipify {
+  // ENTITY, // テーブル相当
+  // PROPERTY, // カラム値である（Boolean型以外はこれにまとめる）
+  // POLYMORPHIC_ABSTRACT, // ポリモーフィック関連のtypeの抽象化されたsig
+  // POLYMOPHIC_IMPLIMENT, // ポリモーフィック関連のtypeの抽象化されたsigの継承先
+  // BOOLEAN_FACTOR,
+  // // TODO: 状態sig用。
+  // // STATE,
+  // }
 
-    public Boolean isAbstruct = false;
-    public String originPropertyName = "";
-    public String originTypeName = "";  // カラムの型を格納 TODO: テーブルはどうする？ Table or View ?
-    
-    public Boolean ignore = Boolean.FALSE;
+  public Boolean isAbstruct = false;
+  public String originPropertyName = "";
+  public String originTypeName = ""; // カラムの型を格納 TODO: テーブルはどうする？ Table or View ?
 
-    public Atom() {
-        super();
-    }
+  public Boolean ignore = Boolean.FALSE;
 
-//    public Atom(Tipify type) {
-//        super();
-//        this.type = type;
-//    }
+  public Atom() {
+    super();
+  }
 
-	public String getName() {
-		return name;
-	}
+  // public Atom(Tipify type) {
+  // super();
+  // this.type = type;
+  // }
 
-	public void setName(String name) {
-		this.name = name;
-	}
+  public String getName() {
+    return name;
+  }
 
-	public Integer getSeq() {
-		return seq;
-	}
+  public void setName(String name) {
+    this.name = name;
+  }
 
-	public void setSeq(Integer seq) {
-		this.seq = seq;
-	}
+  public Integer getSeq() {
+    return seq;
+  }
 
-	public Boolean getIsAbstruct() {
-		return isAbstruct;
-	}
+  public void setSeq(Integer seq) {
+    this.seq = seq;
+  }
 
-	public void setIsAbstruct(Boolean isAbstruct) {
-		this.isAbstruct = isAbstruct;
-	}
+  public Boolean getIsAbstruct() {
+    return isAbstruct;
+  }
 
-	public String getOriginPropertyName() {
-		return originPropertyName;
-	}
+  public void setIsAbstruct(Boolean isAbstruct) {
+    this.isAbstruct = isAbstruct;
+  }
 
-	public void setOriginPropertyName(String originPropertyName) {
-		this.originPropertyName = originPropertyName;
-	}
+  public String getOriginPropertyName() {
+    return originPropertyName;
+  }
 
-	public String getOriginTypeName() {
-		return originTypeName;
-	}
+  public void setOriginPropertyName(String originPropertyName) {
+    this.originPropertyName = originPropertyName;
+  }
 
-	public void setOriginTypeName(String originTypeName) {
-		this.originTypeName = originTypeName;
-	}
+  public String getOriginTypeName() {
+    return originTypeName;
+  }
 
-	public Boolean getIgnore() {
-		return ignore;
-	}
+  public void setOriginTypeName(String originTypeName) {
+    this.originTypeName = originTypeName;
+  }
 
-	public void setIgnore(Boolean ignore) {
-		this.ignore = ignore;
-	}
+  public Boolean getIgnore() {
+    return ignore;
+  }
+
+  public void setIgnore(Boolean ignore) {
+    this.ignore = ignore;
+  }
 
 }

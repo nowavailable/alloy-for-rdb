@@ -9,14 +9,13 @@ import java.util.Properties;
  * Created by tsutsumi on 2015/08/21.
  */
 public class Bootstrap {
-    public static void setProps() throws IOException {
-        Properties properties = new Properties();
-        try (Reader reader = new InputStreamReader(Bootstrap.class.getResourceAsStream(
-            "/tdalloy.properties"))) {
-            properties.load(reader);
-            for (Object key : properties.keySet()) {
-                System.setProperty((String) key, properties.getProperty((String) key));
-            }
-        }
+  public static void setProps() throws IOException {
+    Properties properties = new Properties();
+    try (Reader reader = new InputStreamReader(Bootstrap.class.getResourceAsStream("/tdalloy.properties"))) {
+      properties.load(reader);
+      for (Object key : properties.keySet()) {
+        System.setProperty((String) key, properties.getProperty((String) key));
+      }
     }
+  }
 }

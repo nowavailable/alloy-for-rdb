@@ -9,41 +9,51 @@ import java.util.stream.Collectors;
 
 public class NamingRuleForAls {
 
-    private static String ONE = "one";
-    private static String LONE = "lone";
-    private static String SOME = "some";
-    private static String SET = "set";
-    private static String DISJ = "disj ";
-    private static Function<IRelation, String> makeDisjoint = rel -> {return (rel.getIsUnique()) ? DISJ : "";};
-    private static Function<IRelation, String> makeMultiRelation = rel -> {return rel.getIsNotEmpty() ? SOME : SET;};
-    private static Function<IRelation, String> makeOneRelation = rel -> {return rel.getIsNotEmpty() ? ONE : LONE;};
-    private static BiFunction<IRelation, List<IRelation>, Boolean> oneToOneOrMany = (referredRel, allRels) -> {
-        return allRels.stream()
-            .filter(r -> r.getClass().equals(TableRelation.class))
-            .filter(r -> r.getRefTo().getName().equals(referredRel.getOwner().getName())).collect(Collectors.toList())
-            .get(0).getIsUnique();
-    };
+  private static String ONE = "one";
+  private static String LONE = "lone";
+  private static String SOME = "some";
+  private static String SET = "set";
+  private static String DISJ = "disj ";
+  private static Function<IRelation, String> makeDisjoint = rel -> {
+    return (rel.getIsUnique()) ? DISJ : "";
+  };
+  private static Function<IRelation, String> makeMultiRelation = rel -> {
+    return rel.getIsNotEmpty() ? SOME : SET;
+  };
+  private static Function<IRelation, String> makeOneRelation = rel -> {
+    return rel.getIsNotEmpty() ? ONE : LONE;
+  };
+  private static BiFunction<IRelation, List<IRelation>, Boolean> oneToOneOrMany = (referredRel, allRels) -> {
+    return allRels.stream().filter(r -> r.getClass().equals(TableRelation.class))
+        .filter(r -> r.getRefTo().getName().equals(referredRel.getOwner().getName())).collect(Collectors.toList())
+        .get(0).getIsUnique();
+  };
 
-    private static Map<Class, BiFunction<IRelation, List<IRelation>, String>> quantifierMap = 
-    		new HashMap<Class, BiFunction<IRelation, List<IRelation>, String>>() {
-        {
-            put(TableRelation.class, (rel, allRels) -> 
-                { return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);});
-            put(TableRelationReferred.class, (rel, allRels) -> 
-                { return /*DISJ + */ (oneToOneOrMany.apply(rel, allRels) ? LONE : SET); });
-            put(RelationPolymorphicTypeHolder.class, (rel, allRels) ->
-                { return makeOneRelation.apply(rel);});
-            put(RelationPolymorphicMain.class, (rel, allRels) -> 
-                { return /*DISJ + */ makeMultiRelation.apply(rel); });
-            put(RelationPolymorphicTypified.class, (rel, allRels) -> 
-                {return rel.getIsNotEmpty() ? ONE : LONE;});
-            put(RelationProperty.class, (rel, allRels) -> 
-                { return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);});
-        }
-    };
-    
-    public String searchQuantifierMap(IRelation relation, List<IRelation> allRelations) {
-        return quantifierMap.get(relation.getClass()).apply(relation, allRelations);
+  private static Map<Class, BiFunction<IRelation, List<IRelation>, String>> quantifierMap = new HashMap<Class, BiFunction<IRelation, List<IRelation>, String>>() {
+    {
+      put(TableRelation.class, (rel, allRels) -> {
+        return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);
+      });
+      put(TableRelationReferred.class, (rel, allRels) -> {
+        return /* DISJ + */ (oneToOneOrMany.apply(rel, allRels) ? LONE : SET);
+      });
+      put(RelationPolymorphicTypeHolder.class, (rel, allRels) -> {
+        return makeOneRelation.apply(rel);
+      });
+      put(RelationPolymorphicMain.class, (rel, allRels) -> {
+        return /* DISJ + */ makeMultiRelation.apply(rel);
+      });
+      put(RelationPolymorphicTypified.class, (rel, allRels) -> {
+        return rel.getIsNotEmpty() ? ONE : LONE;
+      });
+      put(RelationProperty.class, (rel, allRels) -> {
+        return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);
+      });
     }
+  };
+
+  public String searchQuantifierMap(IRelation relation, List<IRelation> allRelations) {
+    return quantifierMap.get(relation.getClass()).apply(relation, allRelations);
+  }
 
 }

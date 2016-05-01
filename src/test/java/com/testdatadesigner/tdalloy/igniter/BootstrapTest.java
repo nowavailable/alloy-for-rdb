@@ -7,8 +7,8 @@ import junit.framework.TestCase;
  */
 public class BootstrapTest extends TestCase {
 
-    public void testSetProps() throws Exception {
-        Bootstrap.setProps();
-        assertEquals(System.getProperty("naming_convention"), "rails");
-    }
+  public void testSetProps() throws Exception {
+    Bootstrap.setProps();
+    assertEquals(System.getProperty("naming_convention"), "rails");
+  }
 }

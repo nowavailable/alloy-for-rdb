@@ -6,10 +6,10 @@ import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
 
 public class TableHandler {
 
-    public IAtom build(String tableName) {
-        IAtom atom = new Entity();
-        atom.setOriginPropertyName(tableName);
-        atom.setName(NamingRuleForAlloyable.tableAtomName(tableName));
-        return atom;
-    }
+  public IAtom build(String tableName) {
+    IAtom atom = new Entity();
+    atom.setOriginPropertyName(tableName);
+    atom.setName(NamingRuleForAlloyable.tableAtomName(tableName));
+    return atom;
+  }
 }
