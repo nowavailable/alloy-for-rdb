@@ -8,7 +8,6 @@
  */
 var stream = require('stream')
 //  , util = require('util')
-  ;
 
 //var JSONStream = require('../../../../../../../../node_modules/JSONStream');
 var java = require("../../../../../../../../node_modules/java");
@@ -22,13 +21,14 @@ var WebSocket = require('../../../../../../../../node_modules/websocket-stream')
 
 var fs = require('fs'),
     path = require('path');
-var filePathOut = path.join(__dirname, "test_out.txt");
-var filePathIn = path.join(__dirname, "test_in.txt");
+//var filePathOut = path.join(__dirname, "test_out.txt");
+////var filePathIn = path.join(__dirname, "test_in.txt");
+//var filePathIn = path.join(__dirname, "test_in.json");
 
 //var ws = fs.createWriteStream(filePathOut);
 var ws = new WebSocket('ws://localhost:8080/events/');
 //var rs = fs.createReadStream(filePathIn);
-//var rs = JSONStream.parse(alloyable)
+////var rs = JSONStream.parse(alloyable)
 var rs = new stream.Readable({ objectMode: true });
 
 rs.on('data', function(data){
@@ -58,7 +58,37 @@ ws.on('pipe', function() {
   ws.socket.terminate();
 });
 
-rs.push(alloyable)
+// http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+// https://github.com/google/closure-library/blob/e877b1eac410c0d842bcda118689759512e0e26f/closure/goog/crypt/crypt.js
+function utf16to8ByteArray(str) {
+  var out = [], p = 0;
+  for (var i = 0; i < str.length; i++) {
+    var c = str.charCodeAt(i);
+    if (c < 128) {
+      out[p++] = c;
+    } else if (c < 2048) {
+      out[p++] = (c >> 6) | 192;
+      out[p++] = (c & 63) | 128;
+    } else if (
+        ((c & 0xFC00) == 0xD800) && (i + 1) < str.length &&
+        ((str.charCodeAt(i + 1) & 0xFC00) == 0xDC00)) {
+      // Surrogate Pair
+      c = 0x10000 + ((c & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
+      out[p++] = (c >> 18) | 240;
+      out[p++] = ((c >> 12) & 63) | 128;
+      out[p++] = ((c >> 6) & 63) | 128;
+      out[p++] = (c & 63) | 128;
+    } else {
+      out[p++] = (c >> 12) | 224;
+      out[p++] = ((c >> 6) & 63) | 128;
+      out[p++] = (c & 63) | 128;
+    }
+  }
+  return out;
+}
+
+rs.push(new Buffer(utf16to8ByteArray(alloyable)))
 rs.push(null)
 rs.pipe(ws)
 //ws.end();
+
