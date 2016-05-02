@@ -3,24 +3,24 @@
  * $ nvm use 5.11.0 
  * $ npm install java  
  * $ npm install websocket-stream
+ * $ npm install JSONStream
  * $ java -jar target/tdalloy-0.1.0-SNAPSHOT-jar-with-dependencies.jar 
  * $ node src/test/java/com/testdatadesigner/tdalloy/core/io/alloyableWebSocketStream.js
  */
 var stream = require('stream')
 //  , util = require('util')
-
-//var JSONStream = require('../../../../../../../../node_modules/JSONStream');
+var through2 = require('through2');
+var JSONStream = require('../../../../../../../../node_modules/JSONStream');
 var java = require("../../../../../../../../node_modules/java");
+var WebSocket = require('../../../../../../../../node_modules/websocket-stream');
+var fs = require('fs'),
+    path = require('path');
+
 java.classpath.push("./target/tdalloy-0.1.0-SNAPSHOT-jar-with-dependencies.jar");
 var imp = java.newInstanceSync("com.testdatadesigner.tdalloy.core.io.Importer");
 java.callStaticMethodSync("com.testdatadesigner.tdalloy.igniter.Bootstrap","setProps")
-//var alloyable = JSON.parse(java.callMethodSync(imp, "getAlloyableJSON","./src/test/resources/naming_rule.dump", "mysql"));
-var alloyable = java.callMethodSync(imp, "getAlloyableJSON","./src/test/resources/naming_rule.dump", "mysql")
+var alloyable = JSON.parse(java.callMethodSync(imp, "getAlloyableJSON","./src/test/resources/naming_rule.dump", "mysql"));
 
-var WebSocket = require('../../../../../../../../node_modules/websocket-stream');
-
-var fs = require('fs'),
-    path = require('path');
 //var filePathOut = path.join(__dirname, "test_out.txt");
 ////var filePathIn = path.join(__dirname, "test_in.txt");
 //var filePathIn = path.join(__dirname, "test_in.json");
@@ -58,37 +58,46 @@ ws.on('pipe', function() {
   ws.socket.terminate();
 });
 
-// http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
-// https://github.com/google/closure-library/blob/e877b1eac410c0d842bcda118689759512e0e26f/closure/goog/crypt/crypt.js
-function utf16to8ByteArray(str) {
-  var out = [], p = 0;
-  for (var i = 0; i < str.length; i++) {
-    var c = str.charCodeAt(i);
-    if (c < 128) {
-      out[p++] = c;
-    } else if (c < 2048) {
-      out[p++] = (c >> 6) | 192;
-      out[p++] = (c & 63) | 128;
-    } else if (
-        ((c & 0xFC00) == 0xD800) && (i + 1) < str.length &&
-        ((str.charCodeAt(i + 1) & 0xFC00) == 0xDC00)) {
-      // Surrogate Pair
-      c = 0x10000 + ((c & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
-      out[p++] = (c >> 18) | 240;
-      out[p++] = ((c >> 12) & 63) | 128;
-      out[p++] = ((c >> 6) & 63) | 128;
-      out[p++] = (c & 63) | 128;
-    } else {
-      out[p++] = (c >> 12) | 224;
-      out[p++] = ((c >> 6) & 63) | 128;
-      out[p++] = (c & 63) | 128;
-    }
-  }
-  return out;
-}
-
-rs.push(new Buffer(utf16to8ByteArray(alloyable)))
+rs.push(alloyable)
 rs.push(null)
-rs.pipe(ws)
+rs.pipe(JSONStream.stringify()).pipe(
+  through2(function (chunk, enc, callback) {
+    console.log(chunk)
+    
+	// http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+	// https://github.com/google/closure-library/blob/e877b1eac410c0d842bcda118689759512e0e26f/closure/goog/crypt/crypt.js
+	var utf16to8ByteArray = function(str) {
+	  var out = [], p = 0;
+	  for (var i = 0; i < str.length; i++) {
+	    var c = str.charCodeAt(i);
+	    if (c < 128) {
+	      out[p++] = c;
+	    } else if (c < 2048) {
+	      out[p++] = (c >> 6) | 192;
+	      out[p++] = (c & 63) | 128;
+	    } else if (
+	        ((c & 0xFC00) == 0xD800) && (i + 1) < str.length &&
+	        ((str.charCodeAt(i + 1) & 0xFC00) == 0xDC00)) {
+	      // Surrogate Pair
+	      c = 0x10000 + ((c & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
+	      out[p++] = (c >> 18) | 240;
+	      out[p++] = ((c >> 12) & 63) | 128;
+	      out[p++] = ((c >> 6) & 63) | 128;
+	      out[p++] = (c & 63) | 128;
+	    } else {
+	      out[p++] = (c >> 12) | 224;
+	      out[p++] = ((c >> 6) & 63) | 128;
+	      out[p++] = (c & 63) | 128;
+	    }
+	  }
+	  return out;
+	}
+
+    chunk = new Buffer(utf16to8ByteArray(chunk.toString('utf16le')))
+    console.log(chunk)
+    this.push(chunk)
+    callback()
+  })
+).pipe(ws)
 //ws.end();
 
