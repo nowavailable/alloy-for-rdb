@@ -56,6 +56,19 @@
 			<artifactId>mapdb</artifactId>
 			<version>1.0.8</version>
 		</dependency>
+
+	    <dependency>
+	      <groupId>io.vertx</groupId>
+	      <artifactId>vertx-core</artifactId>
+	      <version>3.2.1</version>
+	    </dependency>
+	    <dependency>
+	      <groupId>io.vertx</groupId>
+	      <artifactId>vertx-web</artifactId>
+          <version>3.2.1</version>
+	    </dependency>
+
+
 		<!-- To write basic javax.websocket against -->
 		<dependency>
 			<groupId>javax.websocket</groupId>
