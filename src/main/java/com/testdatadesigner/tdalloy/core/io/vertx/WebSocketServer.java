@@ -1,24 +1,28 @@
 package com.testdatadesigner.tdalloy.core.io.vertx;
 
-import java.util.Arrays;
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.function.BiFunction;
-
+import java.util.stream.Collectors;
+import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Handler;
-import io.vertx.core.Verticle;
 import io.vertx.core.buffer.Buffer;
 import io.vertx.core.eventbus.EventBus;
+import io.vertx.core.eventbus.Message;
 import io.vertx.core.http.ServerWebSocket;
 import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public class WebSocketServer extends AbstractVerticle {
+  public static String END_MARKER = "";
   
-  public Map<BiFunction, Verticle> nextAction = new HashMap<>();
   private ServerWebSocket webSocketRef = null;
+  private String actionStr = "";
+  public String nextAction = "";
 
   public static void main(String[] args) {
     Runner.runServer(WebSocketServer.class);
@@ -26,6 +30,13 @@ public class WebSocketServer extends AbstractVerticle {
 
   @Override
   public void start() throws Exception {
+    /*
+     *  tdalloy初期処理
+     */
+    Bootstrap.setProps();
+    /*
+     *  create server.
+     */
     vertx.createHttpServer().
       websocketHandler(
         ws -> this.handler(
@@ -36,14 +47,18 @@ public class WebSocketServer extends AbstractVerticle {
       //  req.response().sendFile("ws.html"); 
       //}
     }).listen(8080);
-
+    /* 
+     * set listener for event bus's call. 
+     */
     EventBus eb = vertx.eventBus();
-    eb.consumer("file_import_response", message -> {
-      if (webSocketRef != null) {
-        this.webSocketRef.writeBinaryMessage(Buffer.buffer(message.body().toString()));
-      }
-    });
-
+    for (String actionKeyStr : Router.ACTION.keySet()) {
+      String address = (String) Router.ACTION.get(actionKeyStr).get(Router.KEY_OF_RETURN);
+      if (address == null || address.isEmpty())
+          continue;
+      eb.consumer(address, message -> {
+        this.eventBusMessageHandler(address, message);
+      });
+    }
   }
 
   public ServerWebSocket handler(ServerWebSocket ws, Handler<Buffer> handler) {
@@ -52,22 +67,69 @@ public class WebSocketServer extends AbstractVerticle {
   }
 
   public ServerWebSocket handle(Buffer data) {
-    // proc message
-    
-    if (this.nextAction.isEmpty()) {
-      
-      DeploymentOptions options = new DeploymentOptions().setWorker(true);
-      JsonObject config = new JsonObject().
-          put("params", new JsonArray(
-              Arrays.asList("/Users/tsutsumi/JDev/src/alloy-for-rdb2/src/test/resources/naming_rule.dump", 
-                  "mysql")));
-      options.setConfig(config);
-      vertx.deployVerticle("com.testdatadesigner.tdalloy.core.io.vertx.FileImportVerticle", options);
-    } else {
+    // * text or binary
+    // * データの終端がくるまではWriterをキープして待つ。
 
+    // テストデータ
+    String rawJsonStr = "{\"action\":\"importRequest\",\"handler\":\"com.testdatadesigner.tdalloy.core.io.vertx.FileImportVerticle\",\"filePath\":\"/tmp/naming_rule.dump\",\"dbmsName\":\"mysql\"}";
+    JsonObject json = new JsonObject(rawJsonStr);
+    
+    
+    /* 
+     * parse message.
+     */
+    if (this.nextAction.isEmpty()) {
+      this.actionStr = json.getString(Router.KEY_OF_ACTION);
+    } else {
+      this.actionStr = this.nextAction;
+      this.nextAction = "";
     }
-    //ws.writeBinaryMessage(Buffer.buffer("aaa"));
+    /*
+     * set options.
+     */
+    Map<String, Object> map = Router.ACTION.get(this.actionStr);
+    List<String> keyList = (List) map.get(Router.KEY_OF_PARAMS_KEYS);
+    List<JsonObject> paramsOfJson = keyList.stream().map(elm -> new JsonObject(new HashMap<String, Object>() {
+      {
+        this.put(elm, json.getValue(elm));
+      }
+    })).collect(Collectors.toList());
+    this.nextAction = (String) map.get(Router.KEY_OF_NEXT_ACTION);
+    /*
+     * deploy verticle on demand.
+     */
+    if (map.get(Router.KEY_OF_HANDLER) != null) {
+      DeploymentOptions options = new DeploymentOptions();
+      if ((boolean) map.get(Router.KEY_OF_IS_WORKER))
+        options.setWorker(true);
+      JsonObject config = new JsonObject().
+          put(Router.KEY_OF_ACTION, this.actionStr).
+          put(Router.KEY_OF_PARAMS, new JsonArray(paramsOfJson));
+      options.setConfig(config);
+      vertx.deployVerticle((String) map.get(Router.KEY_OF_HANDLER), options); 
+    }
+    
     return this.webSocketRef;
+  }
+
+  public void eventBusMessageHandler(String address, Message<Object> message) {
+    if (this.webSocketRef != null) {
+      try {
+        byte[] msgStream = ((String) message.body()).getBytes("UTF-8");
+        BufferedInputStream is = new BufferedInputStream(new ByteArrayInputStream(msgStream));
+        byte[] chunk = new byte[1024 * 1024 * 2];
+        int len = 0;
+        while((len = is.read(chunk)) != -1) {
+          Buffer buffer = Buffer.buffer(chunk);
+          this.webSocketRef.writeBinaryMessage(buffer);
+        }
+        // send a end-marker.
+        this.webSocketRef.writeBinaryMessage(Buffer.buffer(END_MARKER));
+      } catch (Exception e) {
+        // TODO: logging
+        this.webSocketRef.writeBinaryMessage(Buffer.buffer(e.getMessage()));
+      }
+    }
   }
 
 }
