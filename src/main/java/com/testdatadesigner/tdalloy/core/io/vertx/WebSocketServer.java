@@ -86,11 +86,9 @@ public class WebSocketServer extends AbstractVerticle {
 
   public ServerWebSocket handle(Buffer data) {    
     /* 
-     * parse message.
+     * read raw messages.
      */
-    JsonObject json = new JsonObject();
     byte[] bytes = data.getBytes();
-    
     if (bytes.length == END_MARKER.length) {
       int equal = 0;
       for (int i = 0; i < bytes.length; i++) {
@@ -101,7 +99,6 @@ public class WebSocketServer extends AbstractVerticle {
       if (bytes.length == equal)
         this.ended = true;
     }
-    
     try (BufferedInputStream inStream = new BufferedInputStream(new ByteArrayInputStream(bytes));
         InputStreamReader inputStreamReader = new InputStreamReader(inStream, "UTF-8");) {
       if (this.oStream == null)
@@ -121,7 +118,10 @@ public class WebSocketServer extends AbstractVerticle {
       e.printStackTrace();
       this.clearMessage();
     }
-
+    /* 
+     * parse messagesF.
+     */
+    JsonObject json = new JsonObject();
     if (this.ended) {
       try {
         JsonArray jsonArray = new JsonArray(new String(this.oStream.toByteArray(), "UTF-8"));
@@ -135,7 +135,6 @@ public class WebSocketServer extends AbstractVerticle {
     } else {
       return this.webSocketRef;
     }
-
     if (this.nextAction.isEmpty()) {
       this.actionStr = json.getString(Router.KEY_OF_ACTION);
     } else {

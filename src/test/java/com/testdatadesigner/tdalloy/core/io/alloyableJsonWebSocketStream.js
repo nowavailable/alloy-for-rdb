@@ -64,40 +64,39 @@ rs.pipe(JSONStream.stringify()).pipe(
   through2(function (chunk, enc, callback) {
     console.log(chunk)
     
-	// http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
-	// https://github.com/google/closure-library/blob/e877b1eac410c0d842bcda118689759512e0e26f/closure/goog/crypt/crypt.js
-	var utf16to8ByteArray = function(str) {
-	  var out = [], p = 0;
-	  for (var i = 0; i < str.length; i++) {
-	    var c = str.charCodeAt(i);
-	    if (c < 128) {
-	      out[p++] = c;
-	    } else if (c < 2048) {
-	      out[p++] = (c >> 6) | 192;
-	      out[p++] = (c & 63) | 128;
-	    } else if (
-	        ((c & 0xFC00) == 0xD800) && (i + 1) < str.length &&
-	        ((str.charCodeAt(i + 1) & 0xFC00) == 0xDC00)) {
-	      // Surrogate Pair
-	      c = 0x10000 + ((c & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
-	      out[p++] = (c >> 18) | 240;
-	      out[p++] = ((c >> 12) & 63) | 128;
-	      out[p++] = ((c >> 6) & 63) | 128;
-	      out[p++] = (c & 63) | 128;
-	    } else {
-	      out[p++] = (c >> 12) | 224;
-	      out[p++] = ((c >> 6) & 63) | 128;
-	      out[p++] = (c & 63) | 128;
-	    }
-	  }
-	  return out;
-	}
-
-    chunk = new Buffer(utf16to8ByteArray(chunk.toString('utf16le')))
+//	// http://stackoverflow.com/questions/18729405/how-to-convert-utf8-string-to-byte-array
+//	// https://github.com/google/closure-library/blob/e877b1eac410c0d842bcda118689759512e0e26f/closure/goog/crypt/crypt.js
+//	var utf16to8ByteArray = function(str) {
+//	  var out = [], p = 0;
+//	  for (var i = 0; i < str.length; i++) {
+//	    var c = str.charCodeAt(i);
+//	    if (c < 128) {
+//	      out[p++] = c;
+//	    } else if (c < 2048) {
+//	      out[p++] = (c >> 6) | 192;
+//	      out[p++] = (c & 63) | 128;
+//	    } else if (
+//	        ((c & 0xFC00) == 0xD800) && (i + 1) < str.length &&
+//	        ((str.charCodeAt(i + 1) & 0xFC00) == 0xDC00)) {
+//	      // Surrogate Pair
+//	      c = 0x10000 + ((c & 0x03FF) << 10) + (str.charCodeAt(++i) & 0x03FF);
+//	      out[p++] = (c >> 18) | 240;
+//	      out[p++] = ((c >> 12) & 63) | 128;
+//	      out[p++] = ((c >> 6) & 63) | 128;
+//	      out[p++] = (c & 63) | 128;
+//	    } else {
+//	      out[p++] = (c >> 12) | 224;
+//	      out[p++] = ((c >> 6) & 63) | 128;
+//	      out[p++] = (c & 63) | 128;
+//	    }
+//	  }
+//	  return out;
+//	}
+    //chunk = new Buffer(utf16to8ByteArray(chunk.toString('utf16le')))
     console.log(chunk)
     this.push(chunk)
     callback()
   })
-).pipe(ws)
+).pipe(ws, {end: false})
 //ws.end();
 
