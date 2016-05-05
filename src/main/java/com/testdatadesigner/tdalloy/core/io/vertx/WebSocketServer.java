@@ -2,6 +2,12 @@ package com.testdatadesigner.tdalloy.core.io.vertx;
 
 import java.io.BufferedInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
+import java.io.UnsupportedEncodingException;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -18,14 +24,26 @@ import io.vertx.core.json.JsonArray;
 import io.vertx.core.json.JsonObject;
 
 public class WebSocketServer extends AbstractVerticle {
-  public static String END_MARKER = "";
+  public static byte[] END_MARKER = { (byte) '\n', (byte) ']', (byte) '\n' };
   
   private ServerWebSocket webSocketRef = null;
   private String actionStr = "";
   public String nextAction = "";
+  private boolean ended = false;
+  private ByteArrayOutputStream oStream = null;
 
   public static void main(String[] args) {
     Runner.runServer(WebSocketServer.class);
+  }
+  
+  private void cancelAction() {
+    this.nextAction = "";
+    this.clearMessage();
+  }
+
+  private void clearMessage() {
+    this.oStream = null;
+    this.ended = false;
   }
 
   @Override
@@ -66,18 +84,58 @@ public class WebSocketServer extends AbstractVerticle {
     return ws.handler(handler);
   }
 
-  public ServerWebSocket handle(Buffer data) {
-    // * text or binary
-    // * データの終端がくるまではWriterをキープして待つ。
-
-    // テストデータ
-    String rawJsonStr = "{\"action\":\"importRequest\",\"handler\":\"com.testdatadesigner.tdalloy.core.io.vertx.FileImportVerticle\",\"filePath\":\"/tmp/naming_rule.dump\",\"dbmsName\":\"mysql\"}";
-    JsonObject json = new JsonObject(rawJsonStr);
-    
-    
+  public ServerWebSocket handle(Buffer data) {    
     /* 
      * parse message.
      */
+    JsonObject json = new JsonObject();
+    byte[] bytes = data.getBytes();
+    
+    if (bytes.length == END_MARKER.length) {
+      int equal = 0;
+      for (int i = 0; i < bytes.length; i++) {
+        if (END_MARKER[i] == bytes[i]) {
+          equal ++;
+        }
+      }
+      if (bytes.length == equal)
+        this.ended = true;
+    }
+    
+    try (BufferedInputStream inStream = new BufferedInputStream(new ByteArrayInputStream(bytes));
+        InputStreamReader inputStreamReader = new InputStreamReader(inStream, "UTF-8");) {
+      if (this.oStream == null)
+        this.oStream = new ByteArrayOutputStream();
+
+      byte[] chunk = new byte[1024 * 128];
+      int len = 0;
+      while ((len = inStream.read(chunk)) != -1) {
+        this.oStream.write(chunk, 0, len);
+      }
+    } catch (UnsupportedEncodingException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      this.clearMessage();
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+      this.clearMessage();
+    }
+
+    if (this.ended) {
+      try {
+        JsonArray jsonArray = new JsonArray(new String(this.oStream.toByteArray(), "UTF-8"));
+        json = jsonArray.getJsonObject(0);
+      } catch (Exception e) {
+        // TODO Auto-generated catch block
+        e.printStackTrace();
+      } finally {
+        this.clearMessage();
+      }
+    } else {
+      return this.webSocketRef;
+    }
+
     if (this.nextAction.isEmpty()) {
       this.actionStr = json.getString(Router.KEY_OF_ACTION);
     } else {
@@ -87,11 +145,12 @@ public class WebSocketServer extends AbstractVerticle {
     /*
      * set options.
      */
+    final JsonObject jsonObj = json;
     Map<String, Object> map = Router.ACTION.get(this.actionStr);
     List<String> keyList = (List) map.get(Router.KEY_OF_PARAMS_KEYS);
     List<JsonObject> paramsOfJson = keyList.stream().map(elm -> new JsonObject(new HashMap<String, Object>() {
       {
-        this.put(elm, json.getValue(elm));
+        this.put(elm, jsonObj.getValue(elm));
       }
     })).collect(Collectors.toList());
     this.nextAction = (String) map.get(Router.KEY_OF_NEXT_ACTION);
@@ -117,7 +176,7 @@ public class WebSocketServer extends AbstractVerticle {
       try {
         byte[] msgStream = ((String) message.body()).getBytes("UTF-8");
         BufferedInputStream is = new BufferedInputStream(new ByteArrayInputStream(msgStream));
-        byte[] chunk = new byte[1024 * 1024 * 2];
+        byte[] chunk = new byte[1024 * 128];
         int len = 0;
         while((len = is.read(chunk)) != -1) {
           Buffer buffer = Buffer.buffer(chunk);
@@ -128,6 +187,7 @@ public class WebSocketServer extends AbstractVerticle {
       } catch (Exception e) {
         // TODO: logging
         this.webSocketRef.writeBinaryMessage(Buffer.buffer(e.getMessage()));
+        this.cancelAction();
       }
     }
   }
