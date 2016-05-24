@@ -1,6 +1,7 @@
 package com.testdatadesigner.tdalloy.core.translator;
 
 import java.io.BufferedReader;
+import java.io.IOException;
 import java.io.Serializable;
 import java.net.URL;
 import java.util.ArrayList;
@@ -8,6 +9,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
+import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.CreateTableNode;
 import com.testdatadesigner.tdalloy.core.io.IOGateway;
 import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
@@ -86,19 +88,30 @@ public class AlloyableHandlerTest extends TestCase {
     super.tearDown();
   }
 
-  public void testBuildAll() throws Exception {
+  public void testBuildAll() throws IOException, StandardException, IllegalAccessException {
     URL resInfo = this.getClass().getResource("/naming_rule.dump");
+    // URL resInfo = this.getClass().getResource("/bp_reservation_development.sql");
     // URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
     String filePath = resInfo.getFile();
     ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
     List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
 
     IRdbSchemaParser parser = new MySQLSchemaParser();
-    this.resultList = parser.inboundParse(results);
+    try {
+      this.resultList = parser.inboundParse(results);
+    } catch (StandardException e) {
+      e.printStackTrace();
+      throw e;
+    }
 
     this.currentAlloyable = new Alloyable();
     this.alloyableHandler = new AlloyableHandler(currentAlloyable);
-    this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+    try {
+      this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+    } catch (IllegalAccessException e) {
+      e.printStackTrace();
+      throw e;
+    }
 
     StringBuilder str = new StringBuilder();
     try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
