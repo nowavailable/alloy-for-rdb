@@ -31,8 +31,12 @@ public class MySQLSchemaParser implements IRdbSchemaParser {
   @Override
   public List<CreateTableNode> inboundParse(List<String> schemas) throws StandardException {
 
-    List<Pattern> omitPatterns = Arrays.asList(Pattern.compile("(,)([\\s]+SPATIAL KEY [^)]+`)(\\))"),
-        Pattern.compile("(,)([\\s]+FULLTEXT KEY [^)]+`)(\\))"), Pattern.compile("(,)([\\s]+KEY [^)]+`)(\\))"));
+    List<Pattern> omitPatterns = Arrays.asList(
+        Pattern.compile("(,)([\\s]+SPATIAL KEY [^)]+`)(\\))"),
+        Pattern.compile("([\\s]+USING BTREE)"),
+        Pattern.compile("(,)([\\s]+FULLTEXT KEY [^)]+`)(\\))"), 
+        Pattern.compile("(,)([\\s]+KEY [^)]+`)(\\))")
+        );
     // 3分割したgroupのうち、2番目が置換対象、1,3番目は温存するパターン。
     List<Pattern> omit2ndPatters = Arrays.asList(Pattern.compile("(int)(\\([\\d]+\\))(.?)"),
         Pattern.compile("(.?)(AUTO_INCREMENT)(.?)"), Pattern.compile("(\\))([\\s]+ENGINE=.+)(;)$"),
