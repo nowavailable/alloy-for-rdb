@@ -111,8 +111,9 @@ public class AlloyableHandler {
         // 外部キーはあとで処理。
         if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
           FKConstraintDefinitionNode constraint = (FKConstraintDefinitionNode) tableElement;
-          ResultColumnList columnList = constraint.getRefResultColumnList();
-          if (columnList.size() > 1) {
+          ResultColumnList refColumnList = constraint.getRefResultColumnList();
+          ResultColumnList columnList = constraint.getColumnList();
+          if (refColumnList.size() > 1) {
             // 複合外部キーは、テーブル名をkeyにしたMapに
             List<String> columnNameList = new ArrayList<>();
             for (ResultColumn resultColumn : columnList) {
@@ -120,7 +121,7 @@ public class AlloyableHandler {
             }
             compositeUniqueConstraintsByFKey.put(tableNode.getFullName(), columnNameList);
           } else {
-            postpone(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList().get(0)).getName());
+            postpone(tableNode.getFullName(), ((ResultColumn) columnList.get(0)).getName());
           }
         } else if (tableElement.getClass().equals(ConstraintDefinitionNode.class)) {
           // プライマリキーはあとで処理
