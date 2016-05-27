@@ -8,14 +8,7 @@ import java.util.function.Function;
 import com.google.common.base.Joiner;
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
-import com.testdatadesigner.tdalloy.core.types.Fact;
-import com.testdatadesigner.tdalloy.core.types.IAtom;
-import com.testdatadesigner.tdalloy.core.types.IRelation;
-import com.testdatadesigner.tdalloy.core.types.MissingAtom;
-import com.testdatadesigner.tdalloy.core.types.MissingAtomFactory;
-import com.testdatadesigner.tdalloy.core.types.NamingRuleForAlloyable;
-import com.testdatadesigner.tdalloy.core.types.TableRelation;
-import com.testdatadesigner.tdalloy.core.types.TableRelationReferred;
+import com.testdatadesigner.tdalloy.core.types.*;
 
 public class RelationHandler {
 
@@ -45,7 +38,6 @@ public class RelationHandler {
       relation = new TableRelation();
       relation.setOriginColumnNames(fKeyColumnStrs);
       relation.setName(namingRule.foreignKeyName(namingRule.fkeyFromTableName(refTableName), ownerTableName));
-      ;
       relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
       relation.setRefTo(
           refSig == null ? MissingAtomFactory.getInstance().getMissingAtom(refSigName, relation.getOwner()) : refSig);
@@ -111,46 +103,69 @@ public class RelationHandler {
     return fact;
   }
 
-  /**
-   * @param tableSigName
-   * @param colNames
-   * @param relName
-   *          複合外部キーがあるなら、その参照先テーブル由来のrelation名が渡されること。
-   * @return
-   */
-  public Fact buildMultiColumnUniqueFact(String tableSigName, List<String> colNames, String relName) {
-    IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
-    List<String> alloyFieldNames = new ArrayList<>();
-    for (String colName : colNames) {
-      alloyFieldNames.add(namingRule.singularize(namingRule.tableNameFromFKey(colName)));
+  public Fact buildMultiColumnFKeyFact(IRelation mainRelation, List<IRelation> relations,
+      List<IRelation> refRelations) {
+    Fact fact = new Fact(Fact.Tipify.ROWS_CONSTRAINT);
+    StringBuilder builder = new StringBuilder();
+
+    builder.append("all e:");
+    builder.append(mainRelation.getOwner().getName());
+    builder.append(" | ");
+    List<String> fields = new ArrayList<String>();
+    for (int i = 0; i < relations.size(); i++) {
+      StringBuilder innerBuilder = new StringBuilder();
+      innerBuilder.append("e.");
+      innerBuilder.append(mainRelation.getName());
+      innerBuilder.append(".");
+      innerBuilder.append(refRelations.get(i).getName());
+      if (refRelations.get(i).getRefTo().getName().equals(Property.TYPE_ON_ALS)) {
+        innerBuilder.append(".val");
+      }
+      innerBuilder.append(" = ");
+      innerBuilder.append("e.");
+      innerBuilder.append(relations.get(i).getName());
+      if (relations.get(i).getRefTo().getName().equals(Property.TYPE_ON_ALS)) {
+        innerBuilder.append(".val");
+      }
+      fields.add(innerBuilder.toString());
     }
+    builder.append(Joiner.on(" && ").join(fields));
+    fact.value = builder.toString();
+    return fact;
+  }
+
+  public Fact buildMultiColumnUniqueFact(IAtom ownerAtom, List<IRelation> relations) {
     Fact fact = new Fact(Fact.Tipify.ROWS_CONSTRAINT);
     StringBuilder builder = new StringBuilder();
 
     builder.append("all e,e':");
-    builder.append(tableSigName);
+    builder.append(ownerAtom.getName());
     builder.append(" | ");
     builder.append("e != e' => ");
 
-    List<String> fields_left = new ArrayList<String>();
-    List<String> fields_right = new ArrayList<String>();
-    String previous_field = null;
-    for (String fieldName : alloyFieldNames) {
-      if (previous_field == null) {
-        previous_field = fieldName;
-        continue;
-      }
-      Object refSigNameAsField = relName.isEmpty() ? "" : relName + ".";
-      fields_left.add("e." + refSigNameAsField + previous_field + " -> " + "e." + refSigNameAsField + fieldName);
-      fields_right.add("e'." + refSigNameAsField + previous_field + " -> " + "e'." + refSigNameAsField + fieldName);
-    }
     List<String> fields = new ArrayList<String>();
-    for (int i = 0; i < fields_left.size(); i++) {
-      fields.add("(" + fields_left.get(i) + " != " + fields_right.get(i) + ")");
+    for (IRelation relation : relations) {
+      StringBuilder innerBuilder = new StringBuilder();
+      innerBuilder.append("e.");
+      innerBuilder.append(relation.getName());
+      fields.add(innerBuilder.toString());
     }
-    builder.append(Joiner.on(" && ").join(fields));
+    builder.append("(");
+    builder.append(Joiner.on("->").join(fields));
+    builder.append(")");
+    builder.append(" != ");
+    fields = new ArrayList<String>();
+    for (IRelation relation : relations) {
+      StringBuilder innerBuilder = new StringBuilder();
+      innerBuilder.append("e'.");
+      innerBuilder.append(relation.getName());
+      fields.add(innerBuilder.toString());
+    }
+    builder.append("(");
+    builder.append(Joiner.on("->").join(fields));
+    builder.append(")");
+
     fact.value = builder.toString();
-    // fact.owners.addAll(relations);
     return fact;
   }
 }

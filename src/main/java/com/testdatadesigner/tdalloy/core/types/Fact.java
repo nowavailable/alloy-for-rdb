@@ -24,4 +24,8 @@ public class Fact implements Serializable {
     super();
     this.type = type;
   }
+  
+  public boolean equals(Fact anObject) {
+    return (this.value.equals(anObject.value)) ;
+  }
 }

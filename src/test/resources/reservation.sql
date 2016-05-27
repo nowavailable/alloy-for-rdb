@@ -21,13 +21,13 @@ CREATE TABLE `applies` (
   CONSTRAINT `fk_applies_to_frames` FOREIGN KEY (`from_to_str`, `campaign_id`, `shop_id`, `room_number`) REFERENCES `frames` (`from_to_str`, `campaign_id`, `shop_id`, `room_number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `apply_cancels` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `apply_id` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_apply_cancels_on_apply_id` (`apply_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- CREATE TABLE `apply_cancels` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `apply_id` int(11) NOT NULL,
+--   `created_at` datetime NOT NULL,
+--   PRIMARY KEY (`id`),
+--   UNIQUE KEY `index_apply_cancels_on_apply_id` (`apply_id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `campaigns` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -77,77 +77,77 @@ CREATE TABLE `frames` (
   CONSTRAINT `fk_frames_to_rooms` FOREIGN KEY (`campaign_id`, `shop_id`, `room_number`) REFERENCES `rooms` (`campaign_id`, `shop_id`, `room_number`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `lottery_logs` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `apply_id` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_lottery_logs_on_apply_id` (`apply_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `lottery_wins` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `lottery_log_id` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_lottery_wins_on_lottery_log_id` (`lottery_log_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `lottery_works` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `sort_key` float NOT NULL,
-  `win_times` int(11) NOT NULL DEFAULT '0',
-  `deal_id` int(11) NOT NULL,
-  `frame_id` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL,
-  `quantity` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `idx_lottery_works_candidate_key` (`deal_id`,`frame_id`,`win_times`,`sort_key`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `manage_helps` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `con_name` varchar(255) DEFAULT NULL,
-  `act_name` varchar(255) DEFAULT NULL,
-  `message` text,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `manage_helps_names_index` (`con_name`,`act_name`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE `manage_users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `login` varchar(255) NOT NULL,
-  `crypted_password` varchar(255) NOT NULL,
-  `password_salt` varchar(255) NOT NULL,
-  `persistence_token` varchar(255) NOT NULL,
-  `login_count` int(11) NOT NULL DEFAULT '0',
-  `last_request_at` datetime DEFAULT NULL,
-  `last_login_at` datetime DEFAULT NULL,
-  `current_login_at` datetime DEFAULT NULL,
-  `last_login_ip` varchar(255) DEFAULT NULL,
-  `current_login_ip` varchar(255) DEFAULT NULL,
-  `deleted_at` datetime DEFAULT NULL,
-  `created_at` datetime NOT NULL,
-  `updated_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  KEY `index_manage_users_on_deleted_at` (`deleted_at`) USING BTREE,
-  KEY `index_manage_users_on_last_request_at` (`last_request_at`) USING BTREE,
-  KEY `index_manage_users_on_login` (`login`) USING BTREE,
-  KEY `index_manage_users_on_persistence_token` (`persistence_token`) USING BTREE
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-
-CREATE TABLE `reservation_cancels` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `reservation_id` int(11) NOT NULL,
-  `created_at` datetime NOT NULL,
-  PRIMARY KEY (`id`),
-  UNIQUE KEY `index_reservation_cancels_on_reservation_id` (`reservation_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+-- CREATE TABLE `lottery_logs` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `apply_id` int(11) NOT NULL,
+--   `created_at` datetime NOT NULL,
+--   PRIMARY KEY (`id`),
+--   UNIQUE KEY `index_lottery_logs_on_apply_id` (`apply_id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--
+-- CREATE TABLE `lottery_wins` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `lottery_log_id` int(11) NOT NULL,
+--   `created_at` datetime NOT NULL,
+--   PRIMARY KEY (`id`),
+--   UNIQUE KEY `index_lottery_wins_on_lottery_log_id` (`lottery_log_id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--
+-- CREATE TABLE `lottery_works` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `sort_key` float NOT NULL,
+--   `win_times` int(11) NOT NULL DEFAULT '0',
+--   `deal_id` int(11) NOT NULL,
+--   `frame_id` int(11) NOT NULL,
+--   `user_id` int(11) NOT NULL,
+--   `quantity` int(11) NOT NULL,
+--   `created_at` datetime NOT NULL,
+--   `updated_at` datetime NOT NULL,
+--   PRIMARY KEY (`id`),
+--   KEY `idx_lottery_works_candidate_key` (`deal_id`,`frame_id`,`win_times`,`sort_key`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--
+-- CREATE TABLE `manage_helps` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `con_name` varchar(255) DEFAULT NULL,
+--   `act_name` varchar(255) DEFAULT NULL,
+--   `message` text,
+--   `created_at` datetime NOT NULL,
+--   `updated_at` datetime NOT NULL,
+--   PRIMARY KEY (`id`),
+--   UNIQUE KEY `manage_helps_names_index` (`con_name`,`act_name`) USING BTREE
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--
+-- CREATE TABLE `manage_users` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `login` varchar(255) NOT NULL,
+--   `crypted_password` varchar(255) NOT NULL,
+--   `password_salt` varchar(255) NOT NULL,
+--   `persistence_token` varchar(255) NOT NULL,
+--   `login_count` int(11) NOT NULL DEFAULT '0',
+--   `last_request_at` datetime DEFAULT NULL,
+--   `last_login_at` datetime DEFAULT NULL,
+--   `current_login_at` datetime DEFAULT NULL,
+--   `last_login_ip` varchar(255) DEFAULT NULL,
+--   `current_login_ip` varchar(255) DEFAULT NULL,
+--   `deleted_at` datetime DEFAULT NULL,
+--   `created_at` datetime NOT NULL,
+--   `updated_at` datetime NOT NULL,
+--   PRIMARY KEY (`id`),
+--   KEY `index_manage_users_on_deleted_at` (`deleted_at`) USING BTREE,
+--   KEY `index_manage_users_on_last_request_at` (`last_request_at`) USING BTREE,
+--   KEY `index_manage_users_on_login` (`login`) USING BTREE,
+--   KEY `index_manage_users_on_persistence_token` (`persistence_token`) USING BTREE
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+--
+--
+-- CREATE TABLE `reservation_cancels` (
+--   `id` int(11) NOT NULL AUTO_INCREMENT,
+--   `reservation_id` int(11) NOT NULL,
+--   `created_at` datetime NOT NULL,
+--   PRIMARY KEY (`id`),
+--   UNIQUE KEY `index_reservation_cancels_on_reservation_id` (`reservation_id`)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 CREATE TABLE `reservations` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

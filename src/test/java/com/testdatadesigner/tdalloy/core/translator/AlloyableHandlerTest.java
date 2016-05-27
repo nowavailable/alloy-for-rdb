@@ -90,7 +90,7 @@ public class AlloyableHandlerTest extends TestCase {
 
   public void testBuildAll() throws IOException, StandardException, IllegalAccessException {
     URL resInfo = this.getClass().getResource("/naming_rule.dump");
-    // URL resInfo = this.getClass().getResource("/reservation.sql");
+//    URL resInfo = this.getClass().getResource("/reservation.sql");
     // URL resInfo = this.getClass().getResource("/lotteries_raw.sql");
     String filePath = resInfo.getFile();
     ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
