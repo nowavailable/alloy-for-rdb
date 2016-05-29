@@ -196,22 +196,6 @@ public class AlloyableHandler {
           addToAllColumns.accept(tableNode, (ColumnDefinitionNode) tableElement);
         }
       }
-
-//      for (Entry<String, List<String>> pair : compositeUniqueConstraintsByFKey.entrySet()) {
-//        //// 複合外部キーが複合ユニーク制約を持っていた場合、それはAlloy上では省略する？
-//        // List<String> target = compositeUniqueConstraints.get(pair.getKey());
-//        // if (target != null && target.equals(pair.getValue())) {
-//        // compositeUniqueConstraints.remove(pair.getKey());
-//        // }
-//
-//        // 複合外部キーに含まれるカラムは、通常のカラムとして解釈しない。
-//        for (String colName : pair.getValue()) {
-//          ColumnDefinitionNode column = columnSearchByName.apply(pair.getKey(), colName);
-//          if (column != null) {
-//            omit.accept(pair.getKey(), column);
-//          }
-//        }
-//      }
     }
 
     /*
@@ -221,11 +205,11 @@ public class AlloyableHandler {
       for (TableElementNode tableElement : tableNode.getTableElementList()) {
         if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
           FKConstraintDefinitionNode constraint = (FKConstraintDefinitionNode) tableElement;
-          List<String> refColmnNames = new ArrayList<>();
-          for (ResultColumn resultColumn : constraint.getRefResultColumnList()) {
-            refColmnNames.add(resultColumn.getName());
+          List<String> fkeyColmnNames = new ArrayList<>();
+          for (ResultColumn resultColumn : constraint.getColumnList()) {
+            fkeyColmnNames.add(resultColumn.getName());
           }
-          List<IRelation> relations = relationHandler.build(atomSearchByName, tableNode.getFullName(), refColmnNames,
+          List<IRelation> relations = relationHandler.build(atomSearchByName, tableNode.getFullName(), fkeyColmnNames,
               constraint.getRefTableName().getFullTableName());
           // カラムの制約
           for (ResultColumn resultColumn : constraint.getColumnList()) {
@@ -240,14 +224,7 @@ public class AlloyableHandler {
             this.alloyable.addToFacts(relationFact);
           }
 
-          // NOTICE: ?
           this.alloyable.relations.addAll(relations);
-          //if (constraint.getColumnList().size() > 1) {
-          //  //this.alloyable.relations.addAll(relations);
-          //} else {
-          //  // あとでさらに処理する。複合カラムキーでなければ。
-          //  postpone(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList().get(0)).getName());
-          //}
         }
       }
     }
@@ -447,7 +424,7 @@ public class AlloyableHandler {
       List<IRelation> relations = new ArrayList<>();
       for (String colName : list) {
         relations.add(
-          this.alloyable.relations.stream().filter(rel -> rel.getOwner().equals(ownerAtom) 
+          this.alloyable.relations.stream().filter(rel -> rel.getOwner().equals(ownerAtom)
               && rel.getOriginColumnNames().equals(Arrays.asList(colName))).
           collect(Collectors.toList()).get(0)
         );
