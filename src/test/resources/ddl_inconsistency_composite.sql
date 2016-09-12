@@ -1,4 +1,3 @@
-
 DROP TABLE IF EXISTS `actors`;
 CREATE TABLE `actors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,

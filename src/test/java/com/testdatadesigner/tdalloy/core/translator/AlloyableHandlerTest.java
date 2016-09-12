@@ -452,31 +452,12 @@ public class AlloyableHandlerTest extends TestCase {
      */
   }
 
-
-
-
-
-
-
-
-
-
-
-
-
-  public void testBuildAllAndOutputAls_Inconsistency() throws Exception {
-    URL resInfo = this.getClass().getResource("/naming_rule_with_inconsistency.sql");
-    String filePath = resInfo.getFile();
-    ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-    List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
-
-    IRdbSchemaParser parser = new MySQLSchemaParser();
-    this.resultList = parser.inboundParse(results);
-
-    this.currentAlloyable = new Alloyable();
-    this.alloyableHandler = new AlloyableHandler(currentAlloyable);
-    this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
-
+  /*
+   * persons テーブルが参照されているが、DDLにpersons テーブルは含まれていない。
+   */
+  public void testInconsistency() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_inconsistency.sql");
+    this.procDDL(resInfo);
     StringBuilder str = new StringBuilder();
     try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
       String line = null;
@@ -492,19 +473,12 @@ public class AlloyableHandlerTest extends TestCase {
     Assert.assertEquals(str.toString(), expected);
   }
 
-  public void testBuildAllAndOutputAls_CompositeInconsistency() throws Exception {
-    URL resInfo = this.getClass().getResource("/naming_rule_with_composite_inconsistency.sql");
-    String filePath = resInfo.getFile();
-    ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-    List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
-
-    IRdbSchemaParser parser = new MySQLSchemaParser();
-    this.resultList = parser.inboundParse(results);
-
-    this.currentAlloyable = new Alloyable();
-    this.alloyableHandler = new AlloyableHandler(currentAlloyable);
-    this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
-
+  /*
+   * 複合外部キーから参照されているテーブルのうち、ひとつがDDLに含まれていない。
+   */
+  public void testInconsistencyComposite() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_inconsistency_composite.sql");
+    this.procDDL(resInfo);
     StringBuilder str = new StringBuilder();
     try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
       String line = null;
@@ -523,19 +497,26 @@ public class AlloyableHandlerTest extends TestCase {
         + "}\n" + "\n" + "run {}\n");
   }
 
-  public void testBuildAllAndOutputAls_CompositePractical() throws Exception {
+  public void testNoRelations() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_no_relations.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str.append(line);
+        str.append("\n");
+      }
+    }
+    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n" + "sig Book {\n"
+        + "  person: lone Boundary,\n" + "  some: lone Boundary,\n" + "  price: lone Boundary\n" + "}\n" + "\n"
+        + "fact {\n" + "}\n" + "\n" + "run {}" + "\n");
+    Assert.assertEquals(str.toString(), expected);
+  }
+
+  public void testCompositePractical() throws Exception {
     URL resInfo = this.getClass().getResource("/reservation.sql");
-    String filePath = resInfo.getFile();
-    ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-    List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
-
-    IRdbSchemaParser parser = new MySQLSchemaParser();
-    this.resultList = parser.inboundParse(results);
-
-    this.currentAlloyable = new Alloyable();
-    this.alloyableHandler = new AlloyableHandler(currentAlloyable);
-    this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
-
+    this.procDDL(resInfo);
     StringBuilder str = new StringBuilder();
     try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
       String line = null;
@@ -595,30 +576,4 @@ public class AlloyableHandlerTest extends TestCase {
         + "}\n" + "\n" + "run {}\n");
   }
 
-  public void testBuildAllAndOutputAls_NoRelations() throws Exception {
-    URL resInfo = this.getClass().getResource("/naming_rule_with_no_relations.sql");
-    String filePath = resInfo.getFile();
-    ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-    List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
-
-    IRdbSchemaParser parser = new MySQLSchemaParser();
-    this.resultList = parser.inboundParse(results);
-
-    this.currentAlloyable = new Alloyable();
-    this.alloyableHandler = new AlloyableHandler(currentAlloyable);
-    this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
-
-    StringBuilder str = new StringBuilder();
-    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
-      String line = null;
-      while ((line = outputToAlsReader.readLine()) != null) {
-        str.append(line);
-        str.append("\n");
-      }
-    }
-    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n" + "sig Book {\n"
-        + "  person: lone Boundary,\n" + "  some: lone Boundary,\n" + "  price: lone Boundary\n" + "}\n" + "\n"
-        + "fact {\n" + "}\n" + "\n" + "run {}" + "\n");
-    Assert.assertEquals(str.toString(), expected);
-  }
 }
