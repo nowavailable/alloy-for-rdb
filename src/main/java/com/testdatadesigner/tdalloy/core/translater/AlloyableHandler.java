@@ -181,13 +181,13 @@ public class AlloyableHandler {
           } else if (constraint.getConstraintType().equals(ConstraintType.UNIQUE)) {
             ResultColumnList columnList = constraint.getColumnList();
             // （複合カラム）ユニーク制約は、テーブル名をkeyにしたMapに
-            if (columnList.size() > 1) {
-              List<String> columnNameList = new ArrayList<>();
-              for (ResultColumn resultColumn : columnList) {
-                columnNameList.add(resultColumn.getName());
-              }
-              compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
+            //if (columnList.size() > 1) {
+            List<String> columnNameList = new ArrayList<>();
+            for (ResultColumn resultColumn : columnList) {
+              columnNameList.add(resultColumn.getName());
             }
+            compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
+            //}
           }
         }
         // それ以外のelementをとりあえずぜんぶ保存

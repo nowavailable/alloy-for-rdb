@@ -173,16 +173,15 @@ public class AlloyableHandlerTest extends TestCase {
       }
     }
     String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
-        + "sig Actor {\n" + "  charactors: set Charactor,\n" + "  name: one Boundary\n" + "}\n"
-        + "sig Charactor {\n" + "  actor: one Actor,\n" + "  name: one Boundary\n" + "}\n" + "\n"
-        + "fact {\n" + "  Actor<:charactors = ~(Charactor<:actor)\n" + "}\n" + "\n" + "run {}\n");
+        + "sig Actor {\n" + "  characters: set Character,\n" + "  name: one Boundary\n" + "}\n"
+        + "sig Character {\n" + "  actor: one Actor,\n" + "  name: one Boundary\n" + "}\n" + "\n"
+        + "fact {\n" + "  Actor<:characters = ~(Character<:actor)\n" + "}\n" + "\n" + "run {}\n");
     Assert.assertEquals(str.toString(), expected);
-    /*
-      // als上での、ユニーク制約に対するチェックロジック
+    /* als上での、ユニーク制約に対するチェックロジック
       assert dup {
         all a,a': Actor |
-        (a != a' && a.charactors != none && a'.charactors != none) =>
-        a.charactors != a'.charactors
+        (a != a' && a.characters != none && a'.characters != none) =>
+        a.characters != a'.characters
       }
       check dup
      */
@@ -191,7 +190,7 @@ public class AlloyableHandlerTest extends TestCase {
   /*
    * 外部キー。REFERENCES宣言に則った判定
    */
-  public void testSimepleRelationConstraint() throws Exception {
+  public void testSimpleRelationConstraint() throws Exception {
     URL resInfo = this.getClass().getResource("/ddl_simple_relation_by_constraints.sql");
     this.procDDL(resInfo);
     StringBuilder str = new StringBuilder();
@@ -203,9 +202,30 @@ public class AlloyableHandlerTest extends TestCase {
       }
     }
     String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
-        + "sig Actor {\n" + "  charactors: set Charactor,\n" + "  name: one Boundary\n" + "}\n"
-        + "sig Charactor {\n" + "  actor: one Actor,\n" + "  name: one Boundary\n" + "}\n" + "\n"
-        + "fact {\n" + "  Actor<:charactors = ~(Charactor<:actor)\n" + "}\n" + "\n" + "run {}\n");
+        + "sig Actor {\n" + "  characters: set Character,\n" + "  name: one Boundary\n" + "}\n"
+        + "sig Character {\n" + "  actor: one Actor,\n" + "  name: one Boundary\n" + "}\n" + "\n"
+        + "fact {\n" + "  Actor<:characters = ~(Character<:actor)\n" + "}\n" + "\n" + "run {}\n");
+    Assert.assertEquals(str.toString(), expected);
+  }
+
+  /*
+   * 外部キー。One to one.
+   */
+  public void testSimpleRelationOneToOne() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_simple_relation_one_to_one.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str.append(line);
+        str.append("\n");
+      }
+    }
+    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
+        + "sig Cup {\n" + "  saucers: set Saucer\n" + "}\n" + "sig Saucer {\n" + "  cup: one Cup\n"
+        + "}\n" + "\n" + "fact {\n" + "  Cup<:saucers = ~(Saucer<:cup)\n"
+        + "  all e,e':Saucer | e != e' => (e.cup) != (e'.cup)\n" + "}\n" + "\n" + "run {}\n");
     Assert.assertEquals(str.toString(), expected);
   }
 
@@ -264,8 +284,7 @@ public class AlloyableHandlerTest extends TestCase {
         + "  all e,e':OrderDetail | e != e' => (e.customer->e.item->e.order) != (e'.customer->e'.item->e'.order)\n"
         + "}\n" + "\n" + "run {}\n");
     Assert.assertEquals(str.toString(), expected);
-    /*
-      // als上での、ユニーク制約に対するチェックロジック
+    /* als上での、ユニーク制約に対するチェックロジック
       assert dup {
         all d,d': OrderDetail |
           (d != d') =>
@@ -281,7 +300,8 @@ public class AlloyableHandlerTest extends TestCase {
    * 注文明細、商品、顧客、を例に
    */
   public void testMultiFKeyConstraint_with_CompositeUnique() throws Exception {
-    URL resInfo = this.getClass().getResource("/ddl_foreign_keys_constraint_with_composite_unique.sql");
+    URL resInfo = this.getClass().getResource(
+        "/ddl_foreign_keys_constraint_with_composite_unique.sql");
     this.procDDL(resInfo);
     StringBuilder str = new StringBuilder();
     try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
@@ -304,28 +324,13 @@ public class AlloyableHandlerTest extends TestCase {
     Assert.assertEquals(str.toString(), expected);
   }
 
-
-
-
-
-
   /*
-   * idの無い交差テーブル。これには2パターンのDBスキーマが考えられる。 ひとつは、交差テーブルに複合主キーを定義するかたち。 もうひとつは、複合ユニーク制約のみを定義するかたち。
-   * （※この交差テーブルを参照する外部キーは、両ケースとも同じになる） どちらの表現でも、alloy上では同じ意味になる。
+   * Actor, Movie, Character を例に。
+   * idの無い交差テーブル = 複合主キー。
    */
-  public void testBuildAllAndOutputAls_CompositeIndex() throws Exception {
-    URL resInfo = this.getClass().getResource("/naming_rule_with_composite_pkey.sql");
-    String filePath = resInfo.getFile();
-    ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
-    List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
-
-    IRdbSchemaParser parser = new MySQLSchemaParser();
-    this.resultList = parser.inboundParse(results);
-
-    this.currentAlloyable = new Alloyable();
-    this.alloyableHandler = new AlloyableHandler(currentAlloyable);
-    this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
-
+  public void testCompositePKey() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_composite_pkey.sql");
+    this.procDDL(resInfo);
     StringBuilder str = new StringBuilder();
     try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
       String line = null;
@@ -335,35 +340,36 @@ public class AlloyableHandlerTest extends TestCase {
       }
     }
     String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
-        + "sig Actor {\n" + "  charactors: set Charactor,\n" + "  goods: set Good,\n"
-        + "  name: one Boundary\n" + "}\n" + "sig Movie {\n" + "  charactors: set Charactor,\n"
-        + "  goods: set Good,\n" + "  title: one Boundary\n" + "}\n" + "sig Charactor {\n"
-        + "  goods: set Good,\n" + "  actor: one Actor,\n" + "  movie: one Movie,\n"
-        + "  name: one Boundary\n" + "}\n" + "sig Good {\n" + "  charactor: one Charactor,\n"
-        + "  actor: one Actor,\n" + "  movie: one Movie,\n" + "  name: one Boundary\n" + "}\n"
-        + "\n" + "fact {\n" + "  Charactor<:goods = ~(Good<:charactor)\n"
-        + "  Actor<:charactors = ~(Charactor<:actor)\n"
-        + "  Movie<:charactors = ~(Charactor<:movie)\n" + "  Actor<:goods = ~(Good<:actor)\n"
-        + "  Movie<:goods = ~(Good<:movie)\n"
-        + "  all e,e':Charactor | e != e' => (e.actor->e.movie) != (e'.actor->e'.movie)\n"
-        + "  all e,e':Good | e != e' => (e.actor->e.movie) != (e'.actor->e'.movie)\n"
-        + "  all e:Good | e.charactor.actor = e.actor && e.charactor.movie = e.movie\n" + "}\n"
+        + "sig Actor {\n" + "  characters: set Character,\n" + "  name: one Boundary\n" + "}\n"
+        + "sig Movie {\n" + "  characters: set Character,\n" + "  title: one Boundary\n" + "}\n"
+        + "sig Character {\n" + "  actor: one Actor,\n" + "  movie: one Movie,\n"
+        + "  name: one Boundary\n" + "}\n" + "\n" + "fact {\n"
+        + "  Actor<:characters = ~(Character<:actor)\n"
+        + "  Movie<:characters = ~(Character<:movie)\n"
+        + "  all e,e':Character | e != e' => (e.actor->e.movie) != (e'.actor->e'.movie)\n" + "}\n"
         + "\n" + "run {}\n");
     Assert.assertEquals(str.toString(), expected);
+    /* als上での、ユニーク制約に対するチェックロジック
+      assert dup {
+        all c,c': Character |
+          (c != c') =>
+            (c.actor -> c.movie) != (c'.actor -> c'.movie)
+      }
+      check dup
+     */
+  }
 
-    resInfo = this.getClass().getResource("/naming_rule_with_composite.sql");
-    filePath = resInfo.getFile();
-    ddlSplitter = new MySQLSchemaSplitter();
-    results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
-
-    parser = new MySQLSchemaParser();
-    this.resultList = parser.inboundParse(results);
-
-    this.currentAlloyable = new Alloyable();
-    this.alloyableHandler = new AlloyableHandler(currentAlloyable);
-    this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
-
-    str = new StringBuilder();
+  /*
+   * Actor, Movie, Character を例に。
+   * idの無い交差テーブル = 複合主キー
+   * と、する代わりに、ふたつの外部キーをユニークとする。
+   * （※この交差テーブルを参照する外部キーは、testCompositePKey()と同じになる）
+   * （※そしてどちらの表現でも、alloy上では同じ意味になる。）
+   */
+  public void testCompositePsuedoPKey() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_composite_psuedo_pkey.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
     try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
       String line = null;
       while ((line = outputToAlsReader.readLine()) != null) {
@@ -371,23 +377,92 @@ public class AlloyableHandlerTest extends TestCase {
         str.append("\n");
       }
     }
-    expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
-        + "sig Actor {\n" + "  charactors: set Charactor,\n" + "  goods: set Good,\n"
-        + "  name: one Boundary\n" + "}\n" + "sig Movie {\n" + "  charactors: set Charactor,\n"
-        + "  goods: set Good,\n" + "  title: one Boundary\n" + "}\n" + "sig Charactor {\n"
-        + "  actor: lone Actor,\n" + "  movie: lone Movie,\n" + "  goods: set Good,\n"
-        + "  name: one Boundary\n" + "}\n" + "sig Good {\n" + "  charactor: one Charactor,\n"
+
+    URL resInfo_another = this.getClass().getResource("/ddl_composite_pkey.sql");
+    this.procDDL(resInfo_another);
+    StringBuilder str_another = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str_another.append(line);
+        str_another.append("\n");
+      }
+    }
+
+    Assert.assertEquals(str.toString(), str_another.toString());
+  }
+
+  /*
+   * Actor, Movie, Character, Novelty を例に。
+   * idの無い交差テーブル. ふたつの外部キーをユニークとする。
+   * この外部キーを参照。つまり複合キーの伝播。
+   * そしてNovelty は、Character と同じActor, Movie を参照する。
+   */
+  public void testCompositePKeyReferred() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_composite_fkey.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str.append(line);
+        str.append("\n");
+      }
+    }
+    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
+        + "sig Actor {\n" + "  characters: set Character,\n" + "  novelties: set Novelty,\n"
+        + "  name: one Boundary\n" + "}\n" + "sig Movie {\n" + "  characters: set Character,\n"
+        + "  novelties: set Novelty,\n" + "  title: one Boundary\n" + "}\n" + "sig Character {\n"
+        + "  actor: one Actor,\n" + "  movie: one Movie,\n" + "  novelties: set Novelty,\n"
+        + "  name: one Boundary\n" + "}\n" + "sig Novelty {\n" + "  character: one Character,\n"
         + "  actor: one Actor,\n" + "  movie: one Movie,\n" + "  name: one Boundary\n" + "}\n"
-        + "\n" + "fact {\n" + "  Actor<:charactors = ~(Charactor<:actor)\n"
-        + "  Movie<:charactors = ~(Charactor<:movie)\n"
-        + "  Charactor<:goods = ~(Good<:charactor)\n" + "  Actor<:goods = ~(Good<:actor)\n"
-        + "  Movie<:goods = ~(Good<:movie)\n"
-        + "  all e,e':Charactor | e != e' => (e.actor->e.movie) != (e'.actor->e'.movie)\n"
-        + "  all e,e':Good | e != e' => (e.actor->e.movie) != (e'.actor->e'.movie)\n"
-        + "  all e:Good | e.charactor.actor = e.actor && e.charactor.movie = e.movie\n" + "}\n"
+        + "\n" + "fact {\n" + "  Actor<:characters = ~(Character<:actor)\n"
+        + "  Movie<:characters = ~(Character<:movie)\n"
+        + "  Character<:novelties = ~(Novelty<:character)\n"
+        + "  Actor<:novelties = ~(Novelty<:actor)\n" + "  Movie<:novelties = ~(Novelty<:movie)\n"
+        + "  all e,e':Character | e != e' => (e.actor->e.movie) != (e'.actor->e'.movie)\n"
+        + "  all e,e':Novelty | e != e' => (e.actor->e.movie) != (e'.actor->e'.movie)\n"
+        + "  all e:Novelty | e.character.actor = e.actor && e.character.movie = e.movie\n" + "}\n"
         + "\n" + "run {}\n");
     Assert.assertEquals(str.toString(), expected);
   }
+
+  /*
+   * 外部キーにユニーク制約が宣言されていない例
+   */
+  public void testCompositeImplicitUnique() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_composite_fkey_not_unique.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str.append(line);
+        str.append("\n");
+      }
+    }
+    /*
+      ユニーク制約つきのキーを参照したからといって、
+      参照する元の外部キーでもユニーク制約を継承するわけでは無い。
+      これは↓ Counter example が出る
+      assert dup {
+        all e,e' : Novelty | (e != e') => (e.actor->e.movie) != (e'.actor->e'.movie)
+      }
+      check dup
+     */
+  }
+
+
+
+
+
+
+
+
+
+
+
+
 
   public void testBuildAllAndOutputAls_Inconsistency() throws Exception {
     URL resInfo = this.getClass().getResource("/naming_rule_with_inconsistency.sql");
@@ -439,12 +514,12 @@ public class AlloyableHandlerTest extends TestCase {
       }
     }
     String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n" + "sig Actor {\n"
-        + "  charactors: set Charactor,\n" + "  name: one Boundary\n" + "}\n" + "sig Charactor {\n"
+        + "  characters: set Character,\n" + "  name: one Boundary\n" + "}\n" + "sig Character {\n"
         + "  actor: lone Actor,\n" + "  movie: lone Boundary,\n" + "  goods: set Good,\n" + "  name: one Boundary\n"
-        + "}\n" + "sig Good {\n" + "  charactor: one Charactor,\n" + "  name: one Boundary\n" + "}\n" + "\n"
-        + "fact {\n" + "  Actor<:charactors = ~(Charactor<:actor)\n" + "  Charactor<:goods = ~(Good<:charactor)\n"
-        + "  all e,e':Charactor | e != e' => (e.actor -> e.movie != e'.actor -> e'.movie)\n"
-        + "  all e,e':Good | e != e' => (e.charactor.actor -> e.charactor.movie != e'.charactor.actor -> e'.charactor.movie)\n"
+        + "}\n" + "sig Good {\n" + "  character: one Character,\n" + "  name: one Boundary\n" + "}\n" + "\n"
+        + "fact {\n" + "  Actor<:characters = ~(Character<:actor)\n" + "  Character<:goods = ~(Good<:character)\n"
+        + "  all e,e':Character | e != e' => (e.actor -> e.movie != e'.actor -> e'.movie)\n"
+        + "  all e,e':Good | e != e' => (e.character.actor -> e.character.movie != e'.character.actor -> e'.character.movie)\n"
         + "}\n" + "\n" + "run {}\n");
   }
 

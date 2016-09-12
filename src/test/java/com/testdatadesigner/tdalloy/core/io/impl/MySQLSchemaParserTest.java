@@ -29,7 +29,7 @@ public class MySQLSchemaParserTest extends TestCase {
     // NULL, `updated_at` datetime NOT NULL, `serial_ids_hash` varchar(255) NOT NULL, CONSTRAINT aa PRIMARY KEY (`id`),
     // CONSTRAINT cnst_unique_serial_ids_hash UNIQUE (serial_ids_hash), CONSTRAINT cnst_base_user_id UNIQUE
     // (base_user_id));"
-    // //"CREATE TABLE `charactors` ( `id` int NOT NULL , `name` varchar(255) NOT NULL, `actor_id` int DEFAULT NULL,
+    // //"CREATE TABLE `characters` ( `id` int NOT NULL , `name` varchar(255) NOT NULL, `actor_id` int DEFAULT NULL,
     // `movie_id` int DEFAULT NULL, PRIMARY KEY (`id`) ON DELETE SET NULL)"
     // "CREATE TABLE `bookmarks` ( `id` int(11) NOT NULL AUTO_INCREMENT, `memo` varchar(255) DEFAULT NULL, `user_id`
     // int(11) NOT NULL, `url_id` int(11) NOT NULL, PRIMARY KEY (`id`), CONSTRAINT fk_bookmarks_user_id FOREIGN KEY

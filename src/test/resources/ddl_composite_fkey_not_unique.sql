@@ -1,4 +1,3 @@
-
 DROP TABLE IF EXISTS `actors`;
 CREATE TABLE `actors` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -13,24 +12,29 @@ CREATE TABLE `movies` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `charactors`;
-CREATE TABLE `charactors` (
+DROP TABLE IF EXISTS `characters`;
+CREATE TABLE `characters` (
   `name` varchar(255) NOT NULL,
   `actor_id` int(11) NOT NULL,
   `movie_id` int(11) NOT NULL,
-  PRIMARY KEY (`actor_id`, `movie_id`) 
+  UNIQUE KEY `uq_characters_fkeys` (`actor_id`, `movie_id`),
+  KEY `fk_characters_actor_id` (`actor_id`),
+  KEY `fk_characters_movie_id` (`movie_id`),
+  CONSTRAINT `fk_characters_actor_id` FOREIGN KEY (`actor_id`) REFERENCES `actors` (`id`) ON DELETE SET NULL,
+  CONSTRAINT `fk_characters_movie_id` FOREIGN KEY (`movie_id`) REFERENCES `movies` (`id`) ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-DROP TABLE IF EXISTS `goods`;
-CREATE TABLE `goods` (
+DROP TABLE IF EXISTS `novelties`;
+CREATE TABLE `novelties` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `actor_id` int(11) NOT NULL,
   `movie_id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
   PRIMARY KEY (`id`),
-  KEY `fk_goods_fkeys` (`actor_id`, `movie_id`),
-  UNIQUE KEY `uq_goods_fkeys` (`actor_id`, `movie_id`),
-  CONSTRAINT fk_goods_fkeys
+  KEY `fk_novelties_fkeys` (`actor_id`, `movie_id`),
+
+  CONSTRAINT fk_novelties_fkeys
     FOREIGN KEY (`actor_id`, `movie_id`)
-    REFERENCES `charactors` (`actor_id`, `movie_id`)
+    REFERENCES `characters` (`actor_id`, `movie_id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+

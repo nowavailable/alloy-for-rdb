@@ -95,17 +95,17 @@ CREATE TABLE `movies` (
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE `charactors` (
+CREATE TABLE `characters` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `actor_id` int(11) DEFAULT NULL,
   `movie_id` int(11) DEFAULT NULL,
   PRIMARY KEY (`id`),
-  CONSTRAINT fk_charactors_actor_id
+  CONSTRAINT fk_characters_actor_id
     FOREIGN KEY (`actor_id`)
     REFERENCES `actors`(`id`)
     ON DELETE SET NULL,
-  CONSTRAINT fk_charactors_movie_id
+  CONSTRAINT fk_characters_movie_id
     FOREIGN KEY (`movie_id`)
     REFERENCES `movies`(`id`)
     ON DELETE SET NULL
@@ -158,7 +158,7 @@ CREATE TABLE `bookings` (
 --drop table urls            ;
 --drop table user_activities ;
 --drop table users           ;
---drop table charactors;
+--drop table characters;
 --drop table actors;
 --drop table movies;
 --drop table user_points;
