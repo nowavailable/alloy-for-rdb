@@ -487,14 +487,20 @@ public class AlloyableHandlerTest extends TestCase {
         str.append("\n");
       }
     }
-    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n" + "sig Actor {\n"
-        + "  characters: set Character,\n" + "  name: one Boundary\n" + "}\n" + "sig Character {\n"
-        + "  actor: lone Actor,\n" + "  movie: lone Boundary,\n" + "  goods: set Good,\n" + "  name: one Boundary\n"
-        + "}\n" + "sig Good {\n" + "  character: one Character,\n" + "  name: one Boundary\n" + "}\n" + "\n"
-        + "fact {\n" + "  Actor<:characters = ~(Character<:actor)\n" + "  Character<:goods = ~(Good<:character)\n"
-        + "  all e,e':Character | e != e' => (e.actor -> e.movie != e'.actor -> e'.movie)\n"
-        + "  all e,e':Good | e != e' => (e.character.actor -> e.character.movie != e'.character.actor -> e'.character.movie)\n"
-        + "}\n" + "\n" + "run {}\n");
+    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
+        + "sig Actor {\n" + "  characters: set Character,\n" + "  novelties: set Novelty,\n"
+        + "  name: one Boundary\n" + "}\n" + "sig Character {\n" + "  actor: lone Actor,\n"
+        + "  movie: lone Boundary,\n" + "  novelties: set Novelty,\n" + "  name: one Boundary\n"
+        + "}\n" + "sig Novelty {\n" + "  character: one Character,\n" + "  actor: one Actor,\n"
+        + "  movie: one Boundary,\n" + "  name: one Boundary\n" + "}\n" + "\n" + "fact {\n"
+        + "  Actor<:characters = ~(Character<:actor)\n"
+        + "  Character<:novelties = ~(Novelty<:character)\n"
+        + "  Actor<:novelties = ~(Novelty<:actor)\n"
+        + "  all e,e':Character | e != e' => (e.actor->e.movie) != (e'.actor->e'.movie)\n"
+        + "  all e,e':Novelty | e != e' => (e.actor->e.movie) != (e'.actor->e'.movie)\n"
+        + "  all e:Novelty | e.character.actor = e.actor && e.character.movie = e.movie\n" + "}\n"
+        + "\n" + "run {}\n");
+    Assert.assertEquals(str.toString(), expected);
   }
 
   public void testNoRelations() throws Exception {
