@@ -145,6 +145,170 @@ public class AlloyableHandlerTest extends TestCase {
     Assert.assertEquals(str.toString(), expected);
   }
 
+  private void procDDL(URL resInfo) throws IOException, StandardException, IllegalAccessException {
+    String filePath = resInfo.getFile();
+    ISchemaSplitter ddlSplitter = new MySQLSchemaSplitter();
+    List<String> results = IOGateway.readSchemesFromDDL(filePath, ddlSplitter);
+
+    IRdbSchemaParser parser = new MySQLSchemaParser();
+    this.resultList = parser.inboundParse(results);
+
+    this.currentAlloyable = new Alloyable();
+    this.alloyableHandler = new AlloyableHandler(currentAlloyable);
+    this.currentAlloyable = this.alloyableHandler.buildFromDDL(this.resultList);
+  }
+
+  /*
+   * 外部キー。ネーミングルールに則った判定
+   */
+  public void testSimepleRelationNamingRule() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_simple_relation_by_naming_rule.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str.append(line);
+        str.append("\n");
+      }
+    }
+    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
+        + "sig Actor {\n" + "  charactors: set Charactor,\n" + "  name: one Boundary\n" + "}\n"
+        + "sig Charactor {\n" + "  actor: one Actor,\n" + "  name: one Boundary\n" + "}\n" + "\n"
+        + "fact {\n" + "  Actor<:charactors = ~(Charactor<:actor)\n" + "}\n" + "\n" + "run {}\n");
+    Assert.assertEquals(str.toString(), expected);
+    /*
+      // als上での、ユニーク制約に対するチェックロジック
+      assert dup {
+        all a,a': Actor |
+        (a != a' && a.charactors != none && a'.charactors != none) =>
+        a.charactors != a'.charactors
+      }
+      check dup
+     */
+  }
+
+  /*
+   * 外部キー。REFERENCES宣言に則った判定
+   */
+  public void testSimepleRelationConstraint() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_simple_relation_by_constraints.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str.append(line);
+        str.append("\n");
+      }
+    }
+    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
+        + "sig Actor {\n" + "  charactors: set Charactor,\n" + "  name: one Boundary\n" + "}\n"
+        + "sig Charactor {\n" + "  actor: one Actor,\n" + "  name: one Boundary\n" + "}\n" + "\n"
+        + "fact {\n" + "  Actor<:charactors = ~(Charactor<:actor)\n" + "}\n" + "\n" + "run {}\n");
+    Assert.assertEquals(str.toString(), expected);
+  }
+
+  /*
+   * 複数外部キー。ネーミングルールに則った判定による
+   * 注文明細、商品、顧客、を例に
+   */
+  public void testMultiFKey() throws Exception {
+    URL resInfo = this.getClass().getResource(
+        "/ddl_foreign_keys_naming_rule.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str.append(line);
+        str.append("\n");
+      }
+    }
+    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
+        + "sig Item {\n" + "  order_details: set OrderDetail\n" + "}\n" + "sig Customer {\n"
+        + "  order_details: set OrderDetail\n" + "}\n" + "sig Order {\n"
+        + "  order_details: set OrderDetail\n" + "}\n" + "sig OrderDetail {\n"
+        + "  customer: one Customer,\n" + "  item: one Item,\n" + "  order: one Order\n" + "}\n"
+        + "\n" + "fact {\n" + "  Customer<:order_details = ~(OrderDetail<:customer)\n"
+        + "  Item<:order_details = ~(OrderDetail<:item)\n"
+        + "  Order<:order_details = ~(OrderDetail<:order)\n"
+        + "}\n" + "\n" + "run {}\n");
+    Assert.assertEquals(str.toString(), expected);
+  }
+
+  /*
+   * 複合ユニーク制約。ネーミングルールに則った判定による外部キー間のユニーク
+   * 注文明細、商品、顧客、を例に
+   */
+  public void testCompositeUnique() throws Exception {
+    URL resInfo = this.getClass().getResource(
+        "/ddl_foreign_keys_naming_rule_with_composite_unique.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str.append(line);
+        str.append("\n");
+      }
+    }
+    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
+        + "sig Item {\n" + "  order_details: set OrderDetail\n" + "}\n" + "sig Customer {\n"
+        + "  order_details: set OrderDetail\n" + "}\n" + "sig Order {\n"
+        + "  order_details: set OrderDetail\n" + "}\n" + "sig OrderDetail {\n"
+        + "  customer: one Customer,\n" + "  item: one Item,\n" + "  order: one Order\n" + "}\n"
+        + "\n" + "fact {\n" + "  Customer<:order_details = ~(OrderDetail<:customer)\n"
+        + "  Item<:order_details = ~(OrderDetail<:item)\n"
+        + "  Order<:order_details = ~(OrderDetail<:order)\n"
+        + "  all e,e':OrderDetail | e != e' => (e.customer->e.item->e.order) != (e'.customer->e'.item->e'.order)\n"
+        + "}\n" + "\n" + "run {}\n");
+    Assert.assertEquals(str.toString(), expected);
+    /*
+      // als上での、ユニーク制約に対するチェックロジック
+      assert dup {
+        all d,d': OrderDetail |
+          (d != d') =>
+            (d.customer -> d.item -> d.order) !=
+              (d'.customer -> d'.item -> d'.order)
+      }
+      check dup
+     */
+  }
+
+  /*
+   * 複数外部キーで複合ユニーク制約。REFERENCES宣言に則った判定による外部キー間のユニーク
+   * 注文明細、商品、顧客、を例に
+   */
+  public void testMultiFKeyConstraint_with_CompositeUnique() throws Exception {
+    URL resInfo = this.getClass().getResource("/ddl_foreign_keys_constraint_with_composite_unique.sql");
+    this.procDDL(resInfo);
+    StringBuilder str = new StringBuilder();
+    try (BufferedReader outputToAlsReader = this.alloyableHandler.outputToAls()) {
+      String line = null;
+      while ((line = outputToAlsReader.readLine()) != null) {
+        str.append(line);
+        str.append("\n");
+      }
+    }
+    String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
+        + "sig Item {\n" + "  order_details: set OrderDetail\n" + "}\n" + "sig Customer {\n"
+        + "  order_details: set OrderDetail\n" + "}\n" + "sig Order {\n"
+        + "  order_details: set OrderDetail\n" + "}\n" + "sig OrderDetail {\n"
+        + "  order: one Order,\n" + "  customer: one Customer,\n" + "  item: one Item\n" + "}\n"
+        + "\n" + "fact {\n" + "  Order<:order_details = ~(OrderDetail<:order)\n"
+        + "  Customer<:order_details = ~(OrderDetail<:customer)\n"
+        + "  Item<:order_details = ~(OrderDetail<:item)\n"
+        + "  all e,e':OrderDetail | e != e' => (e.customer->e.item->e.order) != (e'.customer->e'.item->e'.order)\n"
+        + "}\n" + "\n" + "run {}\n");
+    Assert.assertEquals(str.toString(), expected);
+  }
+
+
+
+
+
+
   /*
    * idの無い交差テーブル。これには2パターンのDBスキーマが考えられる。 ひとつは、交差テーブルに複合主キーを定義するかたち。 もうひとつは、複合ユニーク制約のみを定義するかたち。
    * （※この交差テーブルを参照する外部キーは、両ケースとも同じになる） どちらの表現でも、alloy上では同じ意味になる。

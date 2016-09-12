@@ -124,7 +124,6 @@ public class AlloyableHandler {
         // 外部キーはあとで処理。
         if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
           FKConstraintDefinitionNode constraint = (FKConstraintDefinitionNode) tableElement;
-          constraint.getRefTableName();
           ResultColumnList refColumnList = constraint.getRefResultColumnList();
           ResultColumnList columnList = constraint.getColumnList();
           if (refColumnList.size() > 1) {
@@ -262,7 +261,9 @@ public class AlloyableHandler {
         }
       }
 
-      // Constraintsに定義されていない外部キー
+      /*
+       * Constraintsに定義されていない外部キー
+       */
       if (!guessedForeignKeySet.isEmpty()) {
         this.alloyable.isRailsOriented.equals(Boolean.TRUE);
         for (String keyStr : guessedForeignKeySet) {

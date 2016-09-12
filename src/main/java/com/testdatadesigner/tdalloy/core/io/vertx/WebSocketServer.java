@@ -119,7 +119,7 @@ public class WebSocketServer extends AbstractVerticle {
       this.clearMessage();
     }
     /* 
-     * parse messagesF.
+     * parse messages.
      */
     JsonObject json = new JsonObject();
     if (this.ended) {
