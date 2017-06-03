@@ -33,7 +33,7 @@ public class ImporterTest extends TestCase {
   public void testParse() throws IOException {
     Importer importer = new Importer();
     try {
-      importer.iceBreak(filePath, Importer.Database.MYSQL);
+      importer.parse(filePath, Importer.Database.MYSQL);
 
       Map<String, List<Serializable>> map = IOGateway.getKVSMap();
       List<Serializable> list = map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.ALLOYABLE_ON_BUILD));
@@ -72,7 +72,7 @@ public class ImporterTest extends TestCase {
     Importer importer = new Importer();
     Alloyable alloyable = null;
     try {
-      importer.iceBreak(filePath, Importer.Database.MYSQL);
+      importer.parse(filePath, Importer.Database.MYSQL);
       Map<String, List<Serializable>> map = IOGateway.getKVSMap();
       List<Serializable> list = map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.ALLOYABLE_ON_BUILD));
       alloyable = (Alloyable) list.get(0);

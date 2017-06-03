@@ -49,13 +49,13 @@ public class Importer {
   }
 
   public Alloyable getAlloyable(String filePath, Database database) throws ImportError {
-    this.iceBreak(filePath, database);
+    this.parse(filePath, database);
     Map<String, List<Serializable>> map = IOGateway.getKVSMap();
     List<Serializable> list = map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.ALLOYABLE_ON_BUILD));
     return (Alloyable) list.get(0);
   }
 
-  public void iceBreak(String path, Database database) throws ImportError {
+  public void parse(String path, Database database) throws ImportError {
     /*
      * データベースの種別を処理
      */
