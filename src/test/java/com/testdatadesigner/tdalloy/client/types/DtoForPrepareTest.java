@@ -12,13 +12,13 @@ import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Column;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Relation;
 import com.testdatadesigner.tdalloy.client.types.DtoForPrepare.Table;
 import com.testdatadesigner.tdalloy.core.io.IOGateway;
-import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
-import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
-import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
-import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
+import com.testdatadesigner.tdalloy.core.rdbms.IRdbSchemaParser;
+import com.testdatadesigner.tdalloy.core.rdbms.ISchemaSplitter;
+import com.testdatadesigner.tdalloy.core.rdbms.impl.MySQLSchemaParser;
+import com.testdatadesigner.tdalloy.core.rdbms.impl.MySQLSchemaSplitter;
 import com.testdatadesigner.tdalloy.core.translater.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
-import com.testdatadesigner.tdalloy.igniter.Bootstrap;
+import com.testdatadesigner.tdalloy.driver.Bootstrap;
 
 import junit.framework.TestCase;
 

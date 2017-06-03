@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.io.impl;
+package com.testdatadesigner.tdalloy.core.rdbms.impl;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -11,7 +11,7 @@ import com.foundationdb.sql.parser.CreateTableNode;
 import com.foundationdb.sql.parser.SQLParser;
 import com.foundationdb.sql.parser.StatementNode;
 import com.google.common.base.Joiner;
-import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
+import com.testdatadesigner.tdalloy.core.rdbms.IRdbSchemaParser;
 
 /**
  * @author tsutsumi

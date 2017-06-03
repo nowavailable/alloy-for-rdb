@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.testdatadesigner.tdalloy.core.naming.IRulesForAlloyable;
 import com.testdatadesigner.tdalloy.core.naming.RulesForAlloyableFactory;
-import com.testdatadesigner.tdalloy.igniter.Bootstrap;
+import com.testdatadesigner.tdalloy.driver.Bootstrap;
 
 import junit.framework.TestCase;
 

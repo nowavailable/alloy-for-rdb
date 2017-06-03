@@ -1,4 +1,6 @@
-package com.testdatadesigner.tdalloy.igniter;
+package com.testdatadesigner.tdalloy.driver;
+
+import com.testdatadesigner.tdalloy.driver.Bootstrap;
 
 import junit.framework.TestCase;
 

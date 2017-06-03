@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.io;
+package com.testdatadesigner.tdalloy.core.rdbms;
 
 import java.io.IOException;
 import java.io.InputStream;

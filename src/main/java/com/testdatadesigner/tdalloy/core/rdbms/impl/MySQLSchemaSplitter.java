@@ -1,11 +1,14 @@
-package com.testdatadesigner.tdalloy.core.io.impl;
+package com.testdatadesigner.tdalloy.core.rdbms.impl;
 
-import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
-
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
+import com.testdatadesigner.tdalloy.core.rdbms.ISchemaSplitter;
 
 public class MySQLSchemaSplitter implements ISchemaSplitter {
   private List<String> rawTables = new ArrayList<String>();

@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.io;
+package com.testdatadesigner.tdalloy.driver.server;
 
 import java.io.IOException;
 
@@ -9,7 +9,7 @@ import org.eclipse.jetty.server.ServerConnector;
 import org.eclipse.jetty.servlet.ServletContextHandler;
 import org.eclipse.jetty.websocket.jsr356.server.deploy.WebSocketServerContainerInitializer;
 
-import com.testdatadesigner.tdalloy.igniter.Bootstrap;
+import com.testdatadesigner.tdalloy.driver.Bootstrap;
 
 public class EventServer {
   public static void main(String[] args) {

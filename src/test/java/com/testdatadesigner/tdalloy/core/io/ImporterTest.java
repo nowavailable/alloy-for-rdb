@@ -9,12 +9,12 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
-import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
 import com.testdatadesigner.tdalloy.core.types.Fact;
 import com.testdatadesigner.tdalloy.core.types.IAtom;
 import com.testdatadesigner.tdalloy.core.types.IRelation;
-import com.testdatadesigner.tdalloy.igniter.Bootstrap;
+import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
+import com.testdatadesigner.tdalloy.driver.Bootstrap;
 
 import junit.framework.TestCase;
 

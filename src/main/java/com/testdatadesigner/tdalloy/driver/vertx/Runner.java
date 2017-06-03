@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.io.vertx;
+package com.testdatadesigner.tdalloy.driver.vertx;
 
 import io.vertx.core.DeploymentOptions;
 import io.vertx.core.Vertx;

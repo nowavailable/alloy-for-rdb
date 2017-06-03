@@ -15,6 +15,8 @@ import java.util.List;
 
 import org.mapdb.HTreeMap;
 
+import com.testdatadesigner.tdalloy.core.rdbms.ISchemaSplitter;
+
 public class IOGateway {
 
   public enum StoreData {

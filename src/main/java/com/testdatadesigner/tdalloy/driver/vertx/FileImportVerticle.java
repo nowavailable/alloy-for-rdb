@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.io.vertx;
+package com.testdatadesigner.tdalloy.driver.vertx;
 
 import java.util.stream.Collectors;
 import com.testdatadesigner.tdalloy.core.io.Importer;

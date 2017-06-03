@@ -1,14 +1,16 @@
-package com.testdatadesigner.tdalloy.core.io.impl;
-
-import com.testdatadesigner.tdalloy.igniter.Bootstrap;
-import junit.framework.TestCase;
+package com.testdatadesigner.tdalloy.core.rdbms.impl;
 
 import java.io.InputStream;
 import java.util.List;
 
 import com.foundationdb.sql.parser.CreateTableNode;
-import com.testdatadesigner.tdalloy.core.io.IRdbSchemaParser;
-import com.testdatadesigner.tdalloy.core.io.ISchemaSplitter;
+import com.testdatadesigner.tdalloy.core.rdbms.IRdbSchemaParser;
+import com.testdatadesigner.tdalloy.core.rdbms.ISchemaSplitter;
+import com.testdatadesigner.tdalloy.core.rdbms.impl.MySQLSchemaParser;
+import com.testdatadesigner.tdalloy.core.rdbms.impl.MySQLSchemaSplitter;
+import com.testdatadesigner.tdalloy.driver.Bootstrap;
+
+import junit.framework.TestCase;
 
 public class MySQLSchemaParserTest extends TestCase {
 

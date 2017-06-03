@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.io;
+package com.testdatadesigner.tdalloy.driver.server;
 
 import java.io.InputStream;
 import java.io.Reader;

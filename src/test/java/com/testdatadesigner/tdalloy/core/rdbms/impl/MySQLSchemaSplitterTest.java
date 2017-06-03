@@ -1,12 +1,14 @@
-package com.testdatadesigner.tdalloy.core.io.impl;
-
-import com.testdatadesigner.tdalloy.igniter.Bootstrap;
-import junit.framework.TestCase;
+package com.testdatadesigner.tdalloy.core.rdbms.impl;
 
 import java.io.InputStream;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.testdatadesigner.tdalloy.core.rdbms.impl.MySQLSchemaSplitter;
+import com.testdatadesigner.tdalloy.driver.Bootstrap;
+
+import junit.framework.TestCase;
 
 public class MySQLSchemaSplitterTest extends TestCase {
   public void setUp() throws Exception {

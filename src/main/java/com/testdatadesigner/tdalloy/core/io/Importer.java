@@ -4,19 +4,18 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
 import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.CreateTableNode;
-import com.google.common.base.Strings;
 import com.google.gson.Gson;
-import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaParser;
-import com.testdatadesigner.tdalloy.core.io.impl.MySQLSchemaSplitter;
+import com.testdatadesigner.tdalloy.core.rdbms.IRdbSchemaParser;
+import com.testdatadesigner.tdalloy.core.rdbms.ISchemaSplitter;
+import com.testdatadesigner.tdalloy.core.rdbms.impl.MySQLSchemaParser;
+import com.testdatadesigner.tdalloy.core.rdbms.impl.MySQLSchemaSplitter;
 import com.testdatadesigner.tdalloy.core.translater.AlloyableHandler;
 import com.testdatadesigner.tdalloy.core.types.Alloyable;
-import com.testdatadesigner.tdalloy.igniter.Bootstrap;
 
 /**
  * + データスキーマインポートファイルのI/O + 結果出力ファイルのI/O + 結果出力前オブジェクトの状態操作
