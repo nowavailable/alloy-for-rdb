@@ -1,7 +1,7 @@
 package com.testdatadesigner.tdalloy.driver.vertx;
 
 import java.util.stream.Collectors;
-import com.testdatadesigner.tdalloy.core.io.Importer;
+import com.testdatadesigner.tdalloy.driver.Importer;
 import io.vertx.core.AbstractVerticle;
 import io.vertx.core.eventbus.EventBus;
 import io.vertx.core.json.JsonArray;

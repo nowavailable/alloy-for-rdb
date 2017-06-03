@@ -1,4 +1,4 @@
-package com.testdatadesigner.tdalloy.core.io;
+package com.testdatadesigner.tdalloy.driver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,6 +10,7 @@ import java.util.Map;
 import com.foundationdb.sql.StandardException;
 import com.foundationdb.sql.parser.CreateTableNode;
 import com.google.gson.Gson;
+import com.testdatadesigner.tdalloy.core.io.IOGateway;
 import com.testdatadesigner.tdalloy.core.rdbms.IRdbSchemaParser;
 import com.testdatadesigner.tdalloy.core.rdbms.ISchemaSplitter;
 import com.testdatadesigner.tdalloy.core.rdbms.impl.MySQLSchemaParser;
