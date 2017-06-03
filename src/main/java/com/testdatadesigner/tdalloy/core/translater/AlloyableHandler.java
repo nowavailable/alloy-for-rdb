@@ -57,7 +57,9 @@ public class AlloyableHandler {
   private List<String> postponeListForColumn = new ArrayList<>();
   private HashMap<String, List<String>> allInferredPolymorphicSet = new HashMap<String, List<String>>();
   private Function<String, IAtom> atomSearchByName = name -> {
-    List<IAtom> arr = this.alloyable.atoms.stream().filter(s -> s.getName().equals(name)).collect(Collectors.toList());
+    List<IAtom> arr = this.alloyable.atoms.stream().
+        filter(s -> s.getName().equals(name)).
+        collect(Collectors.toList());
     return arr.isEmpty() ? null : arr.get(0);
   };
   private IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
@@ -80,34 +82,43 @@ public class AlloyableHandler {
      * テーブルの処理。
      */
 
-    Map<String, List<ColumnDefinitionNode>> allColumns = new HashMap<String, List<ColumnDefinitionNode>>();
-    BiConsumer<CreateTableNode, ColumnDefinitionNode> addToAllColumns = (tableNode, columnNode) -> {
-      List<ColumnDefinitionNode> exist = allColumns.get(tableNode.getFullName());
-      if (exist == null) {
-        allColumns.put(tableNode.getFullName(), new ArrayList<ColumnDefinitionNode>() {{
-          this.add(columnNode);
-        }});
-      } else {
-        exist.add(columnNode);
-      }
-    };
-    BiFunction<String, String, ColumnDefinitionNode> columnSearchByName = (tabName, colName) -> allColumns.get(tabName)
-        .stream().filter(col -> col.getColumnName().equals(colName)).collect(Collectors.toList()).get(0);
-    Map<String, List<ColumnDefinitionNode>> omitColumns = new HashMap<String, List<ColumnDefinitionNode>>();
-    BiPredicate<String, ColumnDefinitionNode> isOmitted = (tabName, col) -> omitColumns.get(tabName) != null
-        && omitColumns.get(tabName).contains(col);
+    Map<String, List<ColumnDefinitionNode>> allColumns =
+        new HashMap<String, List<ColumnDefinitionNode>>();
+
+    BiConsumer<CreateTableNode, ColumnDefinitionNode> addToAllColumns =
+        (tableNode, columnNode) -> {
+          List<ColumnDefinitionNode> exist = allColumns.get(tableNode.getFullName());
+          if (exist == null)
+            allColumns.put(tableNode.getFullName(), new ArrayList<ColumnDefinitionNode>() {{
+              this.add(columnNode);
+            }});
+          else
+            exist.add(columnNode);
+        };
+
+    BiFunction<String, String, ColumnDefinitionNode> columnSearchByName =
+        (tabName, colName) -> allColumns.get(tabName).stream().
+            filter(col -> col.getColumnName().equals(colName)).
+            collect(Collectors.toList()).get(0);
+
+    Map<String, List<ColumnDefinitionNode>> omitColumns =
+        new HashMap<String, List<ColumnDefinitionNode>>();
+
+    BiPredicate<String, ColumnDefinitionNode> isOmitted =
+        (tabName, col) -> omitColumns.get(tabName) != null
+            && omitColumns.get(tabName).contains(col);
+
     BiConsumer<String, ColumnDefinitionNode> omit = (tabName, col) -> {
-      if (omitColumns.get(tabName) == null) {
-        omitColumns.put(tabName, new ArrayList<ColumnDefinitionNode>() {
-          {
-            this.add(col);
-          }
-        });
-      } else {
+      if (omitColumns.get(tabName) == null)
+        omitColumns.put(tabName, new ArrayList<ColumnDefinitionNode>() {{
+          this.add(col);
+        }});
+      else
         omitColumns.get(tabName).add(col);
-      }
     };
+
     Map<String, List<String>> compositeUniqueConstraints = new LinkedHashMap<>();
+
     /*
      * これはFactの生成に使うための変数。
      * 参照元テーブル名=>[カラム1,カラム2], 参照先テーブル名=>[カラム1の参照先カラム,カラム2の参照先カラム]
@@ -116,10 +127,14 @@ public class AlloyableHandler {
     List<List<Map<String, List<String>>>> compositeUniqueConstraintsByFKey = new ArrayList<>();
 
     Pattern isNotNullPattern = Pattern.compile(" NOT NULL");
-
+    /*
+     * loop all 1/4
+     */
     for (CreateTableNode tableNode : parsedDDLList) {
       this.alloyable.atoms.add(tableHandler.build(tableNode.getFullName()));
-
+      /*
+       * loop all tables 1/4
+       */
       for (TableElementNode tableElement : tableNode.getTableElementList()) {
         // 外部キーはあとで処理。
         if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
@@ -131,33 +146,33 @@ public class AlloyableHandler {
              * 複合外部キーは、テーブル名をkeyにしたMapに
              */
             List<String> columnNameList = new ArrayList<>();
-            for (ResultColumn resultColumn : columnList) {
+            for (ResultColumn resultColumn : columnList)
               columnNameList.add(resultColumn.getName());
-            }
             List<String> refColumnNameList = new ArrayList<>();
-            for (ResultColumn resultColumn : refColumnList) {
+            for (ResultColumn resultColumn : refColumnList)
               refColumnNameList.add(resultColumn.getName());
-            }
+
             compositeUniqueConstraintsByFKey.add(new ArrayList<Map<String, List<String>>>() {{
               // 参照元
               this.add(new LinkedHashMap<String, List<String>>() {{
-                  this.put(tableNode.getFullName(), columnNameList);
-                }});
+                this.put(tableNode.getFullName(), columnNameList);
+              }});
               // 参照先
               this.add(new LinkedHashMap<String, List<String>>() {{
-                  this.put(constraint.getRefTableName().toString(), refColumnNameList);
-                }});
+                this.put(constraint.getRefTableName().toString(), refColumnNameList);
+              }});
             }});
-            // あと、columnNameList内の通常カラムは、allColumnsリストに追加
+            /*
+             * あと、columnNameList内の通常カラムは、allColumnsリストに追加
+             */
             List<String> notRels = columnNameList.stream().
-              filter(colName -> namingRule.tableNameFromFKey(colName) == colName).
-              collect(Collectors.toList());
+                filter(colName -> namingRule.tableNameFromFKey(colName) == colName).
+                collect(Collectors.toList());
             for (String colName : notRels) {
               for (TableElementNode node : tableNode.getTableElementList()) {
-                if ((node instanceof ColumnDefinitionNode) && ((ColumnDefinitionNode) node).getName().equals(colName)) {
+                if ((node instanceof ColumnDefinitionNode) && ((ColumnDefinitionNode) node).getName().equals(colName))
                   addToAllColumns.accept(tableNode, (ColumnDefinitionNode) node);
-                  break;
-                }
+                break;
               }
             }
           } else {
@@ -171,9 +186,9 @@ public class AlloyableHandler {
             // 複合主キーは、テーブル名をkeyにしたMapに
             if (columnList.size() > 1) {
               List<String> columnNameList = new ArrayList<>();
-              for (ResultColumn resultColumn : columnList) {
+              for (ResultColumn resultColumn : columnList)
                 columnNameList.add(resultColumn.getName());
-              }
+
               compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
             } else {
               postpone(tableNode.getFullName(), ((ResultColumn) constraint.getColumnList().get(0)).getName());
@@ -183,9 +198,8 @@ public class AlloyableHandler {
             // （複合カラム）ユニーク制約は、テーブル名をkeyにしたMapに
             //if (columnList.size() > 1) {
             List<String> columnNameList = new ArrayList<>();
-            for (ResultColumn resultColumn : columnList) {
+            for (ResultColumn resultColumn : columnList)
               columnNameList.add(resultColumn.getName());
-            }
             compositeUniqueConstraints.put(tableNode.getFullName(), columnNameList);
             //}
           }
@@ -198,46 +212,56 @@ public class AlloyableHandler {
     }
 
     /*
+     * loop all 2/4
      * Constraintsに定義されている外部キーによる関連の処理
      */
     for (CreateTableNode tableNode : parsedDDLList) {
+      /*
+       * loop all tables 2/4
+       */
       for (TableElementNode tableElement : tableNode.getTableElementList()) {
         if (tableElement.getClass().equals(FKConstraintDefinitionNode.class)) {
           FKConstraintDefinitionNode constraint = (FKConstraintDefinitionNode) tableElement;
           List<String> fkeyColmnNames = new ArrayList<>();
-          for (ResultColumn resultColumn : constraint.getColumnList()) {
+          for (ResultColumn resultColumn : constraint.getColumnList())
             fkeyColmnNames.add(resultColumn.getName());
-          }
-          List<IRelation> relations = relationHandler.build(atomSearchByName, tableNode.getFullName(), fkeyColmnNames,
-              constraint.getRefTableName().getFullTableName());
+
+          List<IRelation> relations =
+              relationHandler.build(atomSearchByName, tableNode.getFullName(), fkeyColmnNames,
+                  constraint.getRefTableName().getFullTableName());
           // カラムの制約
           for (ResultColumn resultColumn : constraint.getColumnList()) {
-            ColumnDefinitionNode column = columnSearchByName.apply(tableNode.getFullName(), resultColumn.getName());
+            ColumnDefinitionNode column =
+                columnSearchByName.apply(tableNode.getFullName(), resultColumn.getName());
             Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
-            relations.stream().filter(rel -> rel.getClass().equals(TableRelation.class)).collect(Collectors.toList())
+            relations.stream().
+                filter(rel -> rel.getClass().equals(TableRelation.class)).
+                collect(Collectors.toList())
                 .get(0).setIsNotEmpty(matcher.find());
           }
 
           Fact relationFact = relationHandler.buildFact(relations);
-          if (relationFact != null) {
+          if (relationFact != null)
             this.alloyable.addToFacts(relationFact);
-          }
 
           this.alloyable.relations.addAll(relations);
         }
       }
     }
     /*
+     * loop all 3/4
      * ポリモーフィック関連推論と （Constraints で定義されていない）外部キー推論。
      */
     for (CreateTableNode tableNode : parsedDDLList) {
       List<String> columnNames = new ArrayList<>();
+      /*
+       * loop all tables 3/4
+       */
       for (TableElementNode tableElement : tableNode.getTableElementList()) {
         if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
           ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
-          if (isOmitted.test(tableNode.getFullName(), column)) {
+          if (isOmitted.test(tableNode.getFullName(), column))
             continue;
-          }
           columnNames.add(column.getName());
         }
       }
@@ -256,8 +280,13 @@ public class AlloyableHandler {
           // postpone(tableNode.getFullName(),
           // polymorphicStr + namingRule.foreignKeySuffix());
 
-          omit.accept(tableNode.getFullName(), (ColumnDefinitionNode) columnSearchByName.apply(tableNode.getFullName(),
-              polymorphicStr + namingRule.foreignKeySuffix()));
+          omit.accept(
+              tableNode.getFullName(),
+              (ColumnDefinitionNode) columnSearchByName.apply(
+                  tableNode.getFullName(),
+                  polymorphicStr + namingRule.foreignKeySuffix()
+              )
+          );
         }
       }
 
@@ -268,30 +297,36 @@ public class AlloyableHandler {
         this.alloyable.isRailsOriented.equals(Boolean.TRUE);
         for (String keyStr : guessedForeignKeySet) {
           // あとで処理するぶんはスキップ
-          if (postponeListForColumn.contains(tableNode.getFullName() + INTERNAL_SEPARATOR + keyStr)) {
+          if (postponeListForColumn.contains(tableNode.getFullName() + INTERNAL_SEPARATOR + keyStr))
             continue;
-          }
           // ※解析失敗したら、単なる値カラムとして扱う。
-          List<IRelation> relations = relationHandler.build(atomSearchByName, tableNode.getFullName(),
-              Arrays.asList(keyStr), String.valueOf(""));
+          List<IRelation> relations = relationHandler.build(
+              atomSearchByName, tableNode.getFullName(),
+              Arrays.asList(keyStr), String.valueOf("")
+          );
           // カラムの制約
-          ColumnDefinitionNode column = columnSearchByName.apply(tableNode.getFullName(), keyStr);
+          ColumnDefinitionNode column =
+              columnSearchByName.apply(tableNode.getFullName(), keyStr);
           Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
-          List<IRelation> rels = relations.stream().filter(rel -> rel.getClass().equals(TableRelation.class))
-              .collect(Collectors.toList());
-          if (!rels.isEmpty()) {
+          List<IRelation> rels = relations.stream().
+              filter(rel -> rel.getClass().equals(TableRelation.class)).
+              collect(Collectors.toList());
+          if (!rels.isEmpty())
             rels.get(0).setIsNotEmpty(matcher.find());
-          }
+
           this.alloyable.relations.addAll(relations);
 
-          List<IRelation> collects = relations.stream().filter(rel -> !rel.getClass().equals(RelationProperty.class))
-              .collect(Collectors.toList());
+          List<IRelation> collects = relations.stream().
+              filter(rel -> !rel.getClass().equals(RelationProperty.class)).
+              collect(Collectors.toList());
           if (!collects.isEmpty()) {
-            Fact relationFact = relationHandler.buildFact(relations.stream()
-                .filter(rel -> !rel.getClass().equals(RelationProperty.class)).collect(Collectors.toList()));
-            if (relationFact != null) {
+            Fact relationFact = relationHandler.buildFact(
+                relations.stream().
+                    filter(rel -> !rel.getClass().equals(RelationProperty.class)).
+                    collect(Collectors.toList())
+            );
+            if (relationFact != null)
               this.alloyable.addToFacts(relationFact);
-            }
           }
 
           // あとでさらに処理する。
@@ -304,27 +339,30 @@ public class AlloyableHandler {
      * 外部キーのisNotNullを、その参照先に反映させる。
      */
     for (IRelation relation : this.alloyable.relations) {
-      if (relation.getClass().equals(TableRelation.class)) {
-        this.alloyable.relations.stream().filter(rel -> rel.getClass().equals(TableRelationReferred.class))
-            .filter(rel -> rel.getOwner().getName().equals(relation.getRefTo().getName())).collect(Collectors.toList())
-            .forEach(rel -> rel.setIsNotEmpty(relation.getIsNotEmpty()));
-      }
+      if (relation.getClass().equals(TableRelation.class))
+        this.alloyable.relations.stream().
+            filter(rel -> rel.getClass().equals(TableRelationReferred.class)).
+            filter(rel -> rel.getOwner().getName().equals(relation.getRefTo().getName())).
+            collect(Collectors.toList()).
+            forEach(rel -> rel.setIsNotEmpty(relation.getIsNotEmpty()));
     }
 
     /*
+     * loop all 4/4
      * カラムの処理（含 ポリモーフィックの、typeのほうの、sig化）。
      */
     int dummySigCount = 0;
     for (CreateTableNode tableNode : parsedDDLList) {
       // for polymorphic relations
       int buildPolymRelationCount = 0;
-
+      /*
+       * loop all tables 4/4
+       */
       for (TableElementNode tableElement : tableNode.getTableElementList()) {
         if (tableElement.getClass().equals(ColumnDefinitionNode.class)) {
           ColumnDefinitionNode column = (ColumnDefinitionNode) tableElement;
-          if (isOmitted.test(tableNode.getFullName(), column)) {
+          if (isOmitted.test(tableNode.getFullName(), column))
             continue;
-          }
           /*
            * ポリモーフィック関連
            */
@@ -332,21 +370,31 @@ public class AlloyableHandler {
             if (namingRule.isGuessedPolymorphic(column.getName(),
                 allInferredPolymorphicSet.get(tableNode.getFullName()))) {
               // as sig
-              PolymorphicAbstract polymAbstructAtom = columnHandler.buildAtomPolymorphicAbstract(atomSearchByName,
-                  tableNode.getFullName(), column.getName());
+              PolymorphicAbstract polymAbstructAtom =
+                  columnHandler.buildAtomPolymorphicAbstract(
+                      atomSearchByName,
+                      tableNode.getFullName(), column.getName()
+                  );
               polymAbstructAtom.setOriginTypeName(column.getType().getTypeName());
               this.alloyable.atoms.add(polymAbstructAtom);
               // as fields
               if (buildPolymRelationCount == 0) {
                 for (String polymorphicStr : allInferredPolymorphicSet.get(tableNode.getFullName())) {
                   Boolean isNotEmptyPolymorphicColumn = false;
-                  List<IRelation> polymophicRelations = polymorphicHandler.buildRelation(atomSearchByName,
-                      polymorphicStr, tableNode.getFullName(), polymAbstructAtom);
+                  List<IRelation> polymophicRelations =
+                      polymorphicHandler.buildRelation(
+                          atomSearchByName,
+                          polymorphicStr,
+                          tableNode.getFullName(),
+                          polymAbstructAtom
+                      );
                   for (IRelation relation : polymophicRelations) {
                     if (relation.getClass().equals(RelationPolymorphicTypeHolder.class)) {
                       // カラムの制約
-                      ColumnDefinitionNode c = columnSearchByName.apply(tableNode.getFullName(),
-                          polymorphicStr + namingRule.polymorphicSuffix());
+                      ColumnDefinitionNode c = columnSearchByName.apply(
+                          tableNode.getFullName(),
+                          polymorphicStr + namingRule.polymorphicSuffix()
+                      );
                       Matcher matcher = isNotNullPattern.matcher(c.getType().toString());
                       isNotEmptyPolymorphicColumn = matcher.find();
                       relation.setIsNotEmpty(isNotEmptyPolymorphicColumn);
@@ -368,26 +416,34 @@ public class AlloyableHandler {
 
                   // their dummy columns
                   for (IAtom dummyAtom : dummies) {
-                    IRelation relation = polymorphicHandler.buildRelationForDummy(atomSearchByName,
+                    IRelation relation = polymorphicHandler.buildRelationForDummy(
+                        atomSearchByName,
                         dummyAtom.getOriginPropertyName(),
                         namingRule.fkeyFromTableName(polymAbstructAtom.getParent().getOriginPropertyName()),
-                        polymAbstructAtom.getParent().getOriginPropertyName());
+                        polymAbstructAtom.getParent().getOriginPropertyName()
+                    );
                     // カラムの制約
                     relation.setIsNotEmpty(isNotEmptyPolymorphicColumn);
                     this.alloyable.relations.add(relation);
                     // extend sig
-                    IAtom polymImplAtom = polymorphicHandler.buildDummyExtend(polymorphicStr, dummyAtom,
-                        polymAbstructAtom);
+                    IAtom polymImplAtom = polymorphicHandler.buildDummyExtend(
+                        polymorphicStr,
+                        dummyAtom,
+                        polymAbstructAtom
+                    );
                     this.alloyable.atoms.add(polymImplAtom);
                     // and their field
-                    IRelation polymRelation = polymorphicHandler.buildTypifiedRelation(polymImplAtom, dummyAtom);
+                    IRelation polymRelation =
+                        polymorphicHandler.buildTypifiedRelation(polymImplAtom, dummyAtom);
                     polymRelation.setIsNotEmpty(isNotEmptyPolymorphicColumn);
                     this.alloyable.relations.add(polymRelation);
                     // and fact
-                    this.alloyable.addToFacts(polymorphicHandler.buildFactForDummies(relation,
+                    this.alloyable.addToFacts(polymorphicHandler.buildFactForDummies(
+                        relation,
                         polymophicRelations.stream()
                             .filter(rel -> rel.getClass().equals(RelationPolymorphicTypeHolder.class))
-                            .collect(Collectors.toList()).get(0)));
+                            .collect(Collectors.toList()).get(0))
+                    );
                   }
                 }
                 buildPolymRelationCount++;
@@ -400,17 +456,26 @@ public class AlloyableHandler {
            */
           IRelation relation = null;
           if (column.getType().getSQLstring().equals("TINYINT")) {
-            relation = booleanColumnHandler.build(atomSearchByName, tableNode.getFullName(), column.getName());
+            relation =
+                booleanColumnHandler.build(
+                    atomSearchByName,
+                    tableNode.getFullName(),
+                    column.getName()
+                );
           } else {
-            relation = columnHandler.buildRelation(atomSearchByName, tableNode.getFullName(), column.getName());
+            relation =
+                columnHandler.buildRelation(
+                    atomSearchByName,
+                    tableNode.getFullName(),
+                    column.getName()
+                );
           }
           // カラムの制約
           Matcher matcher = isNotNullPattern.matcher(column.getType().toString());
           relation.setIsNotEmpty(matcher.find());
 
-          if (!isOmitted.test(tableNode.getFullName(), column)) {
+          if (!isOmitted.test(tableNode.getFullName(), column))
             this.alloyable.relations.add(relation);
-          }
         }
       }
     }
@@ -420,17 +485,18 @@ public class AlloyableHandler {
      */
     for (String tableName : compositeUniqueConstraints.keySet()) {
       String tableSigName = NamingRuleForAlloyable.tableAtomName(tableName);
-      IAtom ownerAtom = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(tableSigName));
+      IAtom ownerAtom =
+          atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(tableSigName));
       List<String> list = compositeUniqueConstraints.get(tableName);
       List<IRelation> relations = new ArrayList<>();
-      for (String colName : list) {
+      for (String colName : list)
         relations.add(
-          this.alloyable.relations.stream().filter(rel -> rel.getOwner().equals(ownerAtom)
-              && rel.getOriginColumnNames().equals(Arrays.asList(colName))).
-          collect(Collectors.toList()).get(0)
+            this.alloyable.relations.stream().filter(rel -> rel.getOwner().equals(ownerAtom)
+                && rel.getOriginColumnNames().equals(Arrays.asList(colName))).
+                collect(Collectors.toList()).get(0)
         );
-      }
-      Fact multiColumnUniqueFact = relationHandler.buildMultiColumnUniqueFact(ownerAtom, relations);
+      Fact multiColumnUniqueFact =
+          relationHandler.buildMultiColumnUniqueFact(ownerAtom, relations);
       this.alloyable.facts.add(multiColumnUniqueFact);
     }
     /*
@@ -439,34 +505,42 @@ public class AlloyableHandler {
     for (List<Map<String, List<String>>> pair : compositeUniqueConstraintsByFKey ) {
       String ownerTableName = pair.get(0).keySet().toArray()[0].toString();
       String refTableName = pair.get(1).keySet().toArray()[0].toString();
-      IAtom ownerAtom = atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
-      String relName = namingRule.foreignKeyName(namingRule.fkeyFromTableName(refTableName), ownerTableName);
-      IRelation mainRelation = 
-          this.alloyable.relations.stream().filter(rel -> rel.getOwner().equals(ownerAtom) 
-              && rel.getName().equals(relName)).
-          collect(Collectors.toList()).get(0);
+      IAtom ownerAtom =
+          atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName));
+      String relName =
+          namingRule.foreignKeyName(namingRule.fkeyFromTableName(refTableName), ownerTableName);
+      IRelation mainRelation =
+          this.alloyable.relations.stream().
+              filter(rel -> rel.getOwner().equals(ownerAtom)
+                  && rel.getName().equals(relName)).
+              collect(Collectors.toList()).get(0);
       List<IRelation> relations = new ArrayList<>();
-      for (String column : pair.get(0).get(ownerTableName)) {
+      for (String column : pair.get(0).get(ownerTableName))
         relations.add(
-          this.alloyable.relations.stream().filter(rel -> rel.getOwner().equals(ownerAtom) 
-              && rel.getOriginColumnNames().equals(Arrays.asList(column))).
-          collect(Collectors.toList()).get(0)
+            this.alloyable.relations.stream().
+                filter(rel -> rel.getOwner().equals(ownerAtom)
+                    && rel.getOriginColumnNames().equals(Arrays.asList(column))).
+                collect(Collectors.toList()).get(0)
         );
-      }
       List<IRelation> refRelations = new ArrayList<>();
-      for (String column : pair.get(1).get(refTableName)) {
+      for (String column : pair.get(1).get(refTableName))
         refRelations.add(
-          this.alloyable.relations.stream().filter(rel -> rel.getOwner().equals(mainRelation.getRefTo()) 
-              && rel.getOriginColumnNames().equals(Arrays.asList(column))).
-          collect(Collectors.toList()).get(0)
+            this.alloyable.relations.stream().
+                filter(rel -> rel.getOwner().equals(mainRelation.getRefTo())
+                    && rel.getOriginColumnNames().equals(Arrays.asList(column))).
+                collect(Collectors.toList()).get(0)
         );
-      }
-      Fact multiColumnFKeyFact = 
-          relationHandler.buildMultiColumnFKeyFact(mainRelation, relations, refRelations);
+      Fact multiColumnFKeyFact =
+          relationHandler.buildMultiColumnFKeyFact(
+              mainRelation,
+              relations,
+              refRelations
+          );
       this.alloyable.facts.add(multiColumnFKeyFact);
     }
 
-    this.alloyable.missingAtoms = MissingAtomFactory.getInstance().getMissingAtoms();
+    this.alloyable.missingAtoms =
+        MissingAtomFactory.getInstance().getMissingAtoms();
 
     return this.alloyable;
   }
@@ -487,8 +561,10 @@ public class AlloyableHandler {
 
     NamingRuleForAls ruleForAls = new NamingRuleForAls();
 
-    Function<IAtom, List<IRelation>> atomSearchByRelationOwner = atom -> this.alloyable.relations.stream()
-        .filter(rel -> rel.getOwner().getName().equals(atom.getName())).collect(Collectors.toList());
+    Function<IAtom, List<IRelation>> atomSearchByRelationOwner =
+        atom -> this.alloyable.relations.stream().
+            filter(rel -> rel.getOwner().getName().equals(atom.getName())).
+            collect(Collectors.toList());
 
     String indent = "  ";
     try (BufferedWriter writer = IOGateway.getTempFileWriter(tempFile)) {
@@ -505,7 +581,8 @@ public class AlloyableHandler {
         /*
          * sig にする。
          */
-        String sigStr = atom.getClass().equals(PolymorphicAbstract.class) ? "abstract sig " : "sig ";
+        String sigStr =
+            atom.getClass().equals(PolymorphicAbstract.class) ? "abstract sig " : "sig ";
         sigStrBuff.append(sigStr);
         sigStrBuff.append(atom.getName());
         if (atom.getClass().equals(PseudoAtom.class) && ((PseudoAtom) atom).getExtended() != null) {
@@ -522,15 +599,21 @@ public class AlloyableHandler {
         List<IRelation> outputs = new ArrayList<>();
         List<String> fields = new ArrayList<String>();
         for (IRelation relation : relations) {
-          List<IRelation> exists = 
-              outputs.stream().filter(rel -> rel.getRefTo().equals(relation.getRefTo()) && rel.getOwner().equals(relation.getOwner())).
-              collect(Collectors.toList());
-          if (!exists.isEmpty()) {
+          List<IRelation> exists =
+              outputs.stream().
+                  filter(rel -> rel.getRefTo().equals(relation.getRefTo())
+                      && rel.getOwner().equals(relation.getOwner())).
+                  collect(Collectors.toList());
+          if (!exists.isEmpty())
             continue;
-          }
           IAtom refTo = relation.getRefTo();
-          fields.add(relation.getName() + ": " + ruleForAls.searchQuantifierMap(relation, this.alloyable.relations)
-              + " " + (refTo.getClass().equals(MissingAtom.class) ? Property.TYPE_ON_ALS : refTo.getName()));
+          fields.add(
+              relation.getName() +
+                  ": " +
+                  ruleForAls.searchQuantifierMap(relation, this.alloyable.relations) +
+                  " " +
+                  (refTo.getClass().equals(MissingAtom.class) ? Property.TYPE_ON_ALS : refTo.getName())
+          );
           outputs.add(relation);
         }
         sigStrBuff.append(indent);
