@@ -9,12 +9,10 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import com.google.gson.Gson;
+import com.testdatadesigner.tdalloy.core.conversation.PolymorphicRelationResolver;
+import com.testdatadesigner.tdalloy.core.conversation.ResolvePolymorphicCommand;
 import com.testdatadesigner.tdalloy.core.io.IOGateway;
-import com.testdatadesigner.tdalloy.core.types.Alloyable;
-import com.testdatadesigner.tdalloy.core.types.Fact;
-import com.testdatadesigner.tdalloy.core.types.IAtom;
-import com.testdatadesigner.tdalloy.core.types.IRelation;
-import com.testdatadesigner.tdalloy.core.types.RelationPolymorphicTypified;
+import com.testdatadesigner.tdalloy.core.types.*;
 
 import junit.framework.TestCase;
 
@@ -76,6 +74,57 @@ public class ImporterTest extends TestCase {
       Map<String, List<Serializable>> map = IOGateway.getKVSMap();
       List<Serializable> list = map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.ALLOYABLE_ON_BUILD));
       alloyable = (Alloyable) list.get(0);
+    } catch (ImportError e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+
+    try (BufferedReader reader = importer.takeOut(alloyable)) {
+      String line = null;
+      while ((line = reader.readLine()) != null) {
+        System.out.println(line);
+      }
+    } catch (IOException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
+  }
+
+  public void testPolymorphicAlsRewrite() throws IOException {
+    Importer importer = new Importer();
+    Alloyable alloyable = null;
+    try {
+      importer.parse(filePath, Importer.Database.MYSQL);
+      Map<String, List<Serializable>> map = IOGateway.getKVSMap();
+      List<Serializable> list = map.get(IOGateway.STORE_KEYS.get(IOGateway.StoreData.ALLOYABLE_ON_BUILD));
+      alloyable = (Alloyable) list.get(0);
+
+      //
+      List<IAtom> pseudoAtoms = alloyable.getPseudoAtoms();
+      PseudoAtom dummy1 = (PseudoAtom) alloyable.atoms.stream().
+        filter((atom) -> (atom.getName().equals(new String("Dummy1")))).
+        collect(Collectors.toList()).
+        get(0);
+      dummy1.shouldReplaceTo = alloyable.atoms.stream().
+        filter((atom) -> (atom.getName().equals(new String("Album")))).
+        collect(Collectors.toList()).
+        get(0);
+      PseudoAtom dummy2 = (PseudoAtom) alloyable.atoms.stream().
+        filter((atom) -> (atom.getName().equals(new String("Dummy2")))).
+        collect(Collectors.toList()).
+        get(0);
+      dummy2.shouldReplaceTo = alloyable.atoms.stream().
+        filter((atom) -> (atom.getName().equals(new String("Person")))).
+        collect(Collectors.toList()).
+        get(0);
+
+      ResolvePolymorphicCommand resolvePolymorphicCommand = new ResolvePolymorphicCommand();
+      resolvePolymorphicCommand.targetPseudoAtoms.add(dummy1);
+      resolvePolymorphicCommand.targetPseudoAtoms.add(dummy2);
+
+      PolymorphicRelationResolver polymorphicRelationResolver = new PolymorphicRelationResolver();
+      polymorphicRelationResolver.proc(resolvePolymorphicCommand, alloyable);
+
     } catch (ImportError e) {
       // TODO Auto-generated catch block
       e.printStackTrace();

@@ -27,8 +27,14 @@ public class Alloyable implements Serializable {
 
   public void addToFacts(Fact f) {
     List<Fact> dups = facts.stream().filter(fct -> fct.equals(f)).collect(Collectors.toList());
-    if (dups.isEmpty()) {
+    if (dups.isEmpty())
       this.facts.add(f);
-    }
+  }
+
+  public List<IAtom> getPseudoAtoms() {
+    return
+        this.atoms.stream().filter(
+          atom -> atom.getClass().equals(PseudoAtom.class)
+        ).collect(Collectors.toList());
   }
 }

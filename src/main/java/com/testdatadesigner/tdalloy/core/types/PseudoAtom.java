@@ -6,11 +6,15 @@ public class PseudoAtom extends Entity implements Serializable, IAtom, ITable, I
   private static final long serialVersionUID = 1L;
 
   private PolymorphicAbstract extended;
+  public IAtom shouldReplaceTo;
+  public static String MARK_OF_PSEUDO = "Dummy";
 
   public PseudoAtom(Integer seq) {
     super();
-    this.setName("Dummy" + String.valueOf(seq));
-    this.setOriginPropertyName("dummy_" + String.valueOf(seq) + "s");
+    this.setName(MARK_OF_PSEUDO + String.valueOf(seq));
+    this.setOriginPropertyName(
+        MARK_OF_PSEUDO.toLowerCase() + "_" + String.valueOf(seq) + "s"
+    );
   }
 
   public PseudoAtom(String name, PolymorphicAbstract abstructAtom) throws IllegalAccessException {
