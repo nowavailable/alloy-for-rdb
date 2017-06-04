@@ -28,34 +28,58 @@ public class PolymorphicHandler {
   }
 
   public IRelation buildRelationForDummy(Function<String, IAtom> atomSearchByName, String ownerTableName,
-      String fKeyColumnStr, String refTableName) throws IllegalAccessException {
+    String fKeyColumnStr, String refTableName) throws IllegalAccessException {
     // 参照される側
     IRelation relation = new RelationPolymorphicMain();
-    String refTable = refTableName.isEmpty() ? namingRule.tableNameFromFKey(fKeyColumnStr) : refTableName;
-    relation.setName(namingRule.foreignKeyNameReversed(ownerTableName, refTable));
+    String refTable =
+      refTableName.isEmpty() ? namingRule.tableNameFromFKey(fKeyColumnStr) : refTableName;
+    relation.setName(
+      namingRule.foreignKeyNameReversed(ownerTableName, refTable)
+    );
     // relation.name = namingRule.foreignKeyName(fKeyColumnStr, ownerTableName);
-    relation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
-    relation.setRefTo(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStr)));
+    relation.setOwner(
+      atomSearchByName.apply(
+        NamingRuleForAlloyable.tableAtomName(ownerTableName)
+      )
+    );
+    relation.setRefTo(
+      atomSearchByName.apply(
+        NamingRuleForAlloyable.tableAtomNameFromFKey(fKeyColumnStr)
+      )
+    );
     return relation;
   }
 
   public IAtom buildDummyExtend(String polymorphicStr, IAtom dummyAtom, PolymorphicAbstract abstructAtom)
-      throws IllegalAccessException {
-    return new PseudoAtom(NamingRuleForAlloyable.polymorphicImplAtomName(polymorphicStr, dummyAtom.getName()),
-        abstructAtom);
+    throws IllegalAccessException {
+    return new PseudoAtom(
+      NamingRuleForAlloyable.polymorphicImplAtomName(
+        polymorphicStr,
+        dummyAtom.getName()
+      ),
+      abstructAtom
+    );
   }
 
   public List<IRelation> buildRelation(Function<String, IAtom> atomSearchByName,
-      // List<? extends Atom> refToAtoms,
-      String polymorphicStr, String ownerTableName, IAtom polymAbstructAtom) throws IllegalAccessException {
+    // List<? extends Atom> refToAtoms,
+    String polymorphicStr, String ownerTableName, IAtom polymAbstructAtom) throws IllegalAccessException {
     List<IRelation> relList = new ArrayList<>();
     IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
 
     RelationPolymorphicTypeHolder valueRelation = new RelationPolymorphicTypeHolder();
-    valueRelation.originColumnNames = Arrays.asList(polymorphicStr + namingRule.polymorphicSuffix());
-    valueRelation.name = NamingRuleForAlloyable.columnRelationName(polymorphicStr + namingRule.polymorphicSuffix(),
-        ownerTableName);
-    valueRelation.setOwner(atomSearchByName.apply(NamingRuleForAlloyable.tableAtomName(ownerTableName)));
+    valueRelation.originColumnNames =
+      Arrays.asList(polymorphicStr + namingRule.polymorphicSuffix());
+    valueRelation.name =
+      NamingRuleForAlloyable.columnRelationName(
+        polymorphicStr + namingRule.polymorphicSuffix(),
+        ownerTableName
+      );
+    valueRelation.setOwner(
+      atomSearchByName.apply(
+        NamingRuleForAlloyable.tableAtomName(ownerTableName)
+      )
+    );
     valueRelation.setRefTo(polymAbstructAtom);
     relList.add(valueRelation);
     return relList;
@@ -76,9 +100,9 @@ public class PolymorphicHandler {
       if (relation.getClass().equals(RelationPolymorphicTypeHolder.class)) {
         String alias = owner.getOriginPropertyName().substring(0, 1);
         String f = "all " + alias + ":" + owner.getName() + " | " + alias + " = " + "(" + owner.getName() + "<:"
-            + relation.getName() + ").(" + alias + ".(" + owner.getName() + "<:" + relation.getName() + "))";
+          + relation.getName() + ").(" + alias + ".(" + owner.getName() + "<:" + relation.getName() + "))";
         leftStr = "(" + owner.getName() + "." + relation.getName() + " = " + relation.getRefTo().getName() + ") and "
-            + "(" + f + ")";
+          + "(" + f + ")";
       }
     }
     Fact fact = new Fact(Fact.Tipify.RELATION);
@@ -92,7 +116,7 @@ public class PolymorphicHandler {
     IAtom parentRelationOwner = parentRelation.getOwner();
     String leftStr = dummyRelationOwner.getName() + "<:" + dummyRelation.getName();
     String rightStr = parentRelationOwner.getName() + "<:" + parentRelation.getName() + "."
-        + namingRule.tableize(dummyRelationOwner.getName());
+      + namingRule.tableize(dummyRelationOwner.getName());
     Fact fact = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);
     fact.value = leftStr + " = ~(" + rightStr + ")";
     fact.owners.add(dummyRelation);
