@@ -29,7 +29,8 @@ public class NamingRuleForAls {
         .get(0).getIsUnique();
   };
 
-  private static Map<Class, BiFunction<IRelation, List<IRelation>, String>> quantifierMap = new HashMap<Class, BiFunction<IRelation, List<IRelation>, String>>() {
+  private static Map<Class, BiFunction<IRelation, List<IRelation>, String>> 
+    quantifierMap = new HashMap<Class, BiFunction<IRelation, List<IRelation>, String>>() {
     {
       put(TableRelation.class, (rel, allRels) -> {
         return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);
@@ -41,10 +42,10 @@ public class NamingRuleForAls {
         return makeOneRelation.apply(rel);
       });
       put(RelationPolymorphicMain.class, (rel, allRels) -> {
-        return /* DISJ + */ makeMultiRelation.apply(rel);
+        return SOME;
       });
       put(RelationPolymorphicTypified.class, (rel, allRels) -> {
-        return rel.getIsNotEmpty() ? ONE : LONE;
+        return ONE;
       });
       put(RelationProperty.class, (rel, allRels) -> {
         return makeDisjoint.apply(rel) + makeOneRelation.apply(rel);
