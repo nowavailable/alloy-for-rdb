@@ -8,7 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
-public class PolymorphicRelationResolver extends RelationResolver {
+public class PolymorphicRelationResolver {
   public ResolvePolymorphicCommand resolvePolymorphicCommand;
   IRulesForAlloyable namingRule = RulesForAlloyableFactory.getInstance().getRule();
 
