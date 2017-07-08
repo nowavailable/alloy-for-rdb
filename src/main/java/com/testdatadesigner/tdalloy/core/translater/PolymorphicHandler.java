@@ -87,7 +87,7 @@ public class PolymorphicHandler {
 
   public IRelation buildTypifiedRelation(IAtom extendedAtom, IAtom dummyAtom) throws IllegalAccessException {
     IRelation relation = new RelationPolymorphicTypified();
-    relation.setName(namingRule.tableize(dummyAtom.getName()));
+    relation.setName(namingRule.singularize(namingRule.tableize(dummyAtom.getName())));
     relation.setOwner(extendedAtom);
     relation.setRefTo(dummyAtom);
     return relation;
@@ -116,7 +116,7 @@ public class PolymorphicHandler {
     IAtom parentRelationOwner = parentRelation.getOwner();
     String leftStr = dummyRelationOwner.getName() + "<:" + dummyRelation.getName();
     String rightStr = parentRelationOwner.getName() + "<:" + parentRelation.getName() + "."
-      + namingRule.tableize(dummyRelationOwner.getName());
+      + namingRule.singularize(namingRule.tableize(dummyRelationOwner.getName()));
     Fact fact = new Fact(Fact.Tipify.RELATION_POLYMOPHIC_COLUMN);
     fact.value = leftStr + " = ~(" + rightStr + ")";
     fact.owners.add(dummyRelation);

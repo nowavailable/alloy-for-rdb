@@ -67,7 +67,7 @@ public class PolymorphicRelationResolver {
         get(0);
       Matcher factMatcher1 = replacePattern.matcher(needFixFact.value);
       needFixFact.value = factMatcher1.replaceAll(entity.getName());
-      Pattern factPattern = Pattern.compile(namingRule.tableize(dummyEntity.getName()));
+      Pattern factPattern = Pattern.compile(namingRule.singularize(namingRule.tableize(dummyEntity.getName())));
       Matcher factMatcher2 = factPattern.matcher(needFixFact.value);
       needFixFact.value = factMatcher2.replaceAll(namingRule.tableize(entity.getName()));
 
