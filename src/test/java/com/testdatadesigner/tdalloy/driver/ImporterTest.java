@@ -14,6 +14,7 @@ import com.testdatadesigner.tdalloy.core.conversation.ResolvePolymorphicCommand;
 import com.testdatadesigner.tdalloy.core.io.IOGateway;
 import com.testdatadesigner.tdalloy.core.types.*;
 
+import junit.framework.Assert;
 import junit.framework.TestCase;
 
 public class ImporterTest extends TestCase {
@@ -130,11 +131,39 @@ public class ImporterTest extends TestCase {
       e.printStackTrace();
     }
 
+    StringBuilder str = new StringBuilder();
     try (BufferedReader reader = importer.takeOut(alloyable)) {
       String line = null;
       while ((line = reader.readLine()) != null) {
-        System.out.println(line);
+        //System.out.println(line);
+        str.append(line);
+        str.append("\n");
       }
+      String expected = new String("open util/boolean\n" + "sig Boundary { val: one Int }\n" + "\n"
+        + "sig Album {\n" + "  photos: some Photo\n" + "}\n" + "sig Book {\n"
+        + "  person: lone Person,\n" + "  price: lone Boundary\n" + "}\n" + "sig Paper {\n"
+        + "  person: lone Person,\n" + "  price: lone Boundary\n" + "}\n" + "sig Person {\n"
+        + "  books: set Book,\n" + "  papers: set Paper,\n" + "  zines: set Zine,\n"
+        + "  photos: some Photo\n" + "}\n" + "sig Photo {\n"
+        + "  photoableType: lone Photo_PhotoableType\n" + "}\n" + "sig Url {\n"
+        + "  urlableType: lone Url_UrlableType\n" + "}\n" + "sig Bookmark {\n" + "  \n" + "}\n"
+        + "sig Zine {\n" + "  person: lone Person,\n" + "  price: lone Boundary,\n"
+        + "  is_old: lone Bool\n" + "}\n" + "abstract sig Photo_PhotoableType {\n" + "  \n" + "}\n"
+        + "sig PhotoableAlbum extends Photo_PhotoableType {\n" + "  albums: one Album\n" + "}\n"
+        + "sig PhotoablePerson extends Photo_PhotoableType {\n" + "  persons: one Person\n" + "}\n"
+        + "abstract sig Url_UrlableType {\n" + "  \n" + "}\n" + "sig Dummy3 {\n"
+        + "  urls: some Url\n" + "}\n" + "sig Dummy4 {\n" + "  urls: some Url\n" + "}\n"
+        + "sig UrlableDummy3 extends Url_UrlableType {\n" + "  dummy3: one Dummy3\n" + "}\n"
+        + "sig UrlableDummy4 extends Url_UrlableType {\n" + "  dummy4: one Dummy4\n" + "}\n" + "\n"
+        + "fact {\n" + "  Person<:books = ~(Book<:person)\n"
+        + "  Person<:papers = ~(Paper<:person)\n" + "  Person<:zines = ~(Zine<:person)\n"
+        + "  (Photo.photoableType = Photo_PhotoableType) and (all p:Photo | p = (Photo<:photoableType).(p.(Photo<:photoableType)))\n"
+        + "  Album<:photos = ~(Photo<:photoableType.albums)\n"
+        + "  Person<:photos = ~(Photo<:photoableType.persons)\n"
+        + "  (Url.urlableType = Url_UrlableType) and (all u:Url | u = (Url<:urlableType).(u.(Url<:urlableType)))\n"
+        + "  Dummy3<:urls = ~(Url<:urlableType.dummy3)\n"
+        + "  Dummy4<:urls = ~(Url<:urlableType.dummy4)\n" + "}\n" + "\n" + "run {}\n");
+      Assert.assertEquals(str.toString(), expected);
     } catch (IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
