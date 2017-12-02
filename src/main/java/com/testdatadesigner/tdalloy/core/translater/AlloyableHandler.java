@@ -571,7 +571,7 @@ public class AlloyableHandler {
       StringBuffer strBuff = new StringBuffer();
 
       strBuff.append("open util/boolean\n");
-      strBuff.append("sig " + Property.TYPE_ON_ALS + " { val: one Int }\n"); // FIXME: 仮実装
+      strBuff.append("sig " + Property.TYPE_ON_ALS + " { val: disj one Int }\n"); // FIXME: 仮実装
       strBuff.append("\n");
       writer.write(strBuff.toString());
       strBuff.setLength(0);
